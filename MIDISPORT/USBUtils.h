@@ -42,14 +42,21 @@
 
 #include <IOKit/usb/IOUSBLib.h>
 
-// USBDeviceScanner
+// USBDeviceManager
 // Abstract base class to locate USB devices.
-class USBDeviceScanner {
+class USBDeviceManager {
 public:
+	USBDeviceManager(CFRunLoopRef notifyRunLoop = NULL);
+						// the run loop is the one in which add/remove device
+						// notifications are received.  may be null to disable
+						// plug and play.
+	virtual ~USBDeviceManager();
+	
 	void			ScanDevices();
 						// Scans through all of the USB devices in the IORegistry.
 	
-	virtual bool	UseDevice(			IOUSBDeviceInterface **	device,
+protected:
+	virtual bool	MatchDevice(		IOUSBDeviceInterface **	device,
 										UInt16					devVendor,
 										UInt16					devProduct ) = 0;
 						// Called from ScanDevices.  If this returns true, the
@@ -65,7 +72,9 @@ public:
 						// Subsequently, ScanDevices will iterate through the
 						// device's interfaces looking for the one specified.
 
-	virtual bool	FoundInterface(		IOUSBDeviceInterface **		device,
+	virtual bool	FoundInterface(		io_service_t				ioDevice,
+										io_service_t				ioInterface,
+										IOUSBDeviceInterface **		device,
 										IOUSBInterfaceInterface **	interface,
 										UInt16						devVendor,
 										UInt16						devProduct,
@@ -77,6 +86,24 @@ public:
 						// and interface open; otherwise, they are closed.  If
 						// true is returned, it is the subclass's responsibility 
 						// to later close the device and interface.
+
+	virtual void	DeviceRemoved(io_service_t ioDevice) { }
+						// called when a device is terminated, if plug and play is enabled.
+
+	void			DevicesAdded(io_iterator_t it);
+	void			DevicesRemoved(io_iterator_t it);
+
+	static void		DeviceAddCallback(void *refcon, io_iterator_t it);
+	static void		DeviceRemoveCallback(void *refcon, io_iterator_t it);
+		
+	mach_port_t				mMasterDevicePort;
+	IONotificationPortRef	mNotifyPort;
+	CFRunLoopSourceRef		mRunLoopSource;
+	io_iterator_t			mDeviceAddIterator;
+	io_iterator_t			mDeviceRemoveIterator;
+	bool					mIteratorsNeedEmptying;
+	
+	CFRunLoopRef			mRunLoop;
 };
 
 #endif // __USBUtils_h__
