@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.4 2000/11/14 00:18:05 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.5 2000/12/13 05:02:33 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
@@ -66,6 +66,8 @@
 
 #define MIDIPACKETLEN		4		// number of bytes in a dword packet received and sent to the MIDISPORT
 #define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
+
+#define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -349,7 +351,7 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
     
     while (true) {
         if (writeQueue.empty()) {
-#if 0
+#if DEBUG_OUTBUFFER
             printf("dest buffer = ");
             for(int i = 0; i < dest - destBuf; i++)
                 printf("%02X ", destBuf[i]);
