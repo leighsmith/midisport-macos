@@ -1,4 +1,4 @@
-// $Id: EZLoader.cpp,v 1.1 2000/10/22 02:22:32 leigh Exp $
+// $Id: EZLoader.cpp,v 1.1.1.1 2000/10/22 02:22:32 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
