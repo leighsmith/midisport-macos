@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.1 2000/10/28 19:32:50 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.2 2000/11/04 22:45:56 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
@@ -100,12 +100,12 @@ MIDISPORT2x2::MIDISPORT2x2() :
 	USBMIDIDriverBase(kFactoryUUID)
 {
   // We get instantiated by NewMIDISPORT2x2, presumably from a function table
-  printf("MIDISPORTUSBDriver init\n");
+  // printf("MIDISPORTUSBDriver init\n");
 }
 
 MIDISPORT2x2::~MIDISPORT2x2()
 {
-  printf("~MIDISPORTUSBDriver\n");
+  // printf("~MIDISPORTUSBDriver\n");
 }
 
 // __________________________________________________________________________________________________
@@ -203,59 +203,6 @@ void MIDISPORT2x2::StopInterface(InterfaceState *intf)
     // printf("StopInterface\n");
 }
 
-// Determine the length of the MIDI message, including status byte. -1 indicates a sysex
-static int midiMsgLength(Byte status)
-{
-    int msgLength;
-    
-    switch(status & 0xF0) {
-    case 0x80:
-    case 0x90:
-    case 0xA0:
-    case 0xB0:
-    case 0xE0:
-        msgLength = 3;
-        break;
-    case 0xC0:
-    case 0xD0:
-        msgLength = 2;
-        break;
-    case 0xF0:			// system messages, subdivide further
-        printf("system %02X\n", status);
-        switch(status) {
-        case 0xF0:
-            msgLength = -1;
-            break;
-        case 0xF2:		// song pointer (2)
-            msgLength = 3;	// 3-byte system common
-            break;
-        case 0xF1:		// MTC (1)
-        case 0xF3:		// song select (1)
-            msgLength = 2;	// 2-byte system common
-            break;
-        case 0xF6:		// tune request (0)
-        case 0xF7:		// sysex conclude (0)
-        case 0xF8:		// clock
-        case 0xFA:		// start
-        case 0xFB:		// continue
-        case 0xFC:		// stop
-        case 0xFE:		// active sensing
-        case 0xFF:		// system reset
-            msgLength = 1;
-            break;
-        default:
-            // unknown MIDI message! advance until we find a status byte
-            msgLength = 1;
-            break;
-        }
-        break;
-    default:
-        msgLength = 0;   // can't ever happen since all cases are handled above, but this keeps the compiler happy.
-        break;
-    }
-    return msgLength;
-}
-
 // The MIDI bytes are transmitted from the MIDISPORT in little-endian dword (4 byte) "packets",
 // these are termed mspackets to avoid confusion with the MIDIServices concept of packet.
 // The format of mspackets in received memory order is:
@@ -268,13 +215,14 @@ static int midiMsgLength(Byte status)
 // for transmitting less than a full kReadBufSize of data.
 void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, int readBufSize)
 {
-    int prevInputPort = -1;	// signifies none
-    static bool inSysex = false;     // TODO should be for each inputPort
-    static Byte runningStatus[kNumPorts] = {0x90, 0x90}; // we gotta start somewhere...
-    static int remainingBytesInMsg = 0; // TODO should be for each inputPort
-    static Byte completeMessage[4];
+    int prevInputPort = -1;	                         // signifies none
+    static bool inSysex[kNumPorts] = {false, false};     // is it possible to make this mInSysEx?
+    static Byte runningStatus[kNumPorts] = {0x90, 0x90}; // we gotta start somewhere... or make it mRunningStatus
+    static int remainingBytesInMsg[kNumPorts] = {0, 0};  // how many bytes remain to be processed per MIDI message
+    static Byte completeMessage[MIDIPACKETLEN];
     static int numCompleted = 0;
-    int preservedMsgCount = 0;   // to preserve the message length when encountering an embedded real-time msg.
+    int preservedMsgCount = 0;	// to preserve the message length when encountering a real-time msg
+                                // embedded in another channel message.
     Byte *src = readBuf, *srcend = src + readBufSize;
     static Byte pbuf[512];
     MIDIPacketList *pktlist = (MIDIPacketList *)pbuf;
@@ -287,51 +235,59 @@ void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *r
         if (bytesInPacket == 0)	      // Indicates the end of the buffer, early out.
             break;		
 
-        // printf("%c %d: %02X %02X %02X %02X  ", inputPort + 'A', byteCount, src[0], src[1], src[2], src[3]);
+        // printf("%c %d: %02X %02X %02X %02X  ", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
             MIDIReceived(intf->mSources[inputPort], pktlist);
             pkt = MIDIPacketListInit(pktlist);
-            inSysex = false;
+            inSysex[inputPort] = false;
         }
         prevInputPort = inputPort;        
 
         for(int byteIndex = 0; byteIndex < bytesInPacket; byteIndex++) {
             if(src[byteIndex] & 0x80) {   // status was present
-                int bytesInMessage;
+                int dataInMessage;
                 Byte status = src[byteIndex];
                 // running status applies to channel (voice and mode) messages only
                 if (status < 0xF0)
                     runningStatus[inputPort] = status;  // remember it, including the MIDI channel...
 
-                bytesInMessage = midiMsgLength(status);
+                dataInMessage = MIDIDataBytes(status);
                 // if the message is a single real-time message, save the previous remainingBytesInMsg
                 // until we have shipped the real-time packet.
-                if(remainingBytesInMsg > 0 && bytesInMessage == 1) {
-                    preservedMsgCount = remainingBytesInMsg;
+                if(remainingBytesInMsg[inputPort] > 0 && dataInMessage == 0) {
+                    preservedMsgCount = remainingBytesInMsg[inputPort];
                 }
                 else {
                     preservedMsgCount = 0;
                 }
-                
-                remainingBytesInMsg = bytesInMessage - 1;
+                remainingBytesInMsg[inputPort] = dataInMessage;
+
                 // Actually any new status message will cancel the sysex.
-                inSysex = (remainingBytesInMsg < 0);
+                if(status == 0xF0) {
+                    inSysex[inputPort] = true;
+                }
+                if(status == 0xF7) {
+                    if(numCompleted > 0)
+                        pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
+                    inSysex[inputPort] = false;
+                }
 
                 numCompleted = 1;
                 // store ready for packetting.
                 completeMessage[0] = status;
-                // printf("new status %02X, remainingBytesInMsg = %d\n", status, remainingBytesInMsg);
+                // printf("new status %02X, remainingBytesInMsg = %d\n", status, remainingBytesInMsg[inputPort]);
             }
-            else if(remainingBytesInMsg > 0) {   // still within a message
-                remainingBytesInMsg--;
+            else if(remainingBytesInMsg[inputPort] > 0) {   // still within a message
+                remainingBytesInMsg[inputPort]--;
                 // store ready for packetting.
                 completeMessage[numCompleted++] = src[byteIndex];
-                // printf("in message remainingBytesInMsg = %d\n", remainingBytesInMsg);
+                // printf("in message remainingBytesInMsg = %d\n", remainingBytesInMsg[inputPort]);
             }
-            else if(inSysex) {
-                printf("in sysex\n");
+            else if(inSysex[inputPort]) {          // fill the packet with sysex bytes
+                // printf("in sysex numCompleted = %d\n", numCompleted);
+                completeMessage[numCompleted++] = src[byteIndex];
             }
             else {  // assume a running status message, assign status from the retained runnning status.
                 Byte status = runningStatus[inputPort];
@@ -339,32 +295,21 @@ void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *r
                 completeMessage[0] = status;
                 completeMessage[1] = src[byteIndex];
                 numCompleted = 2;
-                remainingBytesInMsg = midiMsgLength(status) - 2;
+                remainingBytesInMsg[inputPort] = MIDIDataBytes(status) - 1;
+                // assert(remainingBytesInMsg[inputPort] > 0); // since System messages are prevented from being running status.
             }
 
-            if(remainingBytesInMsg == 0) { // completed
+            if(remainingBytesInMsg[inputPort] == 0 || numCompleted >= (MIDIPACKETLEN - 1)) { // completed
                 // printf("Shipping a packet: ");
                 // for(int i = 0; i < numCompleted; i++)
                 //    printf("%02X ", completeMessage[i]);
                 pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
+                numCompleted = 0;
                 // printf("shipped\n");
             }
             if(preservedMsgCount != 0) {
-                remainingBytesInMsg = preservedMsgCount;
+                remainingBytesInMsg[inputPort] = preservedMsgCount;
             }
-
-#if 0
-                    nbytes = cin - 4;
-                    if (insysex) {
-                            insysex = false;
-                            // MIDIPacketListAdd will make a separate packet unnecessarily,
-                            // so do our own concatentation onto the current packet
-                            memcpy(&pkt->data[pkt->length], src + 1, nbytes);
-                            pkt->length += nbytes;
-                    } else {
-                            pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, nbytes, src + 1);
-                    }
-#endif
         }
     }
     if (pktlist->numPackets > 0 && prevInputPort != -1) {
@@ -382,9 +327,12 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
 {
     Byte *dest = destBuf, *destend = dest + kWriteBufSize;
     
-    // printf("in PrepareOutput: ");
     while (true) {
         if (writeQueue.empty()) {
+            printf("dest buffer = ");
+            for(int i = 0; i < dest - destBuf; i++)
+                printf("%02X ", destBuf[i]);
+            printf("\n");
             memset(dest, 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
             return kWriteBufSize;	// dest - destBuf;
         }
@@ -396,27 +344,30 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
         Byte *srcend = &pkt->data[pkt->length];
 
         while (src < srcend && dest < destend) {
+            int outPacketLen;
             Byte c = *src++;
             
             switch (c >> 4) {
             case 0x0: case 0x1: case 0x2: case 0x3:
             case 0x4: case 0x5: case 0x6: case 0x7:
-printf("databyte %02X\n", c);
+                // printf("databyte %02X\n", c);
                 // data byte, presumably a sysex continuation
-                dest[0] = c;
-                if ((dest[1] = *src++) == 0xF7) {
-                        dest[3] = cableNibble | 0x02;		// sysex ends with following 2 bytes
-                        dest[2] = 0;
-                } 
-                else		
-                        dest[3] = cableNibble | 0x03;		// sysex ends with following 3 bytes or sysex continues 
-                dest += 4;
+                *dest++ = c;
+                // sysex ends with preceding 2 bytes or sysex continues 
+                outPacketLen = (pkt->length >= 3) ? 2 : pkt->length - 1;	
+                
+                memcpy(dest, src, outPacketLen);
+                memset(dest + outPacketLen, 0, 2 - outPacketLen);
+                dest[2] = cableNibble | (outPacketLen + 1); // mark length and cable
+                dest += 3;
+                src += outPacketLen;
                 break;
             case 0x8:	// note-on
             case 0x9:	// note-off
             case 0xA:	// poly pressure
             case 0xB:	// control change
             case 0xE:	// pitch bend
+                // printf("channel %02X\n", c);
                 *dest++ = c;
                 *dest++ = *src++;
                 *dest++ = *src++;
@@ -424,13 +375,14 @@ printf("databyte %02X\n", c);
                 break;
             case 0xC:	// program change
             case 0xD:	// mono pressure
+                // printf("prch,pres %02X\n", c);
                 *dest++ = c;
                 *dest++ = *src++;
                 *dest++ = 0;
                 *dest++ = cableNibble | 0x02;
                 break;
             case 0xF:	// system message
-printf("system %02X\n", c);
+                // printf("system %02X\n", c);
                 switch (c) {
                 case 0xF0:	// sysex start
                     *dest++ = c;
@@ -465,7 +417,7 @@ printf("system %02X\n", c);
                     *dest++ = cableNibble | 0x03;	// 3-byte system common
                     break;
                 default:
-printf("unknown %02X\n", c);
+                    // printf("unknown %02X\n", c);
                     // unknown MIDI message! advance until we find a status byte
                     while (src < srcend && *src < 0x80)
                         ++src;
