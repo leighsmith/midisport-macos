@@ -23,10 +23,10 @@
 
 #include "USBMIDIDriverBase.h"
 
-class MIDISPORT2x2 : public USBMIDIDriverBase {
+class MIDISPORT : public USBMIDIDriverBase {
 public:
-    MIDISPORT2x2();
-    ~MIDISPORT2x2();
+    MIDISPORT();
+    ~MIDISPORT();
     
     // MIDIDriver overrides
 /*	virtual OSStatus	EnableSource(MIDIEndpointRef src, Boolean enabled);*/
@@ -53,7 +53,10 @@ public:
     virtual void StartInterface(InterfaceState *intf);
     virtual void StopInterface(InterfaceState *intf);
     virtual void HandleInput( InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, ByteCount readBufSize);
-    virtual ByteCount PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, Byte *destBuf);
+    virtual void PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
+                                 Byte *destBuf1, ByteCount *bufCount1,
+                                 Byte *destBuf2, ByteCount *bufCount1);
+
 };
 
 #endif // __MIDISPORTUSBDriver_h__
