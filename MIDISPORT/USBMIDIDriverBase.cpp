@@ -1,10 +1,10 @@
-// $Id: USBMIDIDriverBase.cpp,v 1.7 2001/03/31 01:17:04 leigh Exp $
+// $Id: USBMIDIDriverBase.cpp,v 1.8 2001/05/19 18:44:42 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
 //    This class is a modification of the standard version specific to the MIDIMAN MIDISPORT USB devices.
 //    This is necessary as the data format is not USB-MIDI, specifically, the data is communicated down
-//    two endPoints, 2 and 4, using the upper nibble of the 4 byte packet to indicate which an even or
+//    two endPoints, 2 and 4, using the upper nibble of the 4 byte packet to indicate either an even or
 //    odd numbered port to use. It's slightly hairy, but a diff against the original will reveal there
 //    isn't much that is special.
 //
@@ -366,9 +366,9 @@ void	InterfaceState::DoWrite()
                         mDriver->PrepareOutput(this, mWriteQueue, mWriteBuf1, &msglen1, mWriteBuf2, &msglen2);
 			if (msglen1 > 0) {
 #if DUMP_OUTPUT
-				printf("OUT1: ");
+				printf("OUT1, %ld: ", msglen1);
 				for (ByteCount i = 0; i < msglen1; i += 4) {
-					if (mWriteBuf1[i] == 0)
+					if (mWriteBuf1[i+3] == 0)
 						break;
 					printf("%02X %02X %02X %02X ", mWriteBuf1[i], mWriteBuf1[i+1], mWriteBuf1[i+2], mWriteBuf1[i+3]);
 				}
@@ -379,9 +379,9 @@ void	InterfaceState::DoWrite()
 			}
 			if (msglen2 > 0) {
 #if DUMP_OUTPUT
-				printf("OUT2: ");
+				printf("OUT2, %ld: ", msglen2);
 				for (ByteCount i = 0; i < msglen2; i += 4) {
-					if (mWriteBuf2[i] == 0)
+					if (mWriteBuf2[i+3] == 0)
 						break;
 					printf("%02X %02X %02X %02X ", mWriteBuf2[i], mWriteBuf2[i+1], mWriteBuf2[i+2], mWriteBuf2[i+3]);
 				}
@@ -403,10 +403,12 @@ void	InterfaceState::WriteCallback(void *refcon, IOReturn asyncWriteResult, void
 		// chain another write
 		pthread_mutex_lock(&self->mWriteQueueMutex);
 		self->mWritePending = false;
+                // printf("doing another write\n");
 		self->DoWrite();
 		pthread_mutex_unlock(&self->mWriteQueueMutex);
 	}
 done:
+        // printf("done writing\n");
 	;
 }
 

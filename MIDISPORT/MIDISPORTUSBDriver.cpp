@@ -1,6 +1,6 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.10 2001/03/31 01:20:29 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.11 2001/05/19 18:45:12 leigh Exp $
 //
-// MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
+// MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
 //    So I've made changes :-) This class is specific to the MIDIMAN MIDISPORT USB devices.
 //    The most unique thing about these is they require their firmware downloaded before they can
@@ -43,8 +43,6 @@
 // ########
 
 #define kTheInterfaceToUse	0		// 0 is the interface which we need to access the 5 endpoints.
-//#define kReadBufSize		32
-//#define kWriteBufSize		32
 #define midimanVendorID		0x0763		// midiman
 
 // and these
@@ -422,6 +420,7 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
             int outPacketLen;
             Byte c = *src++;
             
+            // printf("byte %02X\n", c);
             switch (c >> 4) {
             case 0x0: case 0x1: case 0x2: case 0x3:
             case 0x4: case 0x5: case 0x6: case 0x7:
