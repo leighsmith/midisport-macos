@@ -109,7 +109,7 @@ void	USBDeviceScanner::ScanDevices()
 
 			// Found a device match
 			#if VERBOSE
-				printf ("scanning devices, matched vendor %d, product %d\n", (int)devVendor, (int)devProduct);
+				printf ("scanning devices, matched vendor %x, product %x\n", (int)devVendor, (int)devProduct);
 			#endif
 
 			// Make sure it has at least one configuration
