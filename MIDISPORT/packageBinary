@@ -1,0 +1,1 @@
+tar czvf MIDISPORT2x2-V1.0.b.tar.gz -C /System/Library/Extensions/ MIDISPORT2x2.plugin -C ~- README.rtf
