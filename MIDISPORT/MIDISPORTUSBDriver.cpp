@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.12 2001/10/03 22:35:30 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.13 2001/10/19 20:36:00 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
@@ -451,22 +451,26 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
         // printf("cableNibble = 0x%x, portNum = %d\n", cableNibble, wqe->portNum);
         while (src < srcend && dest[cableEndpoint] < destEnd[cableEndpoint]) {
             int outPacketLen;
+            int numToBeSent;
             Byte c = *src++;
             
             // printf("byte %02X\n", c);
             switch (c >> 4) {
             case 0x0: case 0x1: case 0x2: case 0x3:
             case 0x4: case 0x5: case 0x6: case 0x7:
-                // printf("databyte %02X\n", c);
+                // printf("sysex databyte %02X\n", c);
                 // data byte, presumably a sysex continuation
                 *dest[cableEndpoint]++ = c;
-                // sysex ends with preceding 2 bytes or sysex continues 
-                outPacketLen = (pkt->length >= 3) ? 2 : pkt->length - 1;	
+                numToBeSent = srcend - src;
+                // sysex ends with 2 preceding data bytes or sysex continues, such that the 
+                // sysex end message begins the packet as the cmd.
+                outPacketLen = (numToBeSent >= 3) ? 2 : numToBeSent - 1;	
                 
+                // printf("outPacketLen = %d, numToBeSent = %d\n", outPacketLen, numToBeSent);
                 memcpy(dest[cableEndpoint], src, outPacketLen);
                 memset(dest[cableEndpoint] + outPacketLen, 0, 2 - outPacketLen);
                 dest[cableEndpoint][2] = cableNibble | (outPacketLen + 1); // mark length and cable
-                dest[cableEndpoint] += 3;
+                dest[cableEndpoint] += 3;   // we advance by one packet length (4 bytes)
                 src += outPacketLen;
                 break;
             case 0x8:	// note-on
