@@ -1,5 +1,5 @@
 #!/bin/zsh
-# $Id: packageBinary,v 2.0 2001/04/01 01:28:32 leigh Exp $
+# $Id: packageBinary,v 2.1 2001/05/19 18:37:20 leigh Exp $
 #
 # zsh Script to automate the packaging of the MIDISPORT plugin ready for user deployment.
 # Taken from an article on Stepwise:
@@ -67,16 +67,15 @@ readmefile=README.rtf
     case $userClass in
     dev|development)
 	# development keeps symbols and debugging trace code
-	makeScript="pbxbuild DEBUG=YES VERSION=$archiverVersion"
+	makeScript="pbxbuild install -buildstyle Development VERSION=$archiverVersion"
 	;;
     int|internal)
 	# internal keeps debugging trace code, but still strips
-	makeScript="pbxbuild install DEBUG=YES VERSION=$archiverVersion"
+	makeScript="pbxbuild install -buildstyle Development VERSION=$archiverVersion"
 	;;
     ext|external)
 	# external release do the stripping without debugging trace code.
-	makeScript="pbxbuild install DEBUG=NO VERSION=$archiverVersion"
-	# makeScript="/usr/bin/pbxbuild"
+	makeScript="pbxbuild install -buildstyle Deployment VERSION=$archiverVersion"
 	;;
     esac
 
