@@ -1,0 +1,5 @@
+/* Localized versions of Info.plist keys */
+
+CFBundleName = "MIDISPORT2x2Driver";
+CFBundleShortVersionString = "MIDISPORT 2x2 version 1.0";
+CFBundleGetInfoString = "MIDISPORT 2x2 version 1.0, Copyright 2000, tomandandy Music Inc.";
