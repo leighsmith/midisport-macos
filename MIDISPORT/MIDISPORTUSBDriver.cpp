@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.3 2000/11/05 01:09:59 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.4 2000/11/14 00:18:05 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
@@ -125,7 +125,7 @@ MIDISPORT2x2::MIDISPORT2x2() :
 
 MIDISPORT2x2::~MIDISPORT2x2()
 {
-  // printf("~MIDISPORTUSBDriver\n");
+    //printf("~MIDISPORTUSBDriver\n");
 }
 
 // __________________________________________________________________________________________________
@@ -215,12 +215,12 @@ void MIDISPORT2x2::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
 
 void MIDISPORT2x2::StartInterface(InterfaceState *intf)
 {
-    // printf("StartInterface\n");
+    //printf("StartInterface\n");
 }
 
 void MIDISPORT2x2::StopInterface(InterfaceState *intf)
 {
-    // printf("StopInterface\n");
+    //printf("StopInterface\n");
 }
 
 // The MIDI bytes are transmitted from the MIDISPORT in little-endian dword (4 byte) "packets",
@@ -349,10 +349,12 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
     
     while (true) {
         if (writeQueue.empty()) {
-            // printf("dest buffer = ");
-            // for(int i = 0; i < dest - destBuf; i++)
-            // 	printf("%02X ", destBuf[i]);
-            // printf("\n");
+#if 0
+            printf("dest buffer = ");
+            for(int i = 0; i < dest - destBuf; i++)
+                printf("%02X ", destBuf[i]);
+            printf("\n");
+#endif
             memset(dest, 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
             return kWriteBufSize;	// dest - destBuf;
         }
