@@ -42,7 +42,6 @@
 
 #include <new.h>
 #include <stddef.h>
-#include <list.h>
 #include <CoreMIDI/MIDIServices.h>
 
 // variable-length packet
@@ -67,7 +66,5 @@ public:
 
 VLMIDIPacketList *NewMIDIPacketList(const MIDIPacket *copyFrom);
 VLMIDIPacketList *NewMIDIPacketList(const MIDIPacketList *copyFrom);
-
-typedef list<VLMIDIPacketList *>	MIDIPacketListQueue;
 
 #endif // __MIDIPacket_h__

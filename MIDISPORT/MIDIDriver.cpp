@@ -39,9 +39,9 @@
 
 // A CFPlugin MIDIDriver using a C interface to CFPlugin, but calling a C++ class to do the work.
 
-#include <CoreMIDIServer/MIDIDriver.h>
-#include <stdio.h>
+#include "MIDIDriverClass.h"
 
+bool		gIsV2Driver = false;
 
 // Implementation of the IUnknown QueryInterface function.
 static HRESULT MIDIDriverQueryInterface(MIDIDriverRef ref, REFIID iid, LPVOID *ppv) 
@@ -49,8 +49,20 @@ static HRESULT MIDIDriverQueryInterface(MIDIDriverRef ref, REFIID iid, LPVOID *p
 	// Create a CoreFoundation UUIDRef for the requested interface.
 	CFUUIDRef interfaceID = CFUUIDCreateFromUUIDBytes( NULL, iid );
 
+	if (CFEqual(interfaceID, kMIDIDriverInterface2ID)) {
+		// If the MIDIDriverInterface was requested, bump the ref count,
+		// set the ppv parameter equal to the instance, and
+		// return good status.
+		MIDIDriver *self = GetMIDIDriver(ref);
+		self->mInterface->AddRef(self);
+		*ppv = &self->mInterface;
+		CFRelease(interfaceID);
+		gIsV2Driver = true;
+		return S_OK;
+	}
+
 	// Test the requested ID against the valid interfaces.
-	if (CFEqual(interfaceID, kMIDIDriverInterfaceID)) {
+	if (CFEqual(interfaceID, kMIDIDriverInterfaceID) || CFEqual(interfaceID, IUnknownUUID)) {
 		// If the MIDIDriverInterface was requested, bump the ref count,
 		// set the ppv parameter equal to the instance, and
 		// return good status.
@@ -59,19 +71,12 @@ static HRESULT MIDIDriverQueryInterface(MIDIDriverRef ref, REFIID iid, LPVOID *p
 		*ppv = &self->mInterface;
 		CFRelease(interfaceID);
 		return S_OK;
-	} else if (CFEqual(interfaceID, IUnknownUUID)) {
-		// If the IUnknown interface was requested, same as above.
-		MIDIDriver *self = GetMIDIDriver(ref);
-		self->mInterface->AddRef(self);
-		*ppv = &self->mInterface;
-		CFRelease(interfaceID);
-		return S_OK;
-	} else {
-		// Requested interface unknown, bail with error.
-		*ppv = NULL;
-		CFRelease(interfaceID);
-		return E_NOINTERFACE;
 	}
+	
+	// Requested interface unknown, bail with error.
+	*ppv = NULL;
+	CFRelease(interfaceID);
+	return E_NOINTERFACE;
 }
 // return value ppv is a pointer to a pointer to the interface
 
@@ -131,6 +136,16 @@ OSStatus	MIDIDriverEnableSource(MIDIDriverRef self, MIDIEndpointRef src, Boolean
 	return GetMIDIDriver(self)->EnableSource(src, enabled);
 }
 
+OSStatus	MIDIDriverFlush(MIDIDriverRef self, MIDIEndpointRef dest, void *destRefCon1, void *destRefCon2)
+{
+	return GetMIDIDriver(self)->Flush(dest, destRefCon1, destRefCon2);
+}
+
+OSStatus	MIDIDriverMonitor(MIDIDriverRef self, MIDIEndpointRef dest, const MIDIPacketList *pktlist)
+{
+	return GetMIDIDriver(self)->Monitor(dest, pktlist);
+}
+
 // The MIDIDriverInterface function table.
 static MIDIDriverInterface MIDIDriverInterfaceFtbl = {
 	NULL, // Required padding for COM
@@ -144,7 +159,9 @@ static MIDIDriverInterface MIDIDriverInterfaceFtbl = {
 	MIDIDriverStop,
 	MIDIDriverConfigure,
 	MIDIDriverSend,
-	MIDIDriverEnableSource
+	MIDIDriverEnableSource,
+	MIDIDriverFlush,
+	MIDIDriverMonitor
 };
 
 MIDIDriver::MIDIDriver(CFUUIDRef factoryID)
