@@ -44,8 +44,10 @@
 
 #if DEBUG
 	#include <stdio.h>
-	#define VERBOSE 1
+	#define VERBOSE 0
 #endif
+
+#define LOSE_FIRST_MESSAGE_BUG 0
 
 // _____________________________________________________________________________
 USBDeviceManager::USBDeviceManager(CFRunLoopRef notifyRunLoop) :
@@ -65,6 +67,9 @@ USBDeviceManager::USBDeviceManager(CFRunLoopRef notifyRunLoop) :
 	require_noerr(IOMasterPort(bootstrap_port, &mMasterDevicePort), errexit);
 	
 	if (mRunLoop) {
+            #if VERBOSE
+                printf("mRunLoop true\n");
+            #endif
 		mNotifyPort = IONotificationPortCreate(mMasterDevicePort);
 		require(mNotifyPort != NULL, errexit);
 		mRunLoopSource = IONotificationPortGetRunLoopSource(mNotifyPort);
@@ -266,12 +271,28 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 				require_noerr((*interfaceIntf)->GetInterfaceNumber(interfaceIntf, &intfNumber), nextInterface);
 				if (desiredInterface == intfNumber) {	// here's the one we want
 					#if VERBOSE
-						printf("found desired interface\n");
+						printf("found desired interface %d\n", intfNumber);
 					#endif
 					require_noerr((*interfaceIntf)->USBInterfaceOpen(interfaceIntf), nextInterface);
 					keepOpen = FoundInterface(ioDeviceObj, ioInterfaceObj, deviceIntf, interfaceIntf, devVendor, devProduct, desiredInterface, desiredAltSetting);
+                                        #if VERBOSE
+                                            printf("keeping it open = %d\n", keepOpen);
+                                        #endif
 					if (!keepOpen)
 						verify_noerr((*interfaceIntf)->USBInterfaceClose(interfaceIntf));
+// LMS
+#if LOSE_FIRST_MESSAGE_BUG
+                                        else {
+                                            IOBuffer blankBuffer;
+                                            int i;
+                                            
+                                            blankBuffer.Allocate(64);
+                                            printf("sending a blank buffer\n");
+                                            for(i = 0; i < 64; i++)
+                                                ((Byte *) blankBuffer)[i] = 0;
+                                            (*interfaceIntf)->WritePipeAsync(interfaceIntf, 3, blankBuffer, 64, NULL, this);
+                                        }
+#endif
 					break; // would never match more than one interface per device
 				}
 nextInterface:	IOObjectRelease(ioInterfaceObj);
@@ -285,12 +306,6 @@ closeDevice:
 			if (deviceOpen && !keepOpen)
 				verify_noerr((*deviceIntf)->USBDeviceClose(deviceIntf));
 		} // end if vendor/product match
-                else {
-                    #if VERBOSE
-                        printf("couldnt match Device 0x%x, vendor 0x%x product 0x%x\n", deviceIntf, devVendor, devProduct);
-                    #endif
-                }
-
 nextDevice:
 		if (deviceIntf != NULL && !keepOpen)
 			(*deviceIntf)->Release(deviceIntf);
