@@ -7,13 +7,15 @@
 	objects = {
 		00FF11B1FFBA02DACFED3B96 = {
 			isa = PBXExecutableFileReference;
-			path = PlayNotes;
-			refType = 3;
+			name = PlayNotes;
+			path = /Volumes/manray/Local/Users/leigh/Applications/PlayNotes;
+			refType = 0;
 		};
 		00FF11B2FFBA02DACFED3B96 = {
 			isa = PBXExecutableFileReference;
-			path = Echo;
-			refType = 3;
+			name = MidiThruTest;
+			path = /Volumes/manray/Local/Users/leigh/Applications/MidiThruTest;
+			refType = 0;
 		};
 		00FF11B3FFBA02DACFED3B96 = {
 			buildPhases = (
@@ -87,7 +89,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Echo;
+				PRODUCT_NAME = MidiThruTest;
 				REZ_EXECUTABLE = YES;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
@@ -97,7 +99,7 @@
 			dependencies = (
 			);
 			isa = PBXToolTarget;
-			name = Echo;
+			name = MidiThruTest;
 			productInstallPath = /usr/local/bin;
 			productName = Echo;
 			productReference = 00FF11B2FFBA02DACFED3B96;
@@ -213,8 +215,8 @@
 		};
 		08FB7794FE84155DC02AAC07 = {
 			children = (
+				275A78C200CC5F7ECFED3B96,
 				08FB7795FE84155DC02AAC07,
-				1AB674ADFE9D54B511CA2CBB,
 				01808E37FFBB5EC8CFED3B96,
 			);
 			isa = PBXGroup;
@@ -235,10 +237,8 @@
 			path = PlayNotes.cpp;
 			refType = 4;
 		};
-		1AB674ADFE9D54B511CA2CBB = {
+		275A78C200CC5F7ECFED3B96 = {
 			children = (
-				00FF11B1FFBA02DACFED3B96,
-				00FF11B2FFBA02DACFED3B96,
 			);
 			isa = PBXGroup;
 			name = Products;
