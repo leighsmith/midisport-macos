@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.13 2001/10/19 20:36:00 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.14 2001/10/26 20:20:49 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
@@ -81,8 +81,8 @@
 #define MIDIPACKETLEN		4		// number of bytes in a dword packet received and sent to the MIDISPORT
 #define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
-#define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
-#define VERBOSE (DEBUG && 0)
+#define DEBUG_OUTBUFFER		1		// 1 to printout whenever a msg is to be sent.
+#define VERBOSE (DEBUG && 1)
 
 extern INTEL_HEX_RECORD firmware1x1[];
 extern INTEL_HEX_RECORD firmware2x2[];
@@ -100,7 +100,7 @@ struct HardwareConfigurationDescription {
     { MIDISPORT1x1, 0x1010, 1, 32, 32, "1x1", firmware1x1 },
     { MIDISPORT2x2, 0x1001, 2, 32, 32, "2x2", firmware2x2 },
     { MIDISPORT4x4, 0x1020, 4, 64, 64, "4x4", firmware4x4 },
-    // Strictly speacking, the endPoint 2 can sustain 40 bytes output on the 8x8. 
+    // Strictly speaking, the endPoint 2 can sustain 40 bytes output on the 8x8. 
     // There are 9 ports including the SMPTE control.
     { MIDISPORT8x8, 0x1030, 9, 64, 32, "8x8", NULL }  
 };
@@ -168,7 +168,9 @@ MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
 
 MIDISPORT::~MIDISPORT()
 {
-    //printf("~MIDISPORTUSBDriver\n");
+#if VERBOSE
+    printf("~MIDISPORTUSBDriver\n");
+#endif
 }
 
 // __________________________________________________________________________________________________
@@ -200,6 +202,9 @@ void MIDISPORT::GetInterfaceToUse(IOUSBDeviceInterface **device,
                                      UInt8 &outInterfaceNumber,
                                      UInt8 &outAltSetting)
 {
+#if VERBOSE
+    printf("MIDISPORT::GetInterfaceToUse outInterfaceNumber = %d\n", outInterfaceNumber);
+#endif
     outInterfaceNumber = kTheInterfaceToUse;
     outAltSetting = 0;
 }
@@ -217,7 +222,10 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
     MIDIEntityRef ent;
     unsigned int i;
 
-#if 1 // is this necessary, probably worthwhile for robustness of error messages.
+#if VERBOSE
+    printf("MIDISPORT::CreateDevice\n");
+#endif
+#if 1 // Is this necessary? Probably worthwhile for robustness of error messages.
     for(i = 0; i < PRODUCT_TOTAL; i++) {
         if(productTable[i].warmFirmwareProductID == devProduct) {
             connectedMIDISPORTIndex = i;
@@ -266,12 +274,17 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
 // note that we're using bulk endpoint for output; interrupt for input...
 void MIDISPORT::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
 {
+#if VERBOSE
+    printf("MIDISPORT::GetInterfaceInfo\n");
+#endif
     info.inEndpointType = kUSBInterrupt;    // this differs from the SampleUSB and is correct.
     info.outEndpointType = kUSBBulk;
     if(connectedMIDISPORTIndex != -1) {
         info.readBufferSize  = productTable[connectedMIDISPORTIndex].readBufSize;
         info.writeBufferSize = productTable[connectedMIDISPORTIndex].writeBufSize;
-        // printf("setting readBufferSize = %ld, writeBufferSize = %ld\n", info.readBufferSize, info.writeBufferSize);
+#if VERBOSE
+        printf("setting readBufferSize = %ld, writeBufferSize = %ld\n", info.readBufferSize, info.writeBufferSize);
+#endif
     }
     else
         printf("Assertion failed: connectedMIDISPORTIndex == -1\n");
@@ -279,12 +292,16 @@ void MIDISPORT::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
 
 void MIDISPORT::StartInterface(InterfaceState *intf)
 {
-    //printf("StartInterface\n");
+#if VERBOSE
+    printf("StartInterface\n");
+#endif
 }
 
 void MIDISPORT::StopInterface(InterfaceState *intf)
 {
-    //printf("StopInterface\n");
+#if VERBOSE
+    printf("StopInterface\n");
+#endif
 }
 
 // The MIDI bytes are transmitted from the MIDISPORT in little-endian dword (4 byte) "packets",
@@ -427,16 +444,27 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
    
     while (true) {
         if (writeQueue.empty()) {
+            int buf1Length = dest[0] - destBuf1;
+            int buf2Length = dest[1] - destBuf2;
 #if DEBUG_OUTBUFFER
             printf("dest buffer = ");
             for(int i = 0; i < dest[0] - destBuf1; i++)
                 printf("%02X ", destBuf1[i]);
             printf("\n");
 #endif
-            memset(dest[0], 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
-            memset(dest[1], 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
-            *bufCount1 = dest[0] - destBuf1;
-            *bufCount2 = dest[1] - destBuf2;
+
+            if(buf1Length > 0) {
+                memset(dest[0], 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
+                *bufCount1 = buf1Length + MIDIPACKETLEN; // + MIDIPACKETLEN for null packet.
+            }
+            else
+                *bufCount1 = 0;
+            if(buf2Length > 0) {
+                memset(dest[1], 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
+                *bufCount2 = buf2Length + MIDIPACKETLEN; // + MIDIPACKETLEN for null packet.
+            }
+            else
+                *bufCount2 = 0;
             return;
         }
                 
@@ -470,7 +498,7 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
                 memcpy(dest[cableEndpoint], src, outPacketLen);
                 memset(dest[cableEndpoint] + outPacketLen, 0, 2 - outPacketLen);
                 dest[cableEndpoint][2] = cableNibble | (outPacketLen + 1); // mark length and cable
-                dest[cableEndpoint] += 3;   // we advance by one packet length (4 bytes)
+                dest[cableEndpoint] += (MIDIPACKETLEN - 1);   // we advance by one packet length (4 bytes)
                 src += outPacketLen;
                 break;
             case 0x8:	// note-on
