@@ -96,6 +96,17 @@
 			settings = {
 			};
 		};
+		028D229E016913B4CFED3B96 = {
+			isa = PBXFileReference;
+			path = MIDIDriverClass.h;
+			refType = 4;
+		};
+		028D229F016913B4CFED3B96 = {
+			fileRef = 028D229E016913B4CFED3B96;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		046A093EFFB4CC2ECFED3B96 = {
 			isa = PBXFileReference;
 			path = EZLoader.cpp;
@@ -159,6 +170,7 @@
 				00C5C690FEC354650A090812,
 				00D0113FFEDB397F0A090812,
 				00D01140FEDB397F0A090812,
+				028D229E016913B4CFED3B96,
 			);
 			isa = PBXGroup;
 			name = AppleCode;
@@ -209,7 +221,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
 				HEADER_SEARCH_PATHS = .;
-				INSTALL_PATH = /System/Library/Extensions;
+				INSTALL_PATH = "/Library/Audio/MIDI Drivers";
 				LIBRARY_SEARCH_PATHS = "";
 				OPTIMIZATION_CFLAGS = "";
 				OTHER_CFLAGS = "-DDEBUG";
@@ -226,7 +238,7 @@
 			);
 			isa = PBXBundleTarget;
 			name = MIDISPORT;
-			productInstallPath = /System/Library/Extensions;
+			productInstallPath = "/Library/Audio/MIDI Drivers";
 			productName = MIDISPORT2x2;
 			productReference = 0AB3E782004B3117CFED3B96;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -242,7 +254,7 @@
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
-	<string></string>
+	<string>com.midiman.midi.driver.midisport</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -250,11 +262,11 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>MIDISPORT V2.0.0</string>
+	<string>MIDISPORT V2.1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>2.0.0</string>
+	<string>2.1.0</string>
 	<key>CFPlugInDynamicRegisterFunction</key>
 	<string></string>
 	<key>CFPlugInDynamicRegistration</key>
@@ -286,6 +298,7 @@
 				0AB3E785004B3117CFED3B96,
 				0AB3E786004B3117CFED3B96,
 				0AB3E787004B3117CFED3B96,
+				028D229F016913B4CFED3B96,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
