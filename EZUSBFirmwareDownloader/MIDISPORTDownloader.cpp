@@ -1,4 +1,4 @@
-// $Id: MIDISPORTDownloader.cpp,v 1.1 2000/10/22 02:22:32 leigh Exp $
+// $Id: MIDISPORTDownloader.cpp,v 1.2 2000/12/13 05:09:56 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -24,13 +24,14 @@ int main (int argc, const char * argv[])
 {
     IOUSBDeviceRef ezusbDev;
     extern INTEL_HEX_RECORD firmware[];
+    EZUSBLoader ezusb;
     
     cout << "Downloading MIDISPORT Firmware\n";
     
-    ezusbDev = Ezusb_FindDevice(midimanVendorID, coldBootProductID);
+    ezusbDev = ezusb.FindDevice(midimanVendorID, coldBootProductID);
     if (ezusbDev != NULL) {
-        Ezusb_setFirmware(firmware);
-        Ezusb_StartDevice(ezusbDev);
+        ezusb.setFirmware(firmware);
+        ezusb.StartDevice(ezusbDev);
     }
     else {
         cout << "No EZUSB (i.e MIDISPORT) device found\n";
