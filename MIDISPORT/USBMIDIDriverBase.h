@@ -127,9 +127,10 @@ public:
 							// a USB message arrived, parse it into a MIDIPacketList and
 							// call MIDIReceived
 
-	virtual ByteCount	PrepareOutput(		InterfaceState *intf,
-											WriteQueue &writeQueue,
-											Byte *destBuf ) = 0;
+	virtual void	PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, 
+                            Byte *destBuf1, ByteCount *bufCount1,
+                            Byte *destBuf2, ByteCount *bufCount2) = 0;
+            
 							// dequeue from WriteQueue into a single USB message, return
 							// length of the message.  Called with the queue mutex locked.
 
@@ -175,30 +176,31 @@ public:
 	}
 	
 	// leave data members public, for benefit of driver methods
-	USBMIDIDriverBase *			mDriver;
-	IOUSBDeviceInterface **		mDevice; 
-	IOUSBInterfaceInterface	**	mInterface;
-	UInt8						mInPipe, mOutPipe;
-	bool						mHaveInPipe, mHaveOutPipe;
-	InterfaceInfo				mInterfaceInfo;
-	int							mNumEntities;
-	MIDIEndpointRef *			mSources;
-	Byte *						mReadBuf;
-	Byte *						mWriteBuf;
-	
-	WriteQueue					mWriteQueue;
-	pthread_mutex_t				mWriteQueueMutex;
+	USBMIDIDriverBase *	    mDriver;
+	IOUSBDeviceInterface **	    mDevice; 
+	IOUSBInterfaceInterface	**  mInterface;
+	UInt8			    mInPipe, mOutPipe1, mOutPipe2;
+	bool			    mHaveInPipe, mHaveOutPipe1, mHaveOutPipe2;
+	InterfaceInfo		    mInterfaceInfo;
+	int			    mNumEntities;
+	MIDIEndpointRef *	    mSources;
+	Byte *			    mReadBuf;
+	Byte *			    mWriteBuf1;
+	Byte *			    mWriteBuf2;
 
-	bool						mWritePending;
-	bool						mStopRequested;
+	WriteQueue		    mWriteQueue;
+	pthread_mutex_t		    mWriteQueueMutex;
+
+	bool			    mWritePending;
+	bool			    mStopRequested;
 
 	// input parse state
-	Byte						mReadCable;
-	Byte						mRunningStatus;
-	bool						mInSysEx;
+	Byte			    mReadCable;
+	Byte			    mRunningStatus;
+	bool			    mInSysEx;
 	
 	// output state
-	Byte						mWriteCable;
+	Byte			    mWriteCable;
 };
 
 

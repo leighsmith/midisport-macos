@@ -43,9 +43,9 @@
 #include <sched.h>
 #include <Carbon/Carbon.h>
 
-#define VERBOSE (DEBUG && 1)
+#define VERBOSE (DEBUG && 0)
 //#define DUMP_INPUT 1
-#define DUMP_OUTPUT 1
+//#define DUMP_OUTPUT 1
 
 // __________________________________________________________________________________________________
 //#define ANALYZE_THRU_TIMING 1
@@ -138,13 +138,15 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *driver,
 	mDevice = usbDevice;
 	mInterface = usbInterface;
 	mHaveInPipe = false;
-	mHaveOutPipe = false;
- 
+	mHaveOutPipe1 = false;
+ 	mHaveOutPipe2 = false;
+
 	pthread_mutex_init(&mWriteQueueMutex, NULL);
 
 	GetInterfaceInfo(mInterfaceInfo); 	// Get endpoint types and buffer sizes
 	mReadBuf = new Byte[mInterfaceInfo.readBufferSize];
-	mWriteBuf = new Byte[mInterfaceInfo.writeBufferSize];
+	mWriteBuf1 = new Byte[mInterfaceInfo.writeBufferSize];
+	mWriteBuf2 = new Byte[mInterfaceInfo.writeBufferSize];
 
 	numEndpoints = 0;
 	require_noerr((*mInterface)->GetNumEndpoints(mInterface, &numEndpoints), errexit);
@@ -157,21 +159,25 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *driver,
 		#if VERBOSE 
 			printf("pipe index %d: dir=%d, num=%d, tt=%d, maxPacketSize=%d, interval=%d\n", pipeIndex,  direction, pipeNum, transferType, maxPacketSize, interval);
 		#endif
-                // TODO this is problematic, since we need to be explict about which endPoints to use and then change the output endpoint for each channel. Need to check the other devices behaviour/spec first.
-		if (direction == kUSBOut && !mHaveOutPipe) {
-			mOutPipe = pipeIndex;
-			mHaveOutPipe = true;
-		} else if (direction == kUSBIn && !mHaveInPipe) {
-			mInPipe = pipeIndex;
+                // The MIDIMan MIDISPORT devices output different ports via different endPoints.
+                // This is quite a logical approach but unfortunately differs from the USB-MIDI spec.
+		if (direction == kUSBOut && pipeNum == 2) { // MIDIMan machines are fixed to their endPoints
+			mOutPipe1 = pipeIndex; 
+			mHaveOutPipe1 = true;
+		} else if (direction == kUSBOut && pipeNum == 4) { // MIDIMan machines are fixed to their endPoints
+			mOutPipe2 = pipeIndex; 
+			mHaveOutPipe2 = true;
+		} else if (direction == kUSBIn && pipeNum == 1) { // MIDIMan machines are fixed to their endPoints
+			mInPipe = pipeIndex;  
 			mHaveInPipe = true;
 		}
 nextPipe: ;
 	}
 	// don't go any further if we don't have a valid pipe
-	require(mHaveOutPipe || mHaveInPipe, errexit);
+	require(mHaveOutPipe1 || mHaveOutPipe2 || mHaveInPipe, errexit);
 
 	#if VERBOSE
-		printf("starting MIDI, mOutPipe=0x%lX, mInPipe=0x%lX\n", (long)mOutPipe, (long)mInPipe);
+		printf("starting MIDI, mOutPipe1=0x%lX, mOutPipe2=0x%lX, mInPipe=0x%lX\n", (long)mOutPipe1, (long)mOutPipe2, (long)mInPipe);
 	#endif
 	
 	// now set up all the sources and destinations
@@ -232,11 +238,15 @@ InterfaceState::~InterfaceState()
 			CFRunLoopRemoveSource(ioRunLoop, source, kCFRunLoopDefaultMode);
 	}
 
-	if (mHaveOutPipe || mHaveInPipe)
+	if (mHaveOutPipe1 || mHaveOutPipe2 || mHaveInPipe)
 		mDriver->StopInterface(this);
 
-	if (mHaveOutPipe)
-		verify_noerr((*mInterface)->AbortPipe(mInterface, mOutPipe));
+	if (mHaveOutPipe1) {
+		verify_noerr((*mInterface)->AbortPipe(mInterface, mOutPipe1));
+        }
+	if (mHaveOutPipe2) {
+		verify_noerr((*mInterface)->AbortPipe(mInterface, mOutPipe2));
+        }
 
 	if (mHaveInPipe)
 		verify_noerr((*mInterface)->AbortPipe(mInterface, mInPipe)); 
@@ -255,8 +265,9 @@ InterfaceState::~InterfaceState()
 	pthread_mutex_destroy(&mWriteQueueMutex);
 	delete[] mSources;
 	delete[] mReadBuf;
-	delete[] mWriteBuf;
-	
+	delete[] mWriteBuf1;
+        delete[] mWriteBuf2;
+
 #if VERBOSE
 	printf("driver stopped MIDI\n");
 #endif
@@ -325,22 +336,36 @@ done:
 // must only be called with mWriteQueueMutex acquired and mWritePending false
 void	InterfaceState::DoWrite()
 {
-	if (mHaveOutPipe) {
+	if (mHaveOutPipe1 || mHaveOutPipe2) {
 		if (!mWriteQueue.empty()) {
-			ByteCount msglen = mDriver->PrepareOutput(this, mWriteQueue, mWriteBuf);
-			if (msglen > 0) {
+			ByteCount msglen1 = 0, msglen2 = 0;
+                        mDriver->PrepareOutput(this, mWriteQueue, mWriteBuf1, &msglen1, mWriteBuf2, &msglen2);
+			if (msglen1 > 0) {
 #if DUMP_OUTPUT
-				printf("OUT: ");
-				for (ByteCount i = 0; i < msglen; i += 4) {
-					if (mWriteBuf[i] == 0)
+				printf("OUT1: ");
+				for (ByteCount i = 0; i < msglen1; i += 4) {
+					if (mWriteBuf1[i] == 0)
 						break;
-					printf("%02X %02X %02X %02X ", mWriteBuf[i], mWriteBuf[i+1], mWriteBuf[i+2], mWriteBuf[i+3]);
+					printf("%02X %02X %02X %02X ", mWriteBuf1[i], mWriteBuf1[i+1], mWriteBuf1[i+2], mWriteBuf1[i+3]);
 				}
 				printf("\n");
 #endif
 				mWritePending = true;
-				verify_noerr((*mInterface)->WritePipeAsync(mInterface, mOutPipe, mWriteBuf, msglen, WriteCallback, this));
+				verify_noerr((*mInterface)->WritePipeAsync(mInterface, mOutPipe1, mWriteBuf1, msglen1, WriteCallback, this));
 			}
+			if (msglen2 > 0) {
+#if DUMP_OUTPUT
+				printf("OUT2: ");
+				for (ByteCount i = 0; i < msglen2; i += 4) {
+					if (mWriteBuf2[i] == 0)
+						break;
+					printf("%02X %02X %02X %02X ", mWriteBuf2[i], mWriteBuf2[i+1], mWriteBuf2[i+2], mWriteBuf2[i+3]);
+				}
+				printf("\n");
+#endif
+                                mWritePending = true;
+                                verify_noerr((*mInterface)->WritePipeAsync(mInterface, mOutPipe2, mWriteBuf2, msglen2, WriteCallback, this));
+                        }
 		}
 	}
 }
