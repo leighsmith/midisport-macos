@@ -1,4 +1,4 @@
-// $Id: USBMIDIDriverBase.cpp,v 1.10 2001/10/26 20:18:40 leigh Exp $
+// $Id: USBMIDIDriverBase.cpp,v 1.11 2001/10/29 23:28:02 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
@@ -61,13 +61,11 @@
 
 #if DEBUG
 	#include <stdio.h>
-	#define VERBOSE 1
+	//#define VERBOSE 1
 	//#define DUMP_INPUT 1			// only works in USBMIDIHandleInput
-	#define DUMP_OUTPUT 1
+	//#define DUMP_OUTPUT 1
 	//#define ANALYZE_THRU_TIMING 1
 #endif
-
-extern bool		gIsV2Driver;
 
 // __________________________________________________________________________________________________
 #if ANALYZE_THRU_TIMING
@@ -275,13 +273,18 @@ nextPipe: ;
 	mNumEntities = MIDIDeviceGetNumberOfEntities(midiDevice);
 	mSources = new MIDIEndpointRef[mNumEntities];
 
-	for (int ient = 0; ient < mNumEntities; ++ient) {
+	for (ItemCount ient = 0; ient < (ItemCount)mNumEntities; ++ient) {
 		MIDIEntityRef ent = MIDIDeviceGetEntity(midiDevice, ient);
 
 		// destination refCons: output pipe, cable number (0-based)
+		if (ient < MIDIEntityGetNumberOfDestinations(ent)) {
 		MIDIEndpointRef dest = MIDIEntityGetDestination(ent, 0);
 		MIDIEndpointSetRefCons(dest, this, (void *)ient);
+		}
+		if (ient < MIDIEntityGetNumberOfSources(ent))
 		mSources[ient] = MIDIEntityGetSource(ent, 0);
+		else
+			mSources[ient] = NULL;
 	}
 	mWriteCable = 0xFF;
 	mReadCable = 0;
@@ -426,6 +429,8 @@ void	InterfaceState::DoWrite()
                         mDriver->PrepareOutput(this, mWriteQueue, mWriteBuf1, &msglen1, mWriteBuf2, &msglen2);
 			if (msglen1 > 0) {
 #if DUMP_OUTPUT
+                                IOReturn pipeStatus;
+                                
 				printf("OUT1, %ld: ", msglen1);
 				for (ByteCount i = 0; i < msglen1; i += 4) {
 					//if (mWriteBuf1[i+3] == 0)
@@ -433,6 +438,8 @@ void	InterfaceState::DoWrite()
 					printf("%02X %02X %02X %02X ", mWriteBuf1[i], mWriteBuf1[i+1], mWriteBuf1[i+2], mWriteBuf1[i+3]);
 				}
 				printf("\n");
+                                pipeStatus = (*mInterface)->GetPipeStatus(mInterface, mOutPipe1);
+                                printf("mInterface = 0x%x, pipeStatus = 0x%x\n", (unsigned int) mInterface, pipeStatus);
 #endif
 				mWritePending = true;
 				verify_noerr((*mInterface)->WritePipeAsync(mInterface, mOutPipe1, mWriteBuf1, msglen1, WriteCallback, this));
@@ -505,6 +512,9 @@ public:
 										UInt8						interfaceNumber,
 										UInt8						altSetting )
 	{
+                #if VERBOSE
+                    printf("InterfaceLocator::FoundInterface\n");
+                #endif
 		MIDIDeviceRef dev = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
 		if (dev != NULL)
 			MIDIDeviceListAddDevice(mFoundDeviceList, dev);
@@ -528,23 +538,19 @@ public:
 	{
 		int nDevs = MIDIDeviceListGetNumberOfDevices(mInitialDeviceList);
 
-                #if VERBOSE
-                    printf("InterfaceRunner() nDevs = %d\n", nDevs);
-                #endif
-
-		if (gIsV2Driver) {
-                        #if VERBOSE
-                            printf("InterfaceRunner() marking offline\n");
-                        #endif
+#if V2_MIDI_DRIVER_SUPPORT
+		if (driver->mVersion >= 2) {
 			// mark everything previously present as offline
 			for (int i = 0; i < nDevs; ++i) {
 				MIDIDeviceRef midiDevice = MIDIDeviceListGetDevice(mInitialDeviceList, i);
 				MIDIObjectSetIntegerProperty(midiDevice, kMIDIPropertyOffline, true);
 			}
 		}
+#endif
 
-		if (gIsV2Driver || nDevs > 0)
-			// don't bother doing any work if there are no devices
+		if (driver->mVersion >= 2 || nDevs > 0)
+			// v1: don't bother doing any work if there are no devices in previous scan
+			// v2: always scan, to pick up new devices
 			ScanDevices();
 	}
 	
@@ -583,26 +589,11 @@ public:
 		MIDIDeviceRef midiDevice = NULL;
 
 		#if VERBOSE
-			printf("InterfaceRunner::FoundInterface, ioDevice 0x%X\n", (int)ioDevice);
+			printf("InterfaceRunner::FoundInterface, ioDevice 0x%X, driver version %d\n", (int)ioDevice, mDriver->mVersion);
 		#endif
 
-		if (!gIsV2Driver) {
-			// We're trying to make matches between the devices that were found during 
-			// an earlier search, and being provided to us in mInitialDeviceList,
-			// vs. the devices that are now present.
-			
-			// But this is designed for the simplistic case of only one device having been found
-			// earlier, and 0 or 1 devices being present now.
-			// To support multiple device instances properly, we'd need more complex matching code.
-			if (mNumDevicesFound < MIDIDeviceListGetNumberOfDevices(mInitialDeviceList)) {
-				midiDevice = MIDIDeviceListGetDevice(mInitialDeviceList, mNumDevicesFound);
-				InterfaceState *ifs = new InterfaceState(mDriver, midiDevice, ioDevice, device, interface);
-				mInterfaceStateList.push_back(ifs);
-				++mNumDevicesFound;
-				return true;	// keep device/interface open
-			}
-			return false;	// close device/interface
-		} else {
+#if V2_MIDI_DRIVER_SUPPORT
+		if (mDriver->mVersion >= 2) {
 			bool deviceInSetup = false;
 			int nDevs;
 			UInt32 locationID;
@@ -653,6 +644,28 @@ public:
                         #endif
 			MIDIObjectSetIntegerProperty(midiDevice, kMIDIPropertyOffline, false);
 		}
+#endif // V2_MIDI_DRIVER_SUPPORT
+
+#if V1_MIDI_DRIVER_SUPPORT
+		if (mDriver->mVersion == 1) {
+			// We're trying to make matches between the devices that were found during 
+			// an earlier search, and being provided to us in mInitialDeviceList,
+			// vs. the devices that are now present.
+			
+			// But this is designed for the simplistic case of only one device having been found
+			// earlier, and 0 or 1 devices being present now.
+			// To support multiple device instances properly, we'd need more complex matching code.
+			if (mNumDevicesFound < MIDIDeviceListGetNumberOfDevices(mInitialDeviceList)) {
+				midiDevice = MIDIDeviceListGetDevice(mInitialDeviceList, mNumDevicesFound);
+				InterfaceState *ifs = new InterfaceState(mDriver, midiDevice, ioDevice, device, interface);
+				mInterfaceStateList.push_back(ifs);
+				++mNumDevicesFound;
+				return true;	// keep device/interface open
+			}
+			return false;	// close device/interface
+		}
+#endif
+
 		return true;		// keep device/interface open
 errexit:
 		return false;
