@@ -15,6 +15,8 @@
 // test program to play to MIDI Out
 // ___________________________________________________________________________________________
 
+#define MIDISPORT_PORT 0                // 0 = Out A on MIDISPORT, 1 = Out B
+
 MIDIPortRef	gOutPort = NULL;
 MIDIEndpointRef	gDest = NULL;
 
@@ -22,6 +24,23 @@ MIDITimeStamp MIDIGetCurrentTime(void)
 {
     AbsoluteTime now = UpTime();
     return UnsignedWideToUInt64(now);
+}
+
+void dumpPackets(MIDIPacketList *pktlist)
+{
+    unsigned int i, j;
+    MIDIPacket *packet;
+
+    printf("number of packets = %ld\n", pktlist->numPackets);
+    
+    packet = (MIDIPacket *) pktlist->packet;	// remove const (!)
+    for(i = 0; i < pktlist->numPackets; i++) {
+        printf("timestamp = %f, length = %d\n", (double) packet->timeStamp, packet->length);
+        for(j = 0; j < packet->length; j++)
+            printf("data[%d] = 0x%X ", j, packet->data[j]);
+        printf("\n");
+        packet = MIDIPacketNext(packet);
+    }
 }
 
 int	main(int argc, char *argv[])
@@ -38,7 +57,7 @@ int	main(int argc, char *argv[])
 	
 	// enumerate devices (not really related to purpose of the echo program
 	// but shows how to get information about devices)
-	int i, n;
+	unsigned int i, n;
 	CFStringRef pname, pmanuf, pmodel;
 	char name[64], manuf[64], model[64];
 	
@@ -64,7 +83,7 @@ int	main(int argc, char *argv[])
 	n = MIDIGetNumberOfDestinations();
         printf("%d destinations\n", n);
 	if (n > 0)
-		gDest = MIDIGetDestination(0); // 0 = Out A on MIDISPORT, 1 = Out B
+		gDest = MIDIGetDestination(MIDISPORT_PORT); 
 
 	if (gDest != NULL) {
 		MIDIObjectGetStringProperty(gDest, kMIDIPropertyName, &pname);
@@ -93,6 +112,8 @@ int	main(int argc, char *argv[])
         packet = MIDIPacketListAdd(pktlist, sizeof(pbuf),  packet,
             playTime + (scaleIndex + 1) * OneSecondTimeInterval * 2, 3, data);
     }
+    dumpPackets(pktlist);
+
     MIDISend(gOutPort, gDest, pktlist);
 
     return 0;
