@@ -1,0 +1,428 @@
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 30;
+	objects = {
+		00C5C68BFEC3504A0A090812 = {
+			isa = PBXFrameworkReference;
+			name = CoreMIDIServer.framework;
+			path = /System/Library/Frameworks/CoreMIDIServer.framework;
+			refType = 0;
+		};
+		00C5C68CFEC3504A0A090812 = {
+			fileRef = 00C5C68BFEC3504A0A090812;
+			isa = PBXBuildFile;
+			settings = {
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		00C5C68DFEC350680A090812 = {
+			isa = PBXFileReference;
+			path = USBUtils.cpp;
+			refType = 4;
+		};
+		00C5C68EFEC350680A090812 = {
+			isa = PBXFileReference;
+			path = USBUtils.h;
+			refType = 4;
+		};
+		00C5C68FFEC350680A090812 = {
+			fileRef = 00C5C68DFEC350680A090812;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		00C5C690FEC354650A090812 = {
+			isa = PBXFileReference;
+			path = MIDIDriver.cpp;
+			refType = 4;
+		};
+		00C5C691FEC354650A090812 = {
+			fileRef = 00C5C690FEC354650A090812;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		00D0113FFEDB397F0A090812 = {
+			isa = PBXFileReference;
+			path = MIDIPacket.cpp;
+			refType = 4;
+		};
+		00D01140FEDB397F0A090812 = {
+			isa = PBXFileReference;
+			path = MIDIPacket.h;
+			refType = 4;
+		};
+		00D01142FEDB397F0A090812 = {
+			fileRef = 00D0113FFEDB397F0A090812;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		010C387FFEE0BE140A090812 = {
+			isa = PBXFileReference;
+			path = XThread.cpp;
+			refType = 4;
+		};
+		010C3880FEE0BE140A090812 = {
+			isa = PBXFileReference;
+			path = XThread.h;
+			refType = 4;
+		};
+		010C3882FEE0BE140A090812 = {
+			fileRef = 010C387FFEE0BE140A090812;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		010D0AFDFEE5F5BB0A090812 = {
+			isa = PBXFileReference;
+			path = MIDISPORTUSBDriver.cpp;
+			refType = 4;
+		};
+		010D0AFEFEE5F5BB0A090812 = {
+			isa = PBXFileReference;
+			path = MIDISPORTUSBDriver.h;
+			refType = 4;
+		};
+		010D0AFFFEE5F5BB0A090812 = {
+			fileRef = 010D0AFDFEE5F5BB0A090812;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		0171837FFF807370CFED3B93 = {
+			isa = PBXFileReference;
+			path = MIDISPORT2x2.plugin;
+			refType = 3;
+		};
+		0177C833FEC2D3C80A090812 = {
+			isa = PBXFrameworkReference;
+			name = IOKit.framework;
+			path = /System/Library/Frameworks/IOKit.framework;
+			refType = 0;
+		};
+		0177C834FEC2D3C80A090812 = {
+			fileRef = 0177C833FEC2D3C80A090812;
+			isa = PBXBuildFile;
+			settings = {
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		04C7CB61FF9129AFCFED3B93 = {
+			isa = PBXFrameworkReference;
+			name = CoreServices.framework;
+			path = /System/Library/Frameworks/CoreServices.framework;
+			refType = 0;
+		};
+		04C7CB62FF9129AFCFED3B93 = {
+			fileRef = 04C7CB61FF9129AFCFED3B93;
+			isa = PBXBuildFile;
+			settings = {
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		089C1669FE841209C02AAC07 = {
+			isa = PBXProject;
+			mainGroup = 089C166AFE841209C02AAC07;
+			projectDirPath = .;
+			targets = (
+				089C1673FE841209C02AAC07,
+			);
+		};
+		089C166AFE841209C02AAC07 = {
+			children = (
+				08FB77AFFE84173DC02AAC07,
+				089C167CFE841241C02AAC07,
+				089C1671FE841209C02AAC07,
+				19C28FB6FE9D52B211CA2CBB,
+			);
+			isa = PBXGroup;
+			name = CFPlugInBundle;
+			refType = 4;
+		};
+		089C1671FE841209C02AAC07 = {
+			children = (
+				0AA1909FFE8422F4C02AAC07,
+				0177C833FEC2D3C80A090812,
+				00C5C68BFEC3504A0A090812,
+				04C7CB61FF9129AFCFED3B93,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+		};
+		089C1673FE841209C02AAC07 = {
+			buildPhases = (
+				089C1674FE841209C02AAC07,
+				089C1675FE841209C02AAC07,
+				089C1676FE841209C02AAC07,
+				089C1677FE841209C02AAC07,
+				089C1679FE841209C02AAC07,
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
+				HEADER_SEARCH_PATHS = .;
+				LIBRARY_SEARCH_PATHS = "";
+				OPTIMIZATION_CFLAGS = "";
+				OTHER_CFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = "-lstdc++";
+				OTHER_REZFLAGS = "";
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = plugin;
+			};
+			conditionalBuildSettings = {
+			};
+			dependencies = (
+			);
+			isa = PBXBundleTarget;
+			name = MIDISPORT2x2;
+			productInstallPath = /System/Library/Extensions;
+			productName = MIDISPORT2x2;
+			productReference = 0171837FFF807370CFED3B93;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist SYSTEM \"file://localhost/System/Library/DTDs/PropertyList.dtd\">
+<plist version=\"0.9\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>MIDISPORT2x2</string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string></string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>0.0.1d1</string>
+	<key>CFPlugInDynamicRegisterFunction</key>
+	<string></string>
+	<key>CFPlugInDynamicRegistration</key>
+	<string>NO</string>
+	<key>CFPlugInFactories</key>
+	<dict>
+		<key>6E443FE8-9EF4-11D4-A2FE-000502B62133</key>
+		<string>NewSampleUSBDriver</string>
+	</dict>
+	<key>CFPlugInTypes</key>
+	<dict>
+		<key>ECDE9574-0FE4-11D4-BB1A-0050E4CEA526</key>
+		<array>
+			<string>6E443FE8-9EF4-11D4-A2FE-000502B62133</string>
+		</array>
+	</dict>
+	<key>CFPlugInUnloadFunction</key>
+	<string></string>
+</dict>
+</plist>
+";
+			shouldUseHeadermap = 1;
+		};
+		089C1674FE841209C02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXHeadersBuildPhase;
+			name = Headers;
+		};
+		089C1675FE841209C02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				089C1680FE841241C02AAC07,
+			);
+			isa = PBXResourcesBuildPhase;
+			name = "Bundle Resources";
+		};
+		089C1676FE841209C02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				00C5C68FFEC350680A090812,
+				00C5C691FEC354650A090812,
+				1E21D07DFED9A4DC0A090812,
+				00D01142FEDB397F0A090812,
+				010C3882FEE0BE140A090812,
+				010D0AFFFEE5F5BB0A090812,
+			);
+			isa = PBXSourcesBuildPhase;
+			name = Sources;
+		};
+		089C1677FE841209C02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				0AA190A0FE8422F4C02AAC07,
+				0177C834FEC2D3C80A090812,
+				00C5C68CFEC3504A0A090812,
+				04C7CB62FF9129AFCFED3B93,
+			);
+			isa = PBXFrameworksBuildPhase;
+			name = "Frameworks & Libraries";
+		};
+		089C1679FE841209C02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			name = "ResourceManager Resources";
+		};
+		089C167CFE841241C02AAC07 = {
+			children = (
+				089C167DFE841241C02AAC07,
+			);
+			isa = PBXGroup;
+			name = Resources;
+			refType = 4;
+		};
+		089C167DFE841241C02AAC07 = {
+			children = (
+				089C167EFE841241C02AAC07,
+			);
+			isa = PBXVariantGroup;
+			name = InfoPlist.strings;
+			refType = 4;
+		};
+		089C167EFE841241C02AAC07 = {
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/InfoPlist.strings;
+			refType = 4;
+		};
+		089C1680FE841241C02AAC07 = {
+			fileRef = 089C167DFE841241C02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		08FB77AFFE84173DC02AAC07 = {
+			children = (
+				010D0AFDFEE5F5BB0A090812,
+				010D0AFEFEE5F5BB0A090812,
+				00C5C68DFEC350680A090812,
+				00C5C68EFEC350680A090812,
+				1E21D07BFED9A4DC0A090812,
+				1E21D07CFED9A4DC0A090812,
+				00C5C690FEC354650A090812,
+				00D0113FFEDB397F0A090812,
+				00D01140FEDB397F0A090812,
+				010C387FFEE0BE140A090812,
+				010C3880FEE0BE140A090812,
+			);
+			isa = PBXGroup;
+			name = Source;
+			refType = 4;
+		};
+		0AA1909FFE8422F4C02AAC07 = {
+			isa = PBXFrameworkReference;
+			name = CoreFoundation.framework;
+			path = /System/Library/Frameworks/CoreFoundation.framework;
+			refType = 0;
+		};
+		0AA190A0FE8422F4C02AAC07 = {
+			fileRef = 0AA1909FFE8422F4C02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		19C28FB6FE9D52B211CA2CBB = {
+			children = (
+				0171837FFF807370CFED3B93,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+		1E21D07BFED9A4DC0A090812 = {
+			isa = PBXFileReference;
+			path = USBMIDIDriverBase.cpp;
+			refType = 4;
+		};
+		1E21D07CFED9A4DC0A090812 = {
+			isa = PBXFileReference;
+			path = USBMIDIDriverBase.h;
+			refType = 4;
+		};
+		1E21D07DFED9A4DC0A090812 = {
+			fileRef = 1E21D07BFED9A4DC0A090812;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+	};
+	rootObject = 089C1669FE841209C02AAC07;
+}
