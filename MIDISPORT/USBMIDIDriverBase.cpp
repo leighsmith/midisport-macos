@@ -70,26 +70,35 @@ TimingAnalyzer	gTimingAnalyzer;
 
 // __________________________________________________________________________________________________
 
-// must not pass this F0 or F7 or realtime
-// returns number of data bytes which follow the status byte
+// returns number of data bytes which follow the status byte.
+// returns -1 for 0xF0 sysex beginning (indicating a variable number of databytes following).
+// returns 0 if an unknown MIDI status byte is received and prints a warning.
 int		MIDIDataBytes(Byte status)
 {
 	if (status >= 0x80 && status < 0xF0)
 		return ((status & 0xE0) == 0xC0) ? 1 : 2;
 
 	switch (status) {
+        case 0xF0:
+                return -1;
 	case 0xF1:		// MTC
+	case 0xF3:		// song select
 		return 1;
 	case 0xF2:		// song pointer
 		return 2;
-	case 0xF3:		// song select
-		return 1;
-	case 0xF6:
-		return 0;	// tune request
+	case 0xF6:		// tune request
+        case 0xF7:		// sysex conclude, nothing follows.
+        case 0xF8:		// clock
+        case 0xFA:		// start
+        case 0xFB:		// continue
+        case 0xFC:		// stop
+        case 0xFE:		// active sensing
+        case 0xFF:		// system reset
+                return 0;
 	}
 
 	fprintf(stderr, "MIDIEventLength: illegal status byte %02X\n", status);
-	exit(-1);
+	return 0;   // the MIDI spec says we should ignore illegals.
 }
 
 // __________________________________________________________________________________________________
