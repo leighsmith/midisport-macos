@@ -1,4 +1,4 @@
-// $Id: EZLoader.cpp,v 1.1 2000/10/22 02:22:32 leigh Exp $
+// $Id: EZLoader.cpp,v 1.2 2000/12/13 05:11:48 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -20,25 +20,25 @@
 // Include file for the Ezusb Device
 //
 #include "EZLoader.h"
-#include "USBUtils.h"
 
-#define VERBOSE (DEBUG && 1)
+#define VERBOSE (DEBUG && 0)
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0	
 
 // these files contain images of the device firmware
 //
-static INTEL_HEX_RECORD *firmware;
 extern INTEL_HEX_RECORD loader[];
-
-static XUSBInterface EZUSBinterface = NULL;
-static IOUSBDeviceRef EZUSBdevice = NULL;
 
 // This class finds USB interface instances
 class EZUSBInterfaceLocator : public USBDeviceLocator {
 public:
 	
+    EZUSBInterfaceLocator()
+    {
+        EZUSBdevice = NULL;
+    }
+
     virtual int	InterfaceIndexToUse(IOUSBDeviceRef device)
     {
         return kTheInterfaceToUse;
@@ -54,13 +54,31 @@ public:
         EZUSBdevice = device;
         return true;		// keep device/interface allocated
     }
+    
+    XUSBInterface Interface(void)
+    {
+        return EZUSBinterface;
+    }
+    
+    IOUSBDeviceRef Device(void)
+    {
+        return EZUSBdevice;
+    }
+private:
+    IOUSBDeviceRef EZUSBdevice;
+    XUSBInterface EZUSBinterface;
 };
 
+// constructor doing very little.
+EZUSBLoader::EZUSBLoader()
+{
+    EZUSBinterface = NULL;
+    EZUSBdevice = NULL;
+}
 
-//EZUSB::EZUSB()
+// And a destructor doing even less.
+//EZUSBLoader::~EZUSBLoader()
 //{
-// EZUSBinterface = NULL;
-//EZUSBdevice = NULL;
 //}
 
 /*++
@@ -77,7 +95,7 @@ Arguments:
 Return Value:
    kIOReturnSuccess if we reset correctly.
 --*/
-IOReturn Ezusb_8051Reset(IOUSBDeviceRef device, unsigned char resetBit)
+IOReturn EZUSBLoader::Reset8051(IOUSBDeviceRef device, unsigned char resetBit)
 {
     IOReturn status;
     UInt16 bufSize = 1;
@@ -110,7 +128,7 @@ IOReturn Ezusb_8051Reset(IOUSBDeviceRef device, unsigned char resetBit)
 *		STATUS_SUCCESS if successful,
 *		STATUS_UNSUCCESSFUL otherwise
 ****************************************************************************/
-bool Ezusb_DownloadIntelHex(IOUSBDeviceRef device, PINTEL_HEX_RECORD hexRecord)
+bool EZUSBLoader::DownloadIntelHex(IOUSBDeviceRef device, PINTEL_HEX_RECORD hexRecord)
 {
     PINTEL_HEX_RECORD ptr = hexRecord;
     UInt16 bufSize;
@@ -146,7 +164,7 @@ bool Ezusb_DownloadIntelHex(IOUSBDeviceRef device, PINTEL_HEX_RECORD hexRecord)
     // Now download all of the records that are in internal RAM.  Before starting
     // the download, stop the 8051.
     //
-    Ezusb_8051Reset(device, 1);
+    Reset8051(device, 1);
     ptr = hexRecord;
     while (ptr->Type == 0) {
         if (INTERNAL_RAM(ptr->Address)) {
@@ -176,7 +194,7 @@ bool Ezusb_DownloadIntelHex(IOUSBDeviceRef device, PINTEL_HEX_RECORD hexRecord)
 *                      Ezusb Device.
 *
 ****************************************************************************/
-IOReturn Ezusb_StartDevice(IOUSBDeviceRef device)
+IOReturn EZUSBLoader::StartDevice(IOUSBDeviceRef device)
 {
     IOReturn status;
 #if VERBOSE
@@ -190,17 +208,17 @@ IOReturn Ezusb_StartDevice(IOUSBDeviceRef device)
 #if VERBOSE
     printf("downloading loader\n");
 #endif
-    status = Ezusb_8051Reset(device, 1);
-    status = Ezusb_DownloadIntelHex(device, loader);
-    status = Ezusb_8051Reset(device, 0);
+    status = Reset8051(device, 1);
+    status = DownloadIntelHex(device, loader);
+    status = Reset8051(device, 0);
 
     //-----	Now download the device firmware.  //
 #if VERBOSE
     printf("downloading firmware\n");
 #endif
-    status = Ezusb_DownloadIntelHex(device, firmware);
-    status = Ezusb_8051Reset(device, 1);
-    status = Ezusb_8051Reset(device, 0);
+    status = DownloadIntelHex(device, firmware);
+    status = Reset8051(device, 1);
+    status = Reset8051(device, 0);
 
 #if VERBOSE
     printf("exit Ezusb_StartDevice (%x)\n", 0);
@@ -210,14 +228,14 @@ IOReturn Ezusb_StartDevice(IOUSBDeviceRef device)
 }
 
 // to pass in the application firmware
-void Ezusb_setFirmware(PINTEL_HEX_RECORD newFirmware)
+void EZUSBLoader::setFirmware(PINTEL_HEX_RECORD newFirmware)
 {
     firmware = newFirmware;
 }
 
 // Determine the interface the EZUSB device responds to, create the device for Vendor
 // connection and return it ready for downloading to.
-IOUSBDeviceRef Ezusb_FindDevice(unsigned int vendorID, unsigned int coldBootProductID)
+IOUSBDeviceRef EZUSBLoader::FindDevice(unsigned int vendorID, unsigned int coldBootProductID)
 {
     EZUSBInterfaceLocator interfaceLocator;
     IOUSBMatch match;
@@ -228,8 +246,8 @@ IOUSBDeviceRef Ezusb_FindDevice(unsigned int vendorID, unsigned int coldBootProd
     match.usbVendor   = vendorID;
     match.usbProduct  = coldBootProductID;
     
-    EZUSBdevice = NULL;
     interfaceLocator.FindDevices(&match);
+    EZUSBdevice = interfaceLocator.Device();
 #if VERBOSE
     printf("ezusb device = %u\n", EZUSBdevice);
 #endif

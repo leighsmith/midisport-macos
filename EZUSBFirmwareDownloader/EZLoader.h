@@ -1,9 +1,9 @@
-// $Id: EZLoader.h,v 1.1 2000/10/22 02:22:32 leigh Exp $
+// $Id: EZLoader.h,v 1.2 2000/12/13 05:11:15 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
 //
-// This is a slight variation on EZLOADER.H which was supplied example code with the EZUSB device.
+// This portions of EZLOADER.H which was supplied example code with the EZUSB device.
 // The Win32 specifics have been removed.
 //
 // Modifications By Leigh Smith <leigh@tomandandy.com>
@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
+#include "USBUtils.h"
 
 #ifndef _BYTE_DEFINED
 #define _BYTE_DEFINED
@@ -91,9 +92,17 @@ typedef struct _INTEL_HEX_RECORD
    BYTE  Data[MAX_INTEL_HEX_RECORD_LENGTH];
 } INTEL_HEX_RECORD, *PINTEL_HEX_RECORD;
 
-IOReturn Ezusb_StartDevice(IOUSBDeviceRef device);
-IOUSBDeviceRef Ezusb_FindDevice(unsigned int vendorID, unsigned int coldBootProductID);
-void Ezusb_setFirmware(PINTEL_HEX_RECORD firmware);
-void Ezusb_setLoader(PINTEL_HEX_RECORD loader);
-
-
+class EZUSBLoader  {
+public:
+    EZUSBLoader();
+//    ~EZUSBLoader();
+    IOReturn StartDevice(IOUSBDeviceRef device);
+    IOUSBDeviceRef FindDevice(unsigned int vendorID, unsigned int coldBootProductID);
+    void setFirmware(PINTEL_HEX_RECORD firmware);
+protected:
+    IOReturn Reset8051(IOUSBDeviceRef device, unsigned char resetBit);
+    bool DownloadIntelHex(IOUSBDeviceRef device, PINTEL_HEX_RECORD hexRecord);
+    INTEL_HEX_RECORD *firmware;
+    XUSBInterface EZUSBinterface;
+    IOUSBDeviceRef EZUSBdevice;
+};
