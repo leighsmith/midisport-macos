@@ -158,6 +158,68 @@
 				);
 			};
 		};
+		046A093EFFB4CC2ECFED3B96 = {
+			isa = PBXFileReference;
+			path = EZLoader.cpp;
+			refType = 4;
+		};
+		046A093FFFB4CC2ECFED3B96 = {
+			isa = PBXFileReference;
+			path = EZLoader.h;
+			refType = 4;
+		};
+		046A0940FFB4CC2ECFED3B96 = {
+			isa = PBXFileReference;
+			path = MIDISPORTFirmware.cpp;
+			refType = 4;
+		};
+		046A0941FFB4CC2ECFED3B96 = {
+			isa = PBXFileReference;
+			path = HexLoaderFirmware.cpp;
+			refType = 4;
+		};
+		046A0942FFB4CC2ECFED3B96 = {
+			fileRef = 046A093EFFB4CC2ECFED3B96;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		046A0943FFB4CC2ECFED3B96 = {
+			fileRef = 046A0940FFB4CC2ECFED3B96;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
+		046A0944FFB4CC2ECFED3B96 = {
+			fileRef = 046A0941FFB4CC2ECFED3B96;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Debug,
+				);
+				INCLUDED_OSS = (
+					MACOS,
+					WINDOWS,
+					PDOUNIX,
+				);
+			};
+		};
 		04C7CB61FF9129AFCFED3B93 = {
 			isa = PBXFrameworkReference;
 			name = CoreServices.framework;
@@ -301,6 +363,9 @@
 				00D01142FEDB397F0A090812,
 				010C3882FEE0BE140A090812,
 				010D0AFFFEE5F5BB0A090812,
+				046A0942FFB4CC2ECFED3B96,
+				046A0943FFB4CC2ECFED3B96,
+				046A0944FFB4CC2ECFED3B96,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -360,6 +425,10 @@
 			children = (
 				010D0AFDFEE5F5BB0A090812,
 				010D0AFEFEE5F5BB0A090812,
+				046A093EFFB4CC2ECFED3B96,
+				046A093FFFB4CC2ECFED3B96,
+				046A0940FFB4CC2ECFED3B96,
+				046A0941FFB4CC2ECFED3B96,
 				00C5C68DFEC350680A090812,
 				00C5C68EFEC350680A090812,
 				1E21D07BFED9A4DC0A090812,

@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.2 2000/11/04 22:45:56 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.3 2000/11/05 01:09:59 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
@@ -40,6 +40,7 @@
 #include <algorithm>
 #include "MIDISPORTUSBDriver.h"
 #include "USBUtils.h"
+#include "EZLoader.h"
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -52,8 +53,9 @@
 #define kTheInterfaceToUse	0		// 0 is the interface which we need to access the 5 endpoints.
 #define kReadBufSize		32
 #define kWriteBufSize		32
-#define kMyVendorID		0x0763		// midiman
-#define kMyProductID		0x1002		// product ID indicating the firmware has been loaded and is working.
+#define midimanVendorID		0x0763		// midiman
+#define coldBootProductID	0x1001		// product ID indicating the firmware has not been loaded.
+#define firmwareProductID	0x1002		// product ID indicating the firmware has been loaded and is working.
 
 // and these
 #define kMyBoxName		"MIDISPORT"
@@ -73,8 +75,8 @@ IOUSBMatch midisportMatch = {
 	kIOUSBAnyClass,
 	kIOUSBAnySubClass,
 	kIOUSBAnyProtocol,
-	kMyVendorID,
-	kMyProductID
+	midimanVendorID,
+	firmwareProductID
 };
 
 // __________________________________________________________________________________________________
@@ -96,11 +98,29 @@ extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID)
 
 // __________________________________________________________________________________________________
 
+// Determine if the MIDISPORT is in firmware downloaded or unloaded state.
+// If cold booted, we need to download the firmware and restart the device to
+// enable the firmware product code to be found.
 MIDISPORT2x2::MIDISPORT2x2() :
 	USBMIDIDriverBase(kFactoryUUID)
 {
-  // We get instantiated by NewMIDISPORT2x2, presumably from a function table
-  // printf("MIDISPORTUSBDriver init\n");
+    IOUSBDeviceRef ezusbDev;
+    IOUSBDeviceRef midisportDev;
+    extern INTEL_HEX_RECORD firmware[];
+    EZUSBLoader ezusb;
+    
+    // printf("MIDISPORTUSBDriver init\n");
+    ezusbDev = ezusb.FindDevice(midimanVendorID, coldBootProductID);
+    if (ezusbDev != NULL) {
+        // printf("in cold booted state, downloading firmware\n");
+        ezusb.setFirmware(firmware);
+        ezusb.StartDevice(ezusbDev);
+        // check that we re-enumerated the USB bus properly.
+        do { // busy wait = bad!
+            midisportDev = ezusb.FindDevice(midimanVendorID, firmwareProductID);
+        } while(midisportDev == NULL);
+        // printf("Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware.\n");
+    }
 }
 
 MIDISPORT2x2::~MIDISPORT2x2()
@@ -166,17 +186,17 @@ private:
 
 OSStatus MIDISPORT2x2::FindDevices(MIDIDeviceListRef devices)
 {
-	InterfaceLocator loc;
-	
-        // Register the device and the MIDISPORTUSBDriver with the interface locator instance, 
-        // and search for devices matching the warm boot (firmware product ID and manufacturer ID).
-	loc.Find(devices, Self());
-        return noErr;
+    InterfaceLocator loc;
+    
+    // Register the device and the MIDISPORTUSBDriver with the interface locator instance, 
+    // and search for devices matching the warm boot (firmware product ID and manufacturer ID).
+    loc.Find(devices, Self());
+    return noErr;
 }
 
 IOUSBMatch *MIDISPORT2x2::GetUSBMatch()
 {
-	return &midisportMatch;
+    return &midisportMatch;
 }
 
 int MIDISPORT2x2::InterfaceIndexToUse(IOUSBDeviceRef device)
@@ -255,7 +275,8 @@ void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *r
 
                 dataInMessage = MIDIDataBytes(status);
                 // if the message is a single real-time message, save the previous remainingBytesInMsg
-                // until we have shipped the real-time packet.
+                // (since a real-time message can occur within another message) until we have shipped 
+                // the real-time packet.
                 if(remainingBytesInMsg[inputPort] > 0 && dataInMessage == 0) {
                     preservedMsgCount = remainingBytesInMsg[inputPort];
                 }
@@ -264,7 +285,6 @@ void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *r
                 }
                 remainingBytesInMsg[inputPort] = dataInMessage;
 
-                // Actually any new status message will cancel the sysex.
                 if(status == 0xF0) {
                     inSysex[inputPort] = true;
                 }
@@ -329,10 +349,10 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
     
     while (true) {
         if (writeQueue.empty()) {
-            printf("dest buffer = ");
-            for(int i = 0; i < dest - destBuf; i++)
-                printf("%02X ", destBuf[i]);
-            printf("\n");
+            // printf("dest buffer = ");
+            // for(int i = 0; i < dest - destBuf; i++)
+            // 	printf("%02X ", destBuf[i]);
+            // printf("\n");
             memset(dest, 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
             return kWriteBufSize;	// dest - destBuf;
         }
