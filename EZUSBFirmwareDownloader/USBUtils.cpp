@@ -1,4 +1,4 @@
-// $Id: USBUtils.cpp,v 1.1 2000/10/22 02:22:32 leigh Exp $
+// $Id: USBUtils.cpp,v 1.2 2000/12/13 05:08:48 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -39,7 +39,7 @@
 #include <mach/mach_error.h>
 #include <stdio.h>
 
-#define VERBOSE (DEBUG && 1)
+#define VERBOSE (DEBUG && 0)
 
 void	printerr(char *func, IOReturn ret)
 {
