@@ -1,4 +1,4 @@
-// $Id: USBMIDIDriverBase.cpp,v 1.9 2001/10/03 22:21:38 leigh Exp $
+// $Id: USBMIDIDriverBase.cpp,v 1.10 2001/10/26 20:18:40 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
@@ -61,9 +61,9 @@
 
 #if DEBUG
 	#include <stdio.h>
-	//#define VERBOSE 1
+	#define VERBOSE 1
 	//#define DUMP_INPUT 1			// only works in USBMIDIHandleInput
-	//#define DUMP_OUTPUT 1
+	#define DUMP_OUTPUT 1
 	//#define ANALYZE_THRU_TIMING 1
 #endif
 
@@ -223,11 +223,11 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *			driver,
  
 	GetInterfaceInfo(mInterfaceInfo); 	// Get endpoint types and buffer sizes
 	mReadBuf.Allocate(mInterfaceInfo.readBufferSize);
-	mWriteBuf1.Allocate(mInterfaceInfo.writeBufferSize);
+	mWriteBuf1.Allocate(mInterfaceInfo.writeBufferSize); // assumes both buffers are equal sized.
 	mWriteBuf2.Allocate(mInterfaceInfo.writeBufferSize);
 
 #if VERBOSE
-	printf("mReadBuf=0x%lx, mWriteBuf=0x%lx\n", (long)mReadBuf.Buffer(), (long)mWriteBuf.Buffer());
+	printf("mReadBuf=0x%lx, mWriteBuf1=0x%lx, mWriteBuf2=0x%lx\n", (long)mReadBuf.Buffer(), (long)mWriteBuf1.Buffer(), (long)mWriteBuf2.Buffer());
 #endif
 
 	numEndpoints = 0;
@@ -351,13 +351,6 @@ InterfaceState::~InterfaceState()
 	}
 	
 	delete[] mSources;
-#if 0
-	// Are these needed in the non-MIDISPORT specific case?
-        // MIDISPORT_SPECIFIC
-        delete[] mReadBuf;
-	delete[] mWriteBuf1;
-        delete[] mWriteBuf2;
-#endif
 
 #if VERBOSE
 	printf("driver stopped MIDI\n");
@@ -368,7 +361,7 @@ InterfaceState::~InterfaceState()
 void	InterfaceState::HandleInput(ByteCount bytesReceived)
 {
 	AbsoluteTime now = UpTime();
-//	printf("packetSize = %ld\n", readBufLength);
+//	printf("bytesReceived = %ld\n", bytesReceived);
 //	printf("mReadBuf[0-23]: ");
 //	for (int i = 0; i < 24; i++)
 //		printf("%02X ", mReadBuf[i]);
@@ -435,8 +428,8 @@ void	InterfaceState::DoWrite()
 #if DUMP_OUTPUT
 				printf("OUT1, %ld: ", msglen1);
 				for (ByteCount i = 0; i < msglen1; i += 4) {
-					if (mWriteBuf1[i+3] == 0)
-						break;
+					//if (mWriteBuf1[i+3] == 0)
+					//	break;
 					printf("%02X %02X %02X %02X ", mWriteBuf1[i], mWriteBuf1[i+1], mWriteBuf1[i+2], mWriteBuf1[i+3]);
 				}
 				printf("\n");
@@ -448,8 +441,8 @@ void	InterfaceState::DoWrite()
 #if DUMP_OUTPUT
 				printf("OUT2, %ld: ", msglen2);
 				for (ByteCount i = 0; i < msglen2; i += 4) {
-					if (mWriteBuf2[i+3] == 0)
-						break;
+					//if (mWriteBuf2[i+3] == 0)
+					//	break;
 					printf("%02X %02X %02X %02X ", mWriteBuf2[i], mWriteBuf2[i+1], mWriteBuf2[i+2], mWriteBuf2[i+3]);
 				}
 				printf("\n");
@@ -535,7 +528,14 @@ public:
 	{
 		int nDevs = MIDIDeviceListGetNumberOfDevices(mInitialDeviceList);
 
+                #if VERBOSE
+                    printf("InterfaceRunner() nDevs = %d\n", nDevs);
+                #endif
+
 		if (gIsV2Driver) {
+                        #if VERBOSE
+                            printf("InterfaceRunner() marking offline\n");
+                        #endif
 			// mark everything previously present as offline
 			for (int i = 0; i < nDevs; ++i) {
 				MIDIDeviceRef midiDevice = MIDIDeviceListGetDevice(mInitialDeviceList, i);
@@ -580,7 +580,7 @@ public:
 										UInt8						interfaceNumber,
 										UInt8						altSetting )
 	{
-		MIDIDeviceRef midiDevice;
+		MIDIDeviceRef midiDevice = NULL;
 
 		#if VERBOSE
 			printf("InterfaceRunner::FoundInterface, ioDevice 0x%X\n", (int)ioDevice);
@@ -615,6 +615,9 @@ public:
 			// see if it's already in the setup, matching by locationID and productID
 			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
 			nDevs = MIDIDeviceListGetNumberOfDevices(curDevices);
+                        #if VERBOSE
+                            printf("nDevs = %d, locationID = 0x%x\n", nDevs, (unsigned int) locationID);
+			#endif
 			for (int i = 0; i < nDevs; ++i) {
 				SInt32 prevDevLocation, prevVendorProduct;
 				midiDevice = MIDIDeviceListGetDevice(curDevices, i);
@@ -645,6 +648,9 @@ public:
 			}
 			InterfaceState *ifs = new InterfaceState(mDriver, midiDevice, ioDevice, device, interface);
 			mInterfaceStateList.push_back(ifs);
+                        #if VERBOSE
+                            printf("marking midiDevice online\n");
+                        #endif
 			MIDIObjectSetIntegerProperty(midiDevice, kMIDIPropertyOffline, false);
 		}
 		return true;		// keep device/interface open
@@ -701,6 +707,9 @@ OSStatus	USBMIDIDriverBase::FindDevices(MIDIDeviceListRef devices)
 // __________________________________________________________________________________________________
 OSStatus	USBMIDIDriverBase::Start(MIDIDeviceListRef devices)
 {
+#if VERBOSE
+    printf("creating new interface runner in USBMIDIDriverBase::Start\n");
+#endif
 	mInterfaceRunner = new InterfaceRunner(this, devices);
 
 #if ANALYZE_THRU_TIMING
