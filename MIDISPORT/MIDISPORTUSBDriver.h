@@ -39,7 +39,7 @@ public:
 /*	virtual OSStatus	EnableSource(MIDIEndpointRef src, Boolean enabled);*/
 
     // USBMIDIDriverBase overrides
-    virtual bool UseDevice(IOUSBDeviceInterface **device,
+    virtual bool MatchDevice(IOUSBDeviceInterface **device,
                                           UInt16 devVendor,
                                           UInt16 devProduct);
 
@@ -47,13 +47,14 @@ public:
                                    UInt8 &outInterfaceNumber,
                                    UInt8 &outAltSetting);
 
-    virtual void FoundDevice(IOUSBDeviceInterface **device,
-                             IOUSBInterfaceInterface **interface,
-                             UInt16 devVendor,
-                             UInt16 devProduct,
-                             UInt8 interfaceNumber,
-                             UInt8 altSetting,
-                             MIDIDeviceListRef deviceList);
+    virtual MIDIDeviceRef CreateDevice(	io_service_t				ioDevice,
+					io_service_t				ioInterface,
+                                        IOUSBDeviceInterface **device,
+                                        IOUSBInterfaceInterface **interface,
+                                        UInt16 devVendor,
+                                        UInt16 devProduct,
+                                        UInt8 interfaceNumber,
+                                        UInt8 altSetting);
 
     virtual void GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info);
 
