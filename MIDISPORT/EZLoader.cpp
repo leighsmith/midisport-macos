@@ -1,4 +1,4 @@
-// $Id: EZLoader.cpp,v 1.5 2001/10/15 16:18:21 leigh Exp $
+// $Id: EZLoader.cpp,v 1.6 2001/10/26 20:22:54 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -51,7 +51,7 @@ bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
 {
     ezUSBDevice = device;
 #if VERBOSE
-    printf("yep found it\n");
+    printf("yep found it, leaving open = %d\n", usbLeaveOpenWhenFound);
 #endif
     return usbLeaveOpenWhenFound;
 }
@@ -78,6 +78,9 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
     printf("Finding ezusb vendor = 0x%x, product = 0x%x\n", usbVendor, usbProduct);
 #endif
     ScanDevices();  // Start the scanning of the devices.
+#if VERBOSE
+    printf("Finished scanning devices\n");
+#endif    
     return ezUSBDevice != NULL;
 }
 
