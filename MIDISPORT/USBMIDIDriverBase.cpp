@@ -43,9 +43,9 @@
 #include <sched.h>
 #include <Carbon/Carbon.h>
 
-//#define VERBOSE (DEBUG && 1)
+#define VERBOSE (DEBUG && 1)
 //#define DUMP_INPUT 1
-//#define DUMP_OUTPUT 1
+#define DUMP_OUTPUT 1
 
 // __________________________________________________________________________________________________
 //#define ANALYZE_THRU_TIMING 1
@@ -157,10 +157,11 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *driver,
 		#if VERBOSE 
 			printf("pipe index %d: dir=%d, num=%d, tt=%d, maxPacketSize=%d, interval=%d\n", pipeIndex,  direction, pipeNum, transferType, maxPacketSize, interval);
 		#endif
-		if (direction == kUSBOut) {
+                // TODO this is problematic, since we need to be explict about which endPoints to use and then change the output endpoint for each channel. Need to check the other devices behaviour/spec first.
+		if (direction == kUSBOut && !mHaveOutPipe) {
 			mOutPipe = pipeIndex;
 			mHaveOutPipe = true;
-		} else if (direction == kUSBIn) {
+		} else if (direction == kUSBIn && !mHaveInPipe) {
 			mInPipe = pipeIndex;
 			mHaveInPipe = true;
 		}
@@ -265,11 +266,13 @@ InterfaceState::~InterfaceState()
 void	InterfaceState::HandleInput(ByteCount bytesReceived)
 {
 	AbsoluteTime now = UpTime();
-//	printf("packetSize = %ld\n", readBufLength);
-//	printf("mReadBuf[0-23]: ");
-//	for (int i = 0; i < 24; i++)
-//		printf("%02X ", mReadBuf[i]);
-//	   printf("\n");
+#if 0
+	printf("packetSize = %ld\n", bytesReceived);
+	printf("mReadBuf[0-23]: ");
+	for (int i = 0; i < 24; i++)
+		printf("%02X ", mReadBuf[i]);
+        printf("\n");
+#endif
 	mDriver->HandleInput(this, UnsignedWideToUInt64(now), mReadBuf, bytesReceived);
 }
 
@@ -310,7 +313,7 @@ void	InterfaceState::ReadCallback(void *refcon, IOReturn asyncReadResult, void *
 	{
 		InterfaceState *self = (InterfaceState *)refcon;
 		ByteCount bytesReceived = (ByteCount)arg0;
-		//printf("ReadCallback: arg0 is %ld\n", (long)bytesReceived);
+		// printf("ReadCallback: arg0 is %ld\n", (long)bytesReceived);
 		self->HandleInput(bytesReceived);
 		// chain another async read
 		self->DoRead();
