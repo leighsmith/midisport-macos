@@ -1,4 +1,4 @@
-// $Id: EZLoader.h,v 1.2 2001/03/17 00:42:48 leigh Exp $
+// $Id: EZLoader.h,v 1.3 2001/03/29 22:39:59 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -110,7 +110,7 @@ public:
                                     UInt16 devProduct,
                                     UInt8 interfaceNumber,
                                     UInt8 altSetting);
-    bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID);
+    bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID, bool leaveOpenWhenFound);
     IOReturn StartDevice();
     void setFirmware(PINTEL_HEX_RECORD firmware);
 protected:
@@ -122,4 +122,5 @@ protected:
     INTEL_HEX_RECORD *firmware;
     UInt16 usbVendor;
     UInt16 usbProduct;
+    bool usbLeaveOpenWhenFound;
 };
