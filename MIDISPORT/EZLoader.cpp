@@ -1,4 +1,4 @@
-// $Id: EZLoader.cpp,v 1.3 2001/03/29 22:39:59 leigh Exp $
+// $Id: EZLoader.cpp,v 1.4 2001/10/03 22:37:20 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -21,7 +21,7 @@
 //
 #include "EZLoader.h"
 
-#define VERBOSE (DEBUG && 0)
+#define VERBOSE (DEBUG && 1)
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0	
@@ -40,12 +40,14 @@ void EZUSBLoader::GetInterfaceToUse(IOUSBDeviceInterface **device,
 
 // Once we have found the interface, we need to remember the device interface and
 // return true to have the interface kept open.
-bool EZUSBLoader::FoundInterface(IOUSBDeviceInterface **device,
-                                  IOUSBInterfaceInterface **interface,
-                                  UInt16 devVendor,
-                                  UInt16 devProduct,
-				  UInt8 interfaceNumber,
-				  UInt8 altSetting)
+bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
+                                 io_service_t ioInterface,
+                                 IOUSBDeviceInterface **device,
+                                 IOUSBInterfaceInterface **interface,
+                                 UInt16 devVendor,
+                                 UInt16 devProduct,
+                                 UInt8 interfaceNumber,
+				 UInt8 altSetting)
 {
     ezUSBDevice = device;
 #if VERBOSE
@@ -54,7 +56,8 @@ bool EZUSBLoader::FoundInterface(IOUSBDeviceInterface **device,
     return usbLeaveOpenWhenFound;
 }
 
-bool EZUSBLoader::UseDevice(IOUSBDeviceInterface **device,
+// Return YES if this is the device we are looking for.
+bool EZUSBLoader::MatchDevice(IOUSBDeviceInterface **device,
                              UInt16 devVendor,
                              UInt16 devProduct)
 {
@@ -144,7 +147,7 @@ IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char res
 bool EZUSBLoader::DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_RECORD hexRecord)
 {
     PINTEL_HEX_RECORD ptr = hexRecord;
-    IOReturn status;
+    IOReturn status = kIOReturnError;
     UInt8 bmreqType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
 
     //
