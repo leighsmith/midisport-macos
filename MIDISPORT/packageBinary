@@ -1,5 +1,5 @@
 #!/bin/zsh
-# $Id: packageBinary,v 2.1 2001/05/19 18:37:20 leigh Exp $
+# $Id: packageBinary,v 2.2 2001/10/04 23:06:23 leigh Exp $
 #
 # zsh Script to automate the packaging of the MIDISPORT plugin ready for user deployment.
 # Taken from an article on Stepwise:
@@ -40,6 +40,9 @@ buildDir=/tmp
 
 workingDir=/tmp
 # Where the plug-in would be installed with DSTROOT=/
+# For 10.1, we can put it in a local area
+# installFileDir="/Library/Audio/MIDI Drivers"
+# but for 10.0.4 we have to put it in the system location.
 installFileDir=/System/Library/Extensions
 # where the plugin to be packaged will reside
 packageFromDir=${workingDir}/${packagename}.dst/${installFileDir}
