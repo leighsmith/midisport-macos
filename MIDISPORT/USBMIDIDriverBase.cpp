@@ -1,3 +1,20 @@
+// $Id: USBMIDIDriverBase.cpp,v 1.7 2001/03/31 01:17:04 leigh Exp $
+//
+// MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
+//
+//    This class is a modification of the standard version specific to the MIDIMAN MIDISPORT USB devices.
+//    This is necessary as the data format is not USB-MIDI, specifically, the data is communicated down
+//    two endPoints, 2 and 4, using the upper nibble of the 4 byte packet to indicate which an even or
+//    odd numbered port to use. It's slightly hairy, but a diff against the original will reveal there
+//    isn't much that is special.
+//
+// Leigh Smith <leigh@tomandandy.com>
+//
+// Copyright (c) 2001 tomandandy music inc. All Rights Reserved.
+// Permission is granted to use and modify this code for commercial and
+// non-commercial purposes so long as the author attribution and this
+// copyright message remains intact and accompanies all derived code.
+//
 /*
  IMPORTANT: This Apple software is supplied to you by Apple Computer,
  Inc. ("Apple") in consideration of your agreement to the following terms,
@@ -168,6 +185,13 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *driver,
 			mOutPipe2 = pipeIndex; 
 			mHaveOutPipe2 = true;
 		} else if (direction == kUSBIn && pipeNum == 1) { // MIDIMan machines are fixed to their endPoints
+			mInPipe = pipeIndex;  
+			mHaveInPipe = true;
+		} else if (direction == kUSBIn && pipeNum == 2 && !mHaveInPipe) { 
+                        // MIDIMan MIDISPORT 8x8 uses pipeNum == 2, yet all the other MIDISPORTs use 1?
+                        // This is not right, we should be checking that we are actually using an 8x8,
+                        // but until the comms mechanism is in place between the object 
+                        // (and this whole member function should be virtual anyway), we fudge it...
 			mInPipe = pipeIndex;  
 			mHaveInPipe = true;
 		}
