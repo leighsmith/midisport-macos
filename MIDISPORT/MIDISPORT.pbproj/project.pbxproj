@@ -261,7 +261,7 @@
 	<key>CFPlugInFactories</key>
 	<dict>
 		<key>6E443FE8-9EF4-11D4-A2FE-000502B62133</key>
-		<string>NewSampleUSBDriver</string>
+		<string>NewMIDISPORT2x2</string>
 	</dict>
 	<key>CFPlugInTypes</key>
 	<dict>
