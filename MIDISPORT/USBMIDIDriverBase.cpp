@@ -262,14 +262,15 @@ void	InterfaceState::DoWrites()
 					pthread_mutex_unlock(&mWriteQueueMutex);
 
 					IOUSBWritePipe(mOutPipe, mWriteBuf, msglen);
-/*for (int i = 0; i < msglen; ++i)
+/*
+printf("writing the following to USB pipe: ");
+for (int i = 0; i < msglen; ++i)
 	printf("%02X ", mWriteBuf[i]);
-printf("\n");*/
-
+printf("\n");
+*/
 					pthread_mutex_lock(&mWriteQueueMutex);
 				}
 			}
-
 			if (mStopRequested)
 				break;
 		}
@@ -306,7 +307,6 @@ void	WriteThread::Run()
 {
 	mRunning = true;
 	mInterfaceState->DoWrites();
-//	printf("write thread terminating\n");
 	mRunning = false;
 }
 
