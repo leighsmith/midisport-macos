@@ -6,14 +6,10 @@
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\qc
 
 \f0\b\fs28 \cf0 Installation instructions for the \
-MIDIMAN MIDISPORT USB MIDI device driver\
+MIDIMAN MIDISPORT USB MIDI device driver V2.1.2\
 for MacOS 10.1\
 
 \f1\b0\fs24 \
-Leigh M. Smith\
-tomandandy Music Inc.\
-<leigh@tomandandy.com>\
-\
 2001/10/19\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 \cf0 \
@@ -34,13 +30,18 @@ This driver supports the following devices:\
 \fs24 MIDISPORT 8x8\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 \cf0 \
-1. Decompress the 
-\f2 MIDISPORT-2.1.1.b.MOX.pkg.tar
-\f1  tarball to create the package 
+\
+1. Decompress the tarball (
+\f2 MIDISPORT-2.1.2.b.MOX.pkg.tar) 
+\f1 to create the package 
 \f2 MIDISPORT.pkg 
 \f1 and this file.\
 \
-Either use 
+Double-Click on the 
+\f2 .tar
+\f1  file to create MIDISPORT.pkg and this file using 
+\f3\b StuffIt Expander 
+\f1\b0 or 
 \f3\b OpenUp.app
 \f1\b0  (obtainable via 
 \f2 www.stepwise.com
@@ -50,18 +51,16 @@ Either use
 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f2 \cf0 tar xvf MIDISPORT-2.1.1.b.MOX.pkg.tar
+\f2 \cf0 tar xvf MIDISPORT-2.1.2.b.MOX.pkg.tar
 \f1 \
 \
 to extract 
 \f2 MIDISPORT.pkg.
-\f1  It is possible that 
-\f3\b StuffIt Expander 
-\f1\b0 may also work, however there have been reports of bugs in that application's handling of 
-\f2 .tar
-\f1  files.\
+\f1  \
 \
-2. Double-Click the package, and follow the standard installation operation to install the plugin. You will be prompted for authorization to install the plugin. The installer should place the plugin into\
+2. Double-Click the 
+\f2 .pkg
+\f1  package, and follow the standard installation operation to install the plugin. When prompted for authorization to install the plugin, click on the lock icon in the lower left corner of the dialog and enter an adminstrator's password. The installer should place the plugin into\
 
 \f2 /Library/Audio/MIDI Drivers/MIDISPORT.plugin
 \f1 .\
@@ -75,16 +74,4 @@ to extract
 \
 4. The first time an application attempts to open the MIDI driver, the firmware for the MIDISPORT will be downloaded which will be indicated by its LED labelled "USB" pulsing. Subsequent opening of the device will then use the already downloaded firmware.\
 \
-5. A suitable MusicKit application for testing the hardware is 
-\f3\b MidiFilePlayback.app 
-\f1\b0 or
-\f3\b  ScorePlayer.app. 
-\f1\b0 Other applications will also test the driver appropriately.\
-\
-6. Unfortunately I cannot yet release the source to the driver since the code is  under Non-Disclosure Agreement with MIDIMAN. If you want the source, I suggest you contact MIDIMAN and request it.\
-\
-7. This driver software is provided by myself and tomandandy Music Inc. as is, without warranty of its suitability or performance or correctness for use. You use this driver software at your own risk entirely.\
-\
-8. I have provided Midiman Inc. with a copy of the source to the driver. Please direct bug reports directly to me, rather than Midiman and be sure that it is my driver you are bug reporting to me!\
-\
-9. MIDIMAN and MIDISPORT are trademarks of Midiman, Inc.}
+5. Copyright  (c) 2001 by Leigh M. Smith <leigh@leighsmith.com>.  All rights reserved. Permission is granted to MIDIMan Inc. to distribute this driver without charge.}
