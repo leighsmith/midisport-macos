@@ -1,8 +1,9 @@
+// !$*UTF8*$!
 {
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 30;
+	objectVersion = 32;
 	objects = {
 		00C5C68BFEC3504A0A090812 = {
 			isa = PBXFrameworkReference;
@@ -14,11 +15,6 @@
 			fileRef = 00C5C68BFEC3504A0A090812;
 			isa = PBXBuildFile;
 			settings = {
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
-				);
 			};
 		};
 		00C5C68DFEC350680A090812 = {
@@ -36,12 +32,6 @@
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
 				);
 			};
 		};
@@ -55,12 +45,6 @@
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
 				);
 			};
 		};
@@ -79,36 +63,6 @@
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
-				);
-			};
-		};
-		010C387FFEE0BE140A090812 = {
-			isa = PBXFileReference;
-			path = XThread.cpp;
-			refType = 4;
-		};
-		010C3880FEE0BE140A090812 = {
-			isa = PBXFileReference;
-			path = XThread.h;
-			refType = 4;
-		};
-		010C3882FEE0BE140A090812 = {
-			fileRef = 010C387FFEE0BE140A090812;
-			isa = PBXBuildFile;
-			settings = {
-				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
 				);
 			};
 		};
@@ -127,19 +81,8 @@
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
 				);
 			};
-		};
-		0171837FFF807370CFED3B93 = {
-			isa = PBXFileReference;
-			path = MIDISPORT2x2.plugin;
-			refType = 3;
 		};
 		0177C833FEC2D3C80A090812 = {
 			isa = PBXFrameworkReference;
@@ -151,11 +94,6 @@
 			fileRef = 0177C833FEC2D3C80A090812;
 			isa = PBXBuildFile;
 			settings = {
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
-				);
 			};
 		};
 		046A093EFFB4CC2ECFED3B96 = {
@@ -183,12 +121,6 @@
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
 				);
 			};
 		};
@@ -197,12 +129,6 @@
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
 				);
 			};
 		};
@@ -211,12 +137,6 @@
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
 				);
 			};
 		};
@@ -230,14 +150,27 @@
 			fileRef = 04C7CB61FF9129AFCFED3B93;
 			isa = PBXBuildFile;
 			settings = {
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
-				);
 			};
 		};
+		06ACAA26005EFDB8CFED3B96 = {
+			children = (
+				00C5C68DFEC350680A090812,
+				00C5C68EFEC350680A090812,
+				1E21D07BFED9A4DC0A090812,
+				1E21D07CFED9A4DC0A090812,
+				00C5C690FEC354650A090812,
+				00D0113FFEDB397F0A090812,
+				00D01140FEDB397F0A090812,
+			);
+			isa = PBXGroup;
+			name = AppleCode;
+			refType = 4;
+		};
 		089C1669FE841209C02AAC07 = {
+			buildStyles = (
+				0AB3E789004B3117CFED3B96,
+				0AB3E78A004B3117CFED3B96,
+			);
 			isa = PBXProject;
 			mainGroup = 089C166AFE841209C02AAC07;
 			projectDirPath = .;
@@ -278,11 +211,13 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
 				HEADER_SEARCH_PATHS = .;
+				INSTALL_PATH = /System/Library/Extensions;
 				LIBRARY_SEARCH_PATHS = "";
 				OPTIMIZATION_CFLAGS = "";
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-lstdc++";
 				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = MIDISPORT2x2;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 				WRAPPER_EXTENSION = plugin;
@@ -295,7 +230,7 @@
 			name = MIDISPORT2x2;
 			productInstallPath = /System/Library/Extensions;
 			productName = MIDISPORT2x2;
-			productReference = 0171837FFF807370CFED3B93;
+			productReference = 0AB3E782004B3117CFED3B96;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist SYSTEM \"file://localhost/System/Library/DTDs/PropertyList.dtd\">
 <plist version=\"0.9\">
@@ -304,18 +239,24 @@
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>MIDISPORT2x2</string>
+	<key>CFBundleGetInfoString</key>
+	<string>MIDIMan MIDISPORT 2x2 USB Driver</string>
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string></string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>MIDISPORT 2x2</string>
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>MIDISPORT 2x2 V1.1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>0.0.1d1</string>
+	<string>1.1.0</string>
 	<key>CFPlugInDynamicRegisterFunction</key>
 	<string></string>
 	<key>CFPlugInDynamicRegistration</key>
@@ -342,6 +283,11 @@
 		089C1674FE841209C02AAC07 = {
 			buildActionMask = 2147483647;
 			files = (
+				0AB3E783004B3117CFED3B96,
+				0AB3E784004B3117CFED3B96,
+				0AB3E785004B3117CFED3B96,
+				0AB3E786004B3117CFED3B96,
+				0AB3E787004B3117CFED3B96,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -361,7 +307,6 @@
 				00C5C691FEC354650A090812,
 				1E21D07DFED9A4DC0A090812,
 				00D01142FEDB397F0A090812,
-				010C3882FEE0BE140A090812,
 				010D0AFFFEE5F5BB0A090812,
 				046A0942FFB4CC2ECFED3B96,
 				046A0943FFB4CC2ECFED3B96,
@@ -414,11 +359,6 @@
 			fileRef = 089C167DFE841241C02AAC07;
 			isa = PBXBuildFile;
 			settings = {
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
-				);
 			};
 		};
 		08FB77AFFE84173DC02AAC07 = {
@@ -429,15 +369,7 @@
 				046A093FFFB4CC2ECFED3B96,
 				046A0940FFB4CC2ECFED3B96,
 				046A0941FFB4CC2ECFED3B96,
-				00C5C68DFEC350680A090812,
-				00C5C68EFEC350680A090812,
-				1E21D07BFED9A4DC0A090812,
-				1E21D07CFED9A4DC0A090812,
-				00C5C690FEC354650A090812,
-				00D0113FFEDB397F0A090812,
-				00D01140FEDB397F0A090812,
-				010C387FFEE0BE140A090812,
-				010C3880FEE0BE140A090812,
+				06ACAA26005EFDB8CFED3B96,
 			);
 			isa = PBXGroup;
 			name = Source;
@@ -453,16 +385,64 @@
 			fileRef = 0AA1909FFE8422F4C02AAC07;
 			isa = PBXBuildFile;
 			settings = {
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
-				);
 			};
+		};
+		0AB3E782004B3117CFED3B96 = {
+			isa = PBXBundleReference;
+			path = MIDISPORT2x2.plugin;
+			refType = 3;
+		};
+		0AB3E783004B3117CFED3B96 = {
+			fileRef = 010D0AFEFEE5F5BB0A090812;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0AB3E784004B3117CFED3B96 = {
+			fileRef = 046A093FFFB4CC2ECFED3B96;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0AB3E785004B3117CFED3B96 = {
+			fileRef = 00C5C68EFEC350680A090812;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0AB3E786004B3117CFED3B96 = {
+			fileRef = 1E21D07CFED9A4DC0A090812;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0AB3E787004B3117CFED3B96 = {
+			fileRef = 00D01140FEDB397F0A090812;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		0AB3E789004B3117CFED3B96 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		0AB3E78A004B3117CFED3B96 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
 		};
 		19C28FB6FE9D52B211CA2CBB = {
 			children = (
-				0171837FFF807370CFED3B93,
+				0AB3E782004B3117CFED3B96,
 			);
 			isa = PBXGroup;
 			name = Products;
@@ -483,12 +463,6 @@
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
-					Debug,
-				);
-				INCLUDED_OSS = (
-					MACOS,
-					WINDOWS,
-					PDOUNIX,
 				);
 			};
 		};
