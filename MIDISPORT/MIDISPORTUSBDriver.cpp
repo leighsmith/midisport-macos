@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.7 2001/03/19 20:24:51 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.8 2001/03/20 17:32:27 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
@@ -60,7 +60,7 @@
 #define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
 #define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
-#define VERBOSE (DEBUG && 1)
+#define VERBOSE (DEBUG && 0)
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
