@@ -1,4 +1,4 @@
-// $Id: EZLoader.h,v 1.3 2001/03/29 22:39:59 leigh Exp $
+// $Id: EZLoader.h,v 1.4 2001/10/03 22:36:58 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -92,19 +92,20 @@ typedef struct _INTEL_HEX_RECORD
    BYTE  Data[MAX_INTEL_HEX_RECORD_LENGTH];
 } INTEL_HEX_RECORD, *PINTEL_HEX_RECORD;
 
-class EZUSBLoader : public USBDeviceScanner {
+class EZUSBLoader : public USBDeviceManager {
 public:
     EZUSBLoader();
 //    ~EZUSBLoader();
-    virtual bool UseDevice(IOUSBDeviceInterface **device,
+    virtual bool MatchDevice(IOUSBDeviceInterface **device,
                                           UInt16 devVendor,
                                           UInt16 devProduct);
 
     virtual void GetInterfaceToUse(IOUSBDeviceInterface **device, 
                                    UInt8 &outInterfaceNumber,
 				   UInt8 &outAltSetting);
-
-    bool EZUSBLoader::FoundInterface(IOUSBDeviceInterface **device,
+    bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
+                                    io_service_t ioInterface,
+                                    IOUSBDeviceInterface **device,
                                     IOUSBInterfaceInterface **interface,
                                     UInt16 devVendor,
                                     UInt16 devProduct,
