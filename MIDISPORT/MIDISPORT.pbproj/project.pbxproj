@@ -211,6 +211,8 @@
 				00D0113FFEDB397F0A090812,
 				00D01140FEDB397F0A090812,
 				028D229E016913B4CFED3B96,
+				7B2D4BA0018A08F3002A0496,
+				7B2D4BA1018A08F3002A0496,
 			);
 			isa = PBXGroup;
 			name = AppleCode;
@@ -346,6 +348,7 @@
 				0AB3E786004B3117CFED3B96,
 				0AB3E787004B3117CFED3B96,
 				028D229F016913B4CFED3B96,
+				7B2D4BA2018A08F4002A0496,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -371,6 +374,7 @@
 				046A0944FFB4CC2ECFED3B96,
 				1B44C8D3007286F3CFED3B96,
 				1B44C8D4007286F3CFED3B96,
+				7B2D4BA3018A08F4002A0496,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -591,6 +595,38 @@
 			settings = {
 				ATTRIBUTES = (
 				);
+			};
+		};
+//1E0
+//1E1
+//1E2
+//1E3
+//1E4
+//7B0
+//7B1
+//7B2
+//7B3
+//7B4
+		7B2D4BA0018A08F3002A0496 = {
+			isa = PBXFileReference;
+			path = MIDIBackCompatible.cpp;
+			refType = 4;
+		};
+		7B2D4BA1018A08F3002A0496 = {
+			isa = PBXFileReference;
+			path = MIDIBackCompatible.h;
+			refType = 4;
+		};
+		7B2D4BA2018A08F4002A0496 = {
+			fileRef = 7B2D4BA1018A08F3002A0496;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		7B2D4BA3018A08F4002A0496 = {
+			fileRef = 7B2D4BA0018A08F3002A0496;
+			isa = PBXBuildFile;
+			settings = {
 			};
 		};
 	};
