@@ -44,7 +44,7 @@
 
 #if DEBUG
 	#include <stdio.h>
-	//#define VERBOSE 1
+	#define VERBOSE 1
 #endif
 
 // _____________________________________________________________________________
@@ -134,6 +134,9 @@ void	USBDeviceManager::ScanDevices()
 	if (mMasterDevicePort == 0) return;
 
 	if (mIteratorsNeedEmptying) {
+            #if VERBOSE
+                printf("mIteratorsNeedEmptying in USBDeviceManager::ScanDevices()\n");
+            #endif
 		mIteratorsNeedEmptying = false;
 		DevicesAdded(mDeviceAddIterator);
 		DevicesRemoved(mDeviceRemoveIterator);
@@ -217,7 +220,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 
 			// Found a device match
 			#if VERBOSE
-				printf ("scanning devices, matched device 0x%X: vendor %d, product %d\n", (int)ioDeviceObj, (int)devVendor, (int)devProduct);
+				printf ("scanning devices, matched device 0x%X: vendor 0x%x, product 0x%x\n", (int)ioDeviceObj, (int)devVendor, (int)devProduct);
 			#endif
 
 			// Make sure it has at least one configuration
@@ -282,6 +285,12 @@ closeDevice:
 			if (deviceOpen && !keepOpen)
 				verify_noerr((*deviceIntf)->USBDeviceClose(deviceIntf));
 		} // end if vendor/product match
+                else {
+                    #if VERBOSE
+                        printf("couldnt match Device 0x%x, vendor 0x%x product 0x%x\n", deviceIntf, devVendor, devProduct);
+                    #endif
+                }
+
 nextDevice:
 		if (deviceIntf != NULL && !keepOpen)
 			(*deviceIntf)->Release(deviceIntf);
