@@ -25,7 +25,7 @@
 #include <IOKit/usb/IOUSBLib.h>
 
 
-#define USBUTILS_OLD_API 0
+#define USBUTILS_OLD_API 1
 	// some of the IOKit USB functions are deprecated, but there
 	// are bugs in the newer ones.  Abstract the differences
 	// so that we can switch over easily in the future.
