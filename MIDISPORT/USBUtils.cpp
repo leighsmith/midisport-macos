@@ -24,7 +24,7 @@
 #include <mach/mach_error.h>
 #include <stdio.h>
 
-#define VERBOSE (DEBUG && 1)
+#define VERBOSE (DEBUG && 0)
 
 void	printerr(char *func, IOReturn ret)
 {
@@ -59,7 +59,9 @@ int		USBDeviceLocator::FindDevices(IOUSBMatch *match)
 
 	// Create a device iterator using the given matching criteria
 	// (IOUSBMatch structure)
+#if VERBOSE
         printf("creating device iterator\n");
+#endif
 	ret = IOUSBCreateDeviceIterator(master_device_port, port, match, &devIter);
 	if (ret != kIOReturnSuccess) {
 		printerr("IOUSBCreateDeviceIterator", ret);
