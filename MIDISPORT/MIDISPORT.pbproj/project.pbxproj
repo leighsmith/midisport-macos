@@ -108,7 +108,7 @@
 		};
 		046A0940FFB4CC2ECFED3B96 = {
 			isa = PBXFileReference;
-			path = MIDISPORTFirmware.cpp;
+			path = MIDISPORT2x2Firmware.cpp;
 			refType = 4;
 		};
 		046A0941FFB4CC2ECFED3B96 = {
@@ -156,8 +156,6 @@
 			children = (
 				00C5C68DFEC350680A090812,
 				00C5C68EFEC350680A090812,
-				1E21D07BFED9A4DC0A090812,
-				1E21D07CFED9A4DC0A090812,
 				00C5C690FEC354650A090812,
 				00D0113FFEDB397F0A090812,
 				00D01140FEDB397F0A090812,
@@ -217,7 +215,7 @@
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-lstdc++";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = MIDISPORT2x2;
+				PRODUCT_NAME = MIDISPORT;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 				WRAPPER_EXTENSION = plugin;
@@ -227,7 +225,7 @@
 			dependencies = (
 			);
 			isa = PBXBundleTarget;
-			name = MIDISPORT2x2;
+			name = MIDISPORT;
 			productInstallPath = /System/Library/Extensions;
 			productName = MIDISPORT2x2;
 			productReference = 0AB3E782004B3117CFED3B96;
@@ -238,9 +236,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>MIDISPORT2x2</string>
+	<string>MIDISPORT</string>
 	<key>CFBundleGetInfoString</key>
-	<string>MIDIMan MIDISPORT 2x2 USB Driver</string>
+	<string>MIDIMan MIDISPORT USB Driver</string>
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
@@ -248,15 +246,15 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>MIDISPORT 2x2</string>
+	<string>MIDISPORT</string>
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>MIDISPORT 2x2 V1.1.0</string>
+	<string>MIDISPORT V2.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1.1.0</string>
+	<string>2.0.0</string>
 	<key>CFPlugInDynamicRegisterFunction</key>
 	<string></string>
 	<key>CFPlugInDynamicRegistration</key>
@@ -311,6 +309,8 @@
 				046A0942FFB4CC2ECFED3B96,
 				046A0943FFB4CC2ECFED3B96,
 				046A0944FFB4CC2ECFED3B96,
+				1B44C8D3007286F3CFED3B96,
+				1B44C8D4007286F3CFED3B96,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -367,8 +367,12 @@
 				010D0AFEFEE5F5BB0A090812,
 				046A093EFFB4CC2ECFED3B96,
 				046A093FFFB4CC2ECFED3B96,
+				1B44C8D1007286F3CFED3B96,
 				046A0940FFB4CC2ECFED3B96,
+				1B44C8D2007286F3CFED3B96,
 				046A0941FFB4CC2ECFED3B96,
+				1E21D07BFED9A4DC0A090812,
+				1E21D07CFED9A4DC0A090812,
 				06ACAA26005EFDB8CFED3B96,
 			);
 			isa = PBXGroup;
@@ -389,7 +393,7 @@
 		};
 		0AB3E782004B3117CFED3B96 = {
 			isa = PBXBundleReference;
-			path = MIDISPORT2x2.plugin;
+			path = MIDISPORT.plugin;
 			refType = 3;
 		};
 		0AB3E783004B3117CFED3B96 = {
@@ -447,6 +451,28 @@
 			isa = PBXGroup;
 			name = Products;
 			refType = 4;
+		};
+		1B44C8D1007286F3CFED3B96 = {
+			isa = PBXFileReference;
+			path = MIDISPORT1x1Firmware.cpp;
+			refType = 4;
+		};
+		1B44C8D2007286F3CFED3B96 = {
+			isa = PBXFileReference;
+			path = MIDISPORT4x4Firmware.cpp;
+			refType = 4;
+		};
+		1B44C8D3007286F3CFED3B96 = {
+			fileRef = 1B44C8D1007286F3CFED3B96;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1B44C8D4007286F3CFED3B96 = {
+			fileRef = 1B44C8D2007286F3CFED3B96;
+			isa = PBXBuildFile;
+			settings = {
+			};
 		};
 		1E21D07BFED9A4DC0A090812 = {
 			isa = PBXFileReference;
