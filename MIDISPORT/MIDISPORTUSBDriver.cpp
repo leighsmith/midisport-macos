@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.5 2000/12/13 05:02:33 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.6 2001/03/17 00:40:15 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
@@ -25,14 +25,6 @@
 	changes. If you're going to re-distribute the source, we require that you make
 	it clear in the source that the code was descended from Apple sample source
 	code, but that you've made changes.
-	
-	NOTE: THIS IS EARLY CODE, NOT NECESSARILY SUITABLE FOR SHIPPING PRODUCTS.
-	IT IS INTENDED TO GIVE HARDWARE DEVELOPERS SOMETHING WITH WHICH TO GET
-	DRIVERS UP AND RUNNING AS SOON AS POSSIBLE.
-	
-	In particular, the implementation is much more complex and ugly than is
-	necessary because of limitations of I/O Kit's USB user client code in DP4.
-	As I/O Kit evolves, this code will be updated to be much simpler.
 */
 
 #include <stddef.h>
@@ -67,35 +59,24 @@
 #define MIDIPACKETLEN		4		// number of bytes in a dword packet received and sent to the MIDISPORT
 #define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
-#define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
+#define DEBUG_OUTBUFFER		1		// 1 to printout whenever a msg is to be sent.
+#define VERBOSE (DEBUG && 1)
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-// This struct is used to match against USB devices, it is shared by the InterfaceLocator and
-// MIDISPORTUSBDriver instances.
-IOUSBMatch midisportMatch = {
-	kIOUSBAnyClass,
-	kIOUSBAnySubClass,
-	kIOUSBAnyProtocol,
-	midimanVendorID,
-	firmwareProductID
-};
-
-// __________________________________________________________________________________________________
 
 // Implementation of the factory function for this type.
 extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID);
 extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID) 
 {
-	// If correct type is being requested, allocate an
-	// instance of TestType and return the IUnknown interface.
-	if (CFEqual(typeID, kMIDIDriverTypeID)) {
-		MIDISPORT2x2 *result = new MIDISPORT2x2;
-		return result->Self();
-	} else {
-		// If the requested type is incorrect, return NULL.
-		return NULL;
-	}
+    // If correct type is being requested, allocate an
+    // instance of TestType and return the IUnknown interface.
+    if (CFEqual(typeID, kMIDIDriverTypeID)) {
+            MIDISPORT2x2 *result = new MIDISPORT2x2;
+            return result->Self();
+    } else {
+            // If the requested type is incorrect, return NULL.
+            return NULL;
+    }
 }
 
 // __________________________________________________________________________________________________
@@ -106,22 +87,24 @@ extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID)
 MIDISPORT2x2::MIDISPORT2x2() :
 	USBMIDIDriverBase(kFactoryUUID)
 {
-    IOUSBDeviceRef ezusbDev;
-    IOUSBDeviceRef midisportDev;
     extern INTEL_HEX_RECORD firmware[];
     EZUSBLoader ezusb;
     
-    // printf("MIDISPORTUSBDriver init\n");
-    ezusbDev = ezusb.FindDevice(midimanVendorID, coldBootProductID);
-    if (ezusbDev != NULL) {
-        // printf("in cold booted state, downloading firmware\n");
+#if VERBOSE
+    printf("MIDISPORTUSBDriver init\n");
+#endif
+    if (ezusb.FindVendorsProduct(midimanVendorID, coldBootProductID)) {
+#if VERBOSE
+        printf("in cold booted state, downloading firmware\n");
+#endif
         ezusb.setFirmware(firmware);
-        ezusb.StartDevice(ezusbDev);
+        ezusb.StartDevice();
         // check that we re-enumerated the USB bus properly.
-        do { // busy wait = bad!
-            midisportDev = ezusb.FindDevice(midimanVendorID, firmwareProductID);
-        } while(midisportDev == NULL);
-        // printf("Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware.\n");
+        while(!ezusb.FindVendorsProduct(midimanVendorID, firmwareProductID))
+            ; // busy wait == BAD BAD.
+#if VERBOSE
+        printf("Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware.\n");
+#endif
     }
 }
 
@@ -132,87 +115,58 @@ MIDISPORT2x2::~MIDISPORT2x2()
 
 // __________________________________________________________________________________________________
 
-// This class finds interface instances, called from FindDevices()
-class InterfaceLocator : public USBDeviceLocator {
-public:
-	void		Find(MIDIDeviceListRef devices, MIDIDriverRef driver)
-	{
-		mDeviceList = devices;
-		mDriver = driver;
-		if(FindDevices(&midisportMatch) != 0)
-                    printf("Error finding devices\n");
-	}
-	
-	virtual int	InterfaceIndexToUse(IOUSBDeviceRef device)
-	{
-		return kTheInterfaceToUse;
-	}
-
-	virtual bool	FoundInterface(IOUSBDeviceRef device, XUSBInterface interface)
-	{
-		MIDIDeviceRef dev;
-		MIDIEntityRef ent;
-//		IOUSBDeviceDescriptor deviceDesc;
-//                IOReturn ret;
-
-                // We want to determine the firmware version.
-                // This could be tucked into USBUtils.cpp
-//		IOUSBNewDeviceRef(devIter, &device);
-//                ret = IOUSBGetDeviceDescriptor(devIter, &deviceDesc, sizeof(deviceDesc));
-//                if (ret != kIOReturnSuccess) {
-//                    printerr("IOUSBGetDeviceDescriptor", ret);
-//                }
-		
-		MIDIDeviceCreate(mDriver,
-			CFSTR(kMyBoxName),
-			CFSTR(kMyManufacturerName),
-			CFSTR(kMyModelName),
-			&dev);
-
-		// make kNumPorts entities with 1 source, 1 destination
-		for (int port = 1; port <= kNumPorts; ++port) {
-			char portname[64];
-			sprintf(portname, "Port %d", port);
-			CFStringRef str = CFStringCreateWithCString(NULL, portname, 0);
-			MIDIDeviceAddEntity(dev, str, false, 1, 1, &ent);
-			CFRelease(str);
-		}
-
-		MIDIDeviceListAddDevice(mDeviceList, dev);
-		return false;		// don't keep device/interface allocated
-	}
-private:
-	MIDIDeviceListRef	mDeviceList;
-	MIDIDriverRef		mDriver;
-};
-
-OSStatus MIDISPORT2x2::FindDevices(MIDIDeviceListRef devices)
+bool MIDISPORT2x2::UseDevice(IOUSBDeviceInterface **device,
+                             UInt16 devVendor,
+                             UInt16 devProduct)
 {
-    InterfaceLocator loc;
-    
-    // Register the device and the MIDISPORTUSBDriver with the interface locator instance, 
-    // and search for devices matching the warm boot (firmware product ID and manufacturer ID).
-    loc.Find(devices, Self());
-    return noErr;
+    return devVendor == midimanVendorID && devProduct == firmwareProductID;
 }
 
-IOUSBMatch *MIDISPORT2x2::GetUSBMatch()
+void MIDISPORT2x2::GetInterfaceToUse(IOUSBDeviceInterface **device, 
+                                     UInt8 &outInterfaceNumber,
+                                     UInt8 &outAltSetting)
 {
-    return &midisportMatch;
+    outInterfaceNumber = kTheInterfaceToUse;
+    outAltSetting = 0;
 }
 
-int MIDISPORT2x2::InterfaceIndexToUse(IOUSBDeviceRef device)
+void MIDISPORT2x2::FoundDevice(IOUSBDeviceInterface **device,
+                               IOUSBInterfaceInterface **interface,
+                               UInt16 devVendor,
+                               UInt16 devProduct,
+                               UInt8 interfaceNumber,
+                               UInt8 altSetting,
+                               MIDIDeviceListRef deviceList)
 {
-    return kTheInterfaceToUse;
+    MIDIDeviceRef dev;
+    MIDIEntityRef ent;
+
+    printf("Found MIDISPORT device\n");
+    MIDIDeviceCreate(Self(),
+            CFSTR(kMyBoxName),
+            CFSTR(kMyManufacturerName),
+            CFSTR(kMyModelName),
+            &dev);
+
+    // make kNumPorts entities with 1 source, 1 destination
+    for (int port = 1; port <= kNumPorts; ++port) {
+        char portname[64];
+        sprintf(portname, "Port %d", port);
+        CFStringRef str = CFStringCreateWithCString(NULL, portname, 0);
+        MIDIDeviceAddEntity(dev, str, false, 1, 1, &ent);
+        CFRelease(str);
+    }
+
+    MIDIDeviceListAddDevice(deviceList, dev);
 }
 
 // note that we're using bulk endpoint for output; interrupt for input...
 void MIDISPORT2x2::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
 {
-    info.inEndptType = kUSBInterrupt;
-    info.outEndptType = kUSBBulk;
-    info.readBufSize = kReadBufSize;
-    info.writeBufSize = kWriteBufSize;
+    info.inEndpointType = kUSBInterrupt; // TODO this differs from the SampleUSB and is probably correct.
+    info.outEndpointType = kUSBBulk;
+    info.readBufferSize = kReadBufSize;
+    info.writeBufferSize = kWriteBufSize;
 }
 
 void MIDISPORT2x2::StartInterface(InterfaceState *intf)
@@ -235,7 +189,7 @@ void MIDISPORT2x2::StopInterface(InterfaceState *intf)
 // The lower nibble (yy) indicates the byte count of valid data in the preceding three bytes.
 // A byte count of 0 indicates a null packet and marks the end of the multiplex input buffer
 // for transmitting less than a full kReadBufSize of data.
-void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, int readBufSize)
+void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, ByteCount readBufSize)
 {
     int prevInputPort = -1;	                         // signifies none
     static bool inSysex[kNumPorts] = {false, false};     // is it possible to make this mInSysEx?
@@ -257,7 +211,7 @@ void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *r
         if (bytesInPacket == 0)	      // Indicates the end of the buffer, early out.
             break;		
 
-        // printf("%c %d: %02X %02X %02X %02X  ", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
+        printf("%c %d: %02X %02X %02X %02X  ", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
@@ -345,7 +299,7 @@ void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *r
 // at least one element.
 // Fill one USB buffer, destBuf, with a size of bufSize, with outgoing data in USB-MIDI format.
 // Return the number of bytes written.
-int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, Byte *destBuf)
+ByteCount MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, Byte *destBuf)
 {
     Byte *dest = destBuf, *destend = dest + kWriteBufSize;
     
@@ -363,10 +317,12 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
                 
         WriteQueueElem *wqe = &writeQueue.front();
         Byte cableNibble = wqe->portNum << 4;
+        Byte cableEndpoint = (wqe->portNum+1) << 1;
         VLMIDIPacket *pkt = wqe->packet;
         Byte *src = pkt->data + wqe->bytesSent;
         Byte *srcend = &pkt->data[pkt->length];
 
+        printf("cableNibble = 0x%x, portNum = %d, cableEndpoint = %d\n", cableNibble, wqe->portNum, cableEndpoint);
         while (src < srcend && dest < destend) {
             int outPacketLen;
             Byte c = *src++;
@@ -382,7 +338,7 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
                 
                 memcpy(dest, src, outPacketLen);
                 memset(dest + outPacketLen, 0, 2 - outPacketLen);
-                dest[2] = cableNibble | (outPacketLen + 1); // mark length and cable
+                dest[2] = outPacketLen + 1; // mark length and cable
                 dest += 3;
                 src += outPacketLen;
                 break;
@@ -395,7 +351,7 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
                 *dest++ = c;
                 *dest++ = *src++;
                 *dest++ = *src++;
-                *dest++ = cableNibble | 0x03;
+                *dest++ = 0x03;
                 break;
             case 0xC:	// program change
             case 0xD:	// mono pressure
@@ -403,7 +359,7 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
                 *dest++ = c;
                 *dest++ = *src++;
                 *dest++ = 0;
-                *dest++ = cableNibble | 0x02;
+                *dest++ = 0x02;
                 break;
             case 0xF:	// system message
                 // printf("system %02X\n", c);
@@ -412,7 +368,7 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
                     *dest++ = c;
                     *dest++ = *src++;
                     *dest++ = *src++;
-                    *dest++ = cableNibble | 0x03;	// sysex start or continued
+                    *dest++ = 0x03;	// sysex start or continued
                     break;
                 case 0xF6:	// tune request (0)
                 case 0xF7:	// sysex conclude (0)
@@ -425,20 +381,20 @@ int MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, By
                     *dest++ = c;
                     *dest++ = 0;
                     *dest++ = 0;
-                    *dest++ = cableNibble | 0x01;      // 1-byte system realtime or system common
+                    *dest++ = 0x01;      // 1-byte system realtime or system common
                     break;
                 case 0xF1:	// MTC (1)
                 case 0xF3:	// song select (1)
                     *dest++ = c;
                     *dest++ = *src++;
                     *dest++ = 0;
-                    *dest++ = cableNibble | 0x02;	// 2-byte system common
+                    *dest++ = 0x02;	// 2-byte system common
                     break;
                 case 0xF2:	// song pointer (2)
                     *dest++ = c;
                     *dest++ = *src++;
                     *dest++ = *src++;
-                    *dest++ = cableNibble | 0x03;	// 3-byte system common
+                    *dest++ = 0x03;	// 3-byte system common
                     break;
                 default:
                     // printf("unknown %02X\n", c);

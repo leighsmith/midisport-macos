@@ -25,22 +25,35 @@
 
 class MIDISPORT2x2 : public USBMIDIDriverBase {
 public:
-	MIDISPORT2x2();
-	~MIDISPORT2x2();
-	
-	// MIDIDriver overrides
-	virtual OSStatus	FindDevices(MIDIDeviceListRef devices);
-
+    MIDISPORT2x2();
+    ~MIDISPORT2x2();
+    
+    // MIDIDriver overrides
 /*	virtual OSStatus	EnableSource(MIDIEndpointRef src, Boolean enabled);*/
 
-	// USBMIDIDriverBase overrides
-	virtual IOUSBMatch *GetUSBMatch();
-	virtual int   InterfaceIndexToUse(IOUSBDeviceRef device);
-	virtual void  GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info);
-	virtual void  StartInterface(InterfaceState *intf);
-	virtual void  StopInterface(InterfaceState *intf);
-	virtual void  HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, int readBufSize);
-	virtual int   PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, Byte *destBuf);
+    // USBMIDIDriverBase overrides
+    virtual bool UseDevice(IOUSBDeviceInterface **device,
+                                          UInt16 devVendor,
+                                          UInt16 devProduct);
+
+    virtual void GetInterfaceToUse(IOUSBDeviceInterface **device, 
+                                   UInt8 &outInterfaceNumber,
+                                   UInt8 &outAltSetting);
+
+    virtual void FoundDevice(IOUSBDeviceInterface **device,
+                             IOUSBInterfaceInterface **interface,
+                             UInt16 devVendor,
+                             UInt16 devProduct,
+                             UInt8 interfaceNumber,
+                             UInt8 altSetting,
+                             MIDIDeviceListRef deviceList);
+
+    virtual void GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info);
+
+    virtual void StartInterface(InterfaceState *intf);
+    virtual void StopInterface(InterfaceState *intf);
+    virtual void HandleInput( InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, ByteCount readBufSize);
+    virtual ByteCount PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, Byte *destBuf);
 };
 
 #endif // __MIDISPORTUSBDriver_h__
