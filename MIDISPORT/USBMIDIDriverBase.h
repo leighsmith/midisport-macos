@@ -1,22 +1,41 @@
 /*
-	Copyright (c) 2000 Apple Computer, Inc., All Rights Reserved.
-
-	You may incorporate this Apple sample source code into your program(s) without
-	restriction. This Apple sample source code has been provided "AS IS" and the
-	responsibility for its operation is yours. You are not permitted to redistribute
-	this Apple sample source code as "Apple sample source code" after having made
-	changes. If you're going to re-distribute the source, we require that you make
-	it clear in the source that the code was descended from Apple sample source
-	code, but that you've made changes.
-	
-	NOTE: THIS IS EARLY CODE, NOT NECESSARILY SUITABLE FOR SHIPPING PRODUCTS.
-	IT IS INTENDED TO GIVE HARDWARE DEVELOPERS SOMETHING WITH WHICH TO GET
-	DRIVERS UP AND RUNNING AS SOON AS POSSIBLE.
-	
-	In particular, the implementation is much more complex and ugly than is
-	necessary because of limitations of I/O Kit's USB user client code in DP4.
-	As I/O Kit evolves, this code will be updated to be much simpler.
-*/
+ IMPORTANT: This Apple software is supplied to you by Apple Computer,
+ Inc. ("Apple") in consideration of your agreement to the following terms,
+ and your use, installation, modification or redistribution of this Apple
+ software constitutes acceptance of these terms.  If you do not agree with
+ these terms, please do not use, install, modify or redistribute this Apple
+ software.
+ 
+ In consideration of your agreement to abide by the following terms, and
+ subject to these terms, Apple grants you a personal, non-exclusive
+ license, under Apple’s copyrights in this original Apple software (the
+ "Apple Software"), to use, reproduce, modify and redistribute the Apple
+ Software, with or without modifications, in source and/or binary forms;
+ provided that if you redistribute the Apple Software in its entirety and
+ without modifications, you must retain this notice and the following text
+ and disclaimers in all such redistributions of the Apple Software.
+ Neither the name, trademarks, service marks or logos of Apple Computer,
+ Inc. may be used to endorse or promote products derived from the Apple
+ Software without specific prior written permission from Apple. Except as
+ expressly stated in this notice, no other rights or licenses, express or
+ implied, are granted by Apple herein, including but not limited to any
+ patent rights that may be infringed by your derivative works or by other
+ works in which the Apple Software may be incorporated.
+ 
+ The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES
+ NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE
+ IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A
+ PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION
+ ALONE OR IN COMBINATION WITH YOUR PRODUCTS.
+ 
+ IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION,
+ MODIFICATION AND/OR DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND
+ WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT
+ LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
+ OF SUCH DAMAGE.  */
 
 #ifndef __USBMIDIDriverBase_h__
 #define __USBMIDIDriverBase_h__
@@ -32,130 +51,122 @@ class InterfaceState;
 
 typedef vector<InterfaceState *> InterfaceStateList;
 
-#define USBMIDI_ASYNCIO 0
-
-#if !USBMIDI_ASYNCIO
-	#include "XThread.h"
-
-	class IOThread : public XThread {
-	public:
-		IOThread(InterfaceState *rs) : XThread(XThread::kPrioritySystem, 0, XThread::kPolicyFIFO),
-			mInterfaceState(rs) { }
-
-		bool			Running() const { return mRunning; }
-
-	protected:
-		InterfaceState *mInterfaceState;
-		bool			mRunning;
-	};
-		
-	class ReadThread : public IOThread {
-	public:
-		ReadThread(InterfaceState *rs) : IOThread(rs) { }
-
-		virtual void	Run();
-	};
-	
-	class WriteThread : public IOThread {
-	public:
-		WriteThread(InterfaceState *rs) : IOThread(rs) { }
-
-		virtual void	Run();
-	};
-	
-#endif
-
 class WriteQueueElem {
 public:
 	VLMIDIPacket *		packet;
 	int					portNum;
-	int					bytesSent;	// this much of the packet has been sent
+	ByteCount			bytesSent;	// this much of the packet has been sent
 };
 
 typedef list<WriteQueueElem> WriteQueue;
 
 struct InterfaceInfo {
-	UInt8		inEndptType;		// kUSBBulk, etc.
-	UInt8		outEndptType;
-	ByteCount	readBufSize;
-	ByteCount	writeBufSize;
+	UInt8				inEndpointType;		// kUSBBulk, etc.
+	UInt8				outEndpointType;
+	ByteCount			readBufferSize;
+	ByteCount			writeBufferSize;
 };
 
-// MIDIDriver subclass, derive your driver from this
+// _________________________________________________________________________________________
+// USBMIDIDriverBase
+//
+// MIDIDriver subclass, derive your USB MIDI driver from this
 class USBMIDIDriverBase : public MIDIDriver {
 public:
 	USBMIDIDriverBase(CFUUIDRef factoryID);
 	~USBMIDIDriverBase();
 	
-	// implementation of MIDIDriver
-	virtual OSStatus	Start(MIDIDeviceListRef devices);
+	// overrides of MIDIDriver virtual methods
+	virtual OSStatus	FindDevices(		MIDIDeviceListRef devices );
+	virtual OSStatus	Start(				MIDIDeviceListRef devices );
 	virtual OSStatus	Stop();
-	virtual OSStatus	Send(const MIDIPacketList *pktlist, void *endptRef1, void *endptRef2);
+	virtual OSStatus	Send(				const MIDIPacketList *pktlist,
+											void *endptRef1,
+											void *endptRef2 );
 
 	// our own virtual methods
-	virtual IOUSBMatch *GetUSBMatch() = 0;
-							// return an IOUSBMatch which will determine which devices
-							// get scanned in more detail
-	virtual int			InterfaceIndexToUse(IOUSBDeviceRef device) = 0;
-							// given a USB device, return index of interface to use
-	virtual void		GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info) = 0;
+
+	virtual bool		UseDevice(			IOUSBDeviceInterface **	device,
+											UInt16					devVendor,
+											UInt16					devProduct ) = 0;
+							// given a USB device and its vendor/product IDs,
+							// return a boolean saying whether this driver wants
+							// to control this device
+
+	virtual void		GetInterfaceToUse(	IOUSBDeviceInterface **device, 
+											UInt8 &outInterfaceNumber,
+											UInt8 &outAltSetting ) = 0;
+							// given a USB device, return the interface number and
+							// alternate setting to use
+
+	virtual void		FoundDevice(	IOUSBDeviceInterface **		device,
+										IOUSBInterfaceInterface **	interface,
+										UInt16						devVendor,
+										UInt16						devProduct,
+										UInt8						interfaceNumber,
+										UInt8						altSetting,
+										MIDIDeviceListRef			deviceList ) = 0;
+							// given a USB device, create and add a MIDIDevice representation of it
+							// to the MIDIDeviceList
+
+	virtual void		GetInterfaceInfo(	InterfaceState *intf,
+											InterfaceInfo &info) = 0;
 							// given an interface, get its info: endpoint types to use,
 							// read size
-	virtual void		StartInterface(InterfaceState *intf) = 0;
+
+	virtual void		StartInterface(		InterfaceState *intf ) = 0;
 							// pipes are opened, do any extra initialization (send config msgs etc)
-	virtual void		StopInterface(InterfaceState *intf) = 0;
+							
+	virtual void		StopInterface(		InterfaceState *intf ) = 0;
 							// pipes are about to be closed, do any preliminary cleanup
-	virtual void		HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, int readBufSize) = 0;
+							
+	virtual void		HandleInput(		InterfaceState *intf,
+											MIDITimeStamp when,
+											Byte *readBuf,
+											ByteCount readBufSize ) = 0;
 							// a USB message arrived, parse it into a MIDIPacketList and
 							// call MIDIReceived
-	virtual int			PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, Byte *destBuf) = 0;
+
+	virtual ByteCount	PrepareOutput(		InterfaceState *intf,
+											WriteQueue &writeQueue,
+											Byte *destBuf ) = 0;
 							// dequeue from WriteQueue into a single USB message, return
 							// length of the message.  Called with the queue mutex locked.
 
 	// Utilities to implement the USB MIDI class spec methods of encoding MIDI in USB packets
-	static void			USBMIDIHandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *readBuf,
-							int bufSize);
-	static int			USBMIDIPrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, 
-							Byte *destBuf, int bufSize);
+	static void			USBMIDIHandleInput(	InterfaceState *intf, 
+											MIDITimeStamp when,
+											Byte *readBuf,
+											ByteCount bufSize );
+
+	static ByteCount	USBMIDIPrepareOutput(InterfaceState *intf,
+											WriteQueue &writeQueue, 
+											Byte *destBuf,
+											ByteCount bufSize );
 
 private:
-	InterfaceStateList		*mInterfaceStateList;
+	InterfaceStateList	*mInterfaceStateList;
 };
 
-
-
+// _________________________________________________________________________________________
+// InterfaceState
+// 
 // This class is the runtime state for one interface instance
 class InterfaceState {
 public:
-	InterfaceState(USBMIDIDriverBase *driver, MIDIDeviceRef midiDevice, IOUSBDeviceRef usbDevice, 
-					XUSBInterface usbInterface);
+	InterfaceState(	USBMIDIDriverBase *driver,
+					MIDIDeviceRef midiDevice, 
+					IOUSBDeviceInterface **usbDevice, 
+					IOUSBInterfaceInterface **usbInterface);
 
 	virtual ~InterfaceState();
 	
-#if USBMIDI_ASYNCIO
-	void	DoRead()
-	{
-		if (mInPipe) {
-			IOReturn ret = IOUSBReadPipeAsync(mInPipe, mReadBuf, 1, ReadCallback, this);
-			if (ret)
-				printerr("IOUSBReadPipeAsync", ret);
-		}
-	}
-	
-	static void	ReadCallback(void *refcon, IOReturn result, void *arg0)
-	{
-		InterfaceState *self = (InterfaceState *)refcon;
-		printf("ReadCallback: arg0 is %ld\n", (long)arg0);
-		self->HandleInput();
-		// chain another async read
-		self->DoRead();
-	}
-#else
-	void	DoWrites();	// called from the write thread
+	void		DoRead();	
+	static void	ReadCallback(void *refcon, IOReturn result, void *arg0);
+	void		DoWrite();	
+	static void	WriteCallback(void *refcon, IOReturn result, void *arg0);
 
-#endif // USBMIDI_ASYNCIO
-
-	void	HandleInput(int packetSize);
+	void	HandleInput(ByteCount bytesReceived);
 	void	Send(const MIDIPacketList *pktlist, int portNumber);
 	
 	void	GetInterfaceInfo(InterfaceInfo &info) 
@@ -163,33 +174,31 @@ public:
 		mDriver->GetInterfaceInfo(this, info);
 	}
 	
-	// leave data members public, for benefit of driver methods?
-	USBMIDIDriverBase *	mDriver;
-	IOUSBDeviceRef		mDevice;
-	XUSBInterface		mInterface;
-	IOUSBPipeRef		mInPipe, mOutPipe;
-	int					mNumEntities;
-	MIDIEndpointRef *	mSources;
-	Byte *				mReadBuf;
-	Byte *				mWriteBuf;
+	// leave data members public, for benefit of driver methods
+	USBMIDIDriverBase *			mDriver;
+	IOUSBDeviceInterface **		mDevice; 
+	IOUSBInterfaceInterface	**	mInterface;
+	UInt8						mInPipe, mOutPipe;
+	bool						mHaveInPipe, mHaveOutPipe;
+	InterfaceInfo				mInterfaceInfo;
+	int							mNumEntities;
+	MIDIEndpointRef *			mSources;
+	Byte *						mReadBuf;
+	Byte *						mWriteBuf;
 	
-	WriteQueue			mWriteQueue;
-	pthread_mutex_t		mWriteQueueMutex;
-	pthread_cond_t		mWriteQueueNonEmpty;
+	WriteQueue					mWriteQueue;
+	pthread_mutex_t				mWriteQueueMutex;
 
-#if !USBMIDI_ASYNCIO
-	ReadThread *		mReadThread;
-	WriteThread *		mWriteThread;
-#endif
-	bool				mStopRequested;
+	bool						mWritePending;
+	bool						mStopRequested;
 
-	// parse state
-	Byte				mReadCable;
-	Byte				mRunningStatus;
-	bool				mInSysEx;
+	// input parse state
+	Byte						mReadCable;
+	Byte						mRunningStatus;
+	bool						mInSysEx;
 	
 	// output state
-	Byte				mWriteCable;
+	Byte						mWriteCable;
 };
 
 

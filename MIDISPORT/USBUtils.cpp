@@ -1,213 +1,202 @@
 /*
-	Copyright (c) 2000 Apple Computer, Inc., All Rights Reserved.
+ IMPORTANT: This Apple software is supplied to you by Apple Computer,
+ Inc. ("Apple") in consideration of your agreement to the following terms,
+ and your use, installation, modification or redistribution of this Apple
+ software constitutes acceptance of these terms.  If you do not agree with
+ these terms, please do not use, install, modify or redistribute this Apple
+ software.
+ 
+ In consideration of your agreement to abide by the following terms, and
+ subject to these terms, Apple grants you a personal, non-exclusive
+ license, under Apple’s copyrights in this original Apple software (the
+ "Apple Software"), to use, reproduce, modify and redistribute the Apple
+ Software, with or without modifications, in source and/or binary forms;
+ provided that if you redistribute the Apple Software in its entirety and
+ without modifications, you must retain this notice and the following text
+ and disclaimers in all such redistributions of the Apple Software.
+ Neither the name, trademarks, service marks or logos of Apple Computer,
+ Inc. may be used to endorse or promote products derived from the Apple
+ Software without specific prior written permission from Apple. Except as
+ expressly stated in this notice, no other rights or licenses, express or
+ implied, are granted by Apple herein, including but not limited to any
+ patent rights that may be infringed by your derivative works or by other
+ works in which the Apple Software may be incorporated.
+ 
+ The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES
+ NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE
+ IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A
+ PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION
+ ALONE OR IN COMBINATION WITH YOUR PRODUCTS.
+ 
+ IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION,
+ MODIFICATION AND/OR DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND
+ WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT
+ LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
+ OF SUCH DAMAGE.  */
 
-	You may incorporate this Apple sample source code into your program(s) without
-	restriction. This Apple sample source code has been provided "AS IS" and the
-	responsibility for its operation is yours. You are not permitted to redistribute
-	this Apple sample source code as "Apple sample source code" after having made
-	changes. If you're going to re-distribute the source, we require that you make
-	it clear in the source that the code was descended from Apple sample source
-	code, but that you've made changes.
-	
-	NOTE: THIS IS EARLY CODE, NOT NECESSARILY SUITABLE FOR SHIPPING PRODUCTS.
-	IT IS INTENDED TO GIVE HARDWARE DEVELOPERS SOMETHING WITH WHICH TO GET
-	DRIVERS UP AND RUNNING AS SOON AS POSSIBLE.
-	
-	In particular, the implementation is much more complex and ugly than is
-	necessary because of limitations of I/O Kit's USB user client code in DP4.
-	As I/O Kit evolves, this code will be updated to be much simpler.
-*/
-
+#include <CoreServices/CoreServices.h>	// we need Debugging.h, CF, etc.
 #include "USBUtils.h"
-#include <mach/mach_interface.h>
-#include <mach/mach_port.h>
-#include <mach/mach_error.h>
-#include <stdio.h>
+#include <IOKit/IOCFPlugIn.h>
+#include <unistd.h>	// for usleep()
 
-#define VERBOSE (DEBUG && 0)
-
-void	printerr(char *func, IOReturn ret)
-{
 #if DEBUG
-	fprintf(stderr, "%s failed: 0x%x %s\n", func, ret, mach_error_string(ret));
+#include <stdio.h>
 #endif
-}
 
-int		USBDeviceLocator::FindDevices(IOUSBMatch *match)
+//#define VERBOSE (DEBUG && 1)
+
+// _____________________________________________________________________________
+void	USBDeviceScanner::ScanDevices()
 {
-	kern_return_t	kr;
-	mach_port_t		master_device_port, port;
+	io_iterator_t	devIter 			= NULL;
+	io_service_t	ioDeviceObj			= NULL;
+	mach_port_t		master_device_port	= 0;
+	CFDictionaryRef	matchingDict		= NULL;
 
-	// This gets the master device mach port through which all
-	// messages to the kernel go
-	kr = IOMasterPort(bootstrap_port, &master_device_port);
-
-	if (kr != KERN_SUCCESS)
-		return kr;
-
-	IOReturn		ret;
-	IOUSBIteratorRef devIter = NULL, intfIter = NULL;
-	IOUSBDeviceRef	device = NULL;
-	XUSBInterface interface = NULL;
-
-	// In order to iterate through the existing USB devices as well as
-	// receive USB device attach notifications, we must create a new
-	// mach port.
-	kr = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &port);
-	if (kr != KERN_SUCCESS)
-		return kr;
-
-	// Create a device iterator using the given matching criteria
-	// (IOUSBMatch structure)
-#if VERBOSE
-        printf("creating device iterator\n");
-#endif
-	ret = IOUSBCreateDeviceIterator(master_device_port, port, match, &devIter);
-	if (ret != kIOReturnSuccess) {
-		printerr("IOUSBCreateDeviceIterator", ret);
-		goto done;
-	}
-
-	// Iterate through matching devices
-	while (IOUSBIteratorNext(devIter) == kIOReturnSuccess) {
-		IOUSBNewDeviceRef(devIter, &device);
-#if VERBOSE
-		IOUSBDeviceDescriptor deviceDesc;
-                ret = IOUSBGetDeviceDescriptor(devIter, &deviceDesc, sizeof(deviceDesc));
-                if (ret != kIOReturnSuccess) {
-                    printerr("IOUSBGetDeviceDescriptor", ret);
-                }
-		printf("Found device\n");
-#endif
-		// Find requested interface number
-		IOUSBFindInterfaceRequest intfReq;
-		memset(&intfReq, 0, sizeof(intfReq));	// match all interfaces
+	// This gets the master device mach port through which all messages
+	// to the kernel go, and initiates communication with IOKit.
+	require_noerr(IOMasterPort(bootstrap_port, &master_device_port), errexit);
 		
-		ret = IOUSBCreateDeviceInterfaceIterator(device, &intfReq, &intfIter);
-		if (ret != kIOReturnSuccess) {
-			IOUSBDisposeRef(device);
-			printerr("IOUSBCreateDeviceInterfaceIterator", ret);
-			continue;
-		}
+	// Create a matching dictionary that specifies an IOService class match.
+	matchingDict = IOServiceMatching(kIOUSBDeviceClassName); 
+	require(matchingDict != NULL, errexit);
+ 
+	// Find an IOService object currently registered by IOKit that match a 
+	// dictionary, and get an iterator for it
+	require_noerr(IOServiceGetMatchingServices(master_device_port, matchingDict, &devIter), errexit);
+	matchingDict = NULL;	// Finish handoff of matchingDict
+
+	// Device iterator begins here.
+	while ((ioDeviceObj = IOIteratorNext(devIter)) != NULL) {
+		IOCFPlugInInterface 	**ioPlugin;
+		IOUSBDeviceInterface 	**deviceIntf = NULL;
+		IOReturn	 			kr;
+		SInt32 					score;
+		UInt16					devVendor;
+		UInt16					devProduct;
+		bool					keepOpen = false;
+
+		// Get self pointer to device.
+		require_noerr(IOCreatePlugInInterfaceForService(
+			ioDeviceObj, kIOUSBDeviceUserClientTypeID, kIOCFPlugInInterfaceID, 
+			&ioPlugin, &score), nextDevice);
+   
+		kr = (*ioPlugin)->QueryInterface(ioPlugin, CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID), (LPVOID *)&deviceIntf);		
+		(*ioPlugin)->Release(ioPlugin);
+		ioPlugin = NULL;
+		require_string(kr == kIOReturnSuccess, nextDevice, "QueryInterface failed");
+
+		// Get device info
+		require_noerr((*deviceIntf)->GetDeviceVendor(deviceIntf, &devVendor), nextDevice);
+		require_noerr((*deviceIntf)->GetDeviceProduct(deviceIntf, &devProduct), nextDevice);
 		
-		int interfaceNumber = InterfaceIndexToUse(device);
-#if VERBOSE
-                printf("interface number to use %d\n", interfaceNumber);
-#endif
+		if (UseDevice(deviceIntf, devVendor, devProduct)) {
+			bool						deviceOpen = false;
+			UInt8						numConfigs;
+			IOUSBConfigurationDescriptorPtr configDesc;	
+			IOUSBInterfaceInterface		**interfaceIntf;
+			io_iterator_t				intfIter = 0;
+			UInt8 						intfNumber = 0;
+			io_service_t 				ioInterfaceObj = NULL;
+			IOUSBFindInterfaceRequest 	intfRequest;
+			UInt8						desiredInterface = 0, desiredAltSetting = 0;
+			#if VERBOSE
+				int interfaceIndex		= 0;
+			#endif
 
-		bool keepOpen = false;
-		while (IOUSBIteratorNext(intfIter) == kIOReturnSuccess) {
-			IOUSBInterfaceDescriptor intfDesc;
-			ret = IOUSBGetInterfaceDescriptor(intfIter, &intfDesc, sizeof(intfDesc));
-			if (ret != kIOReturnSuccess) {
-				printerr("IOUSBGetInterfaceDescriptor", ret);
-			}
-			else if (intfDesc.interfaceNumber == interfaceNumber) {
-				// here's the one we want
-				int configValue;
+			// Found a device match
+			#if VERBOSE
+				printf ("scanning devices, matched vendor %d, product %d\n", (int)devVendor, (int)devProduct);
+			#endif
 
-#if USBUTILS_OLD_API
-				interface = IOUSBGetInterface(device, 0, interfaceNumber, 0);
-				configValue = interface->config->descriptor->configValue;
-#else
-				IOUSBConfigurationDescriptorPtr configDesc;
+			// Make sure it has at least one configuration
+			require_noerr((*deviceIntf)->GetNumberOfConfigurations(deviceIntf, &numConfigs), nextDevice);
+			require(numConfigs > 0, nextDevice);
 
-				IOUSBNewInterfaceRef(intfIter, &interface);
-				ret = IOUSBGetConfigDescriptor(device, 0, &configDesc);
-				if (ret != kIOReturnSuccess) {
-					printerr("IOUSBGetConfigDescriptor", ret);
+			// Get a pointer to the configuration descriptor for index 0
+			require_noerr((*deviceIntf)->GetConfigurationDescriptorPtr(deviceIntf, 0, &configDesc), nextDevice);
+
+			// Open the device
+			require_noerr((*deviceIntf)->USBDeviceOpen(deviceIntf), nextDevice);
+			deviceOpen = true;
+
+			// Set the configuration
+			//require_noerr((*deviceIntf)->GetConfiguration(deviceIntf, &curConfig), closeDevice);
+			#if VERBOSE
+				printf("Setting configuration %d\n", (int)configDesc->bConfigurationValue);
+			#endif
+			require_noerr((*deviceIntf)->SetConfiguration(deviceIntf, configDesc->bConfigurationValue), closeDevice);
+			usleep(100000);	// 100 ms - cf. Radar 2620014
+			
+			GetInterfaceToUse(deviceIntf, desiredInterface, desiredAltSetting);
+				// Get the interface number for this device
+
+			// Create the interface iterator
+			intfRequest.bInterfaceClass		= kIOUSBFindInterfaceDontCare;
+			intfRequest.bInterfaceSubClass	= kIOUSBFindInterfaceDontCare;
+			intfRequest.bInterfaceProtocol	= kIOUSBFindInterfaceDontCare;
+			intfRequest.bAlternateSetting	= desiredAltSetting;
+			
+			require_noerr((*deviceIntf)->CreateInterfaceIterator(deviceIntf, &intfRequest, &intfIter), closeDevice);
+
+			while ((ioInterfaceObj = IOIteratorNext(intfIter)) != NULL) {
+				#if VERBOSE
+					printf("interface index %d\n", interfaceIndex++);
+				#endif
+				// try for up to 3 seconds to create the plugin interface
+				// we have to poll for it because the kernel is doing things on a separate thread
+				// cf. Radar 2620014
+				for (int attempt = 0; attempt < 30; ++attempt) {
+					kr = IOCreatePlugInInterfaceForService(ioInterfaceObj, kIOUSBInterfaceUserClientTypeID, kIOCFPlugInInterfaceID, &ioPlugin, &score);
+					if (kr == kIOReturnSuccess) break;
+					usleep(100000);	// 100 ms
 				}
-				configValue = configDesc->configValue;
-#endif
+				require_noerr(kr, nextInterface);
 
-#if VERBOSE
-				printf("setting configuration %d\n", configValue);
-#endif
-				ret = IOUSBSetConfiguration(device, configValue);
-				if (ret != kIOReturnSuccess) {
-					printerr("IOUSBSetConfiguration", ret);
+				kr = (*ioPlugin)->QueryInterface(ioPlugin, CFUUIDGetUUIDBytes(kIOUSBInterfaceInterfaceID), (LPVOID *)&interfaceIntf);
+				(*ioPlugin)->Release(ioPlugin);
+				ioPlugin = NULL;
+				require_string(kr == kIOReturnSuccess && interfaceIntf != NULL, nextInterface, "QueryInterface for USB interface failed");
+
+				require_noerr((*interfaceIntf)->GetInterfaceNumber(interfaceIntf, &intfNumber), nextInterface);
+				if (desiredInterface == intfNumber) {	// here's the one we want
+					#if VERBOSE
+						printf("found desired interface\n");
+					#endif
+					require_noerr((*interfaceIntf)->USBInterfaceOpen(interfaceIntf), nextInterface);
+					keepOpen = FoundInterface(deviceIntf, interfaceIntf, devVendor, devProduct, desiredInterface, desiredAltSetting);
+					if (!keepOpen)
+						verify_noerr((*interfaceIntf)->USBInterfaceClose(interfaceIntf));
+					break; // would never match more than one interface per device
 				}
-				
-				/*UInt16 size = 0;
-				ret = IOUSBDeviceRequest(device, kSetInterface, kUSBRqSetInterface, 
-						0, interfaceNumber, NULL, &size);
-				if (ret != kIOReturnSuccess) {
-					printerr("kUSBRqSetInterface", ret);
-				}*/
-				
-				keepOpen = FoundInterface(device, interface);
-				if (!keepOpen)
-					USBInterfaceDispose(interface);
-				break;		// would never match more than one interface per device
-			}
-		}
-		if (!keepOpen)
-			IOUSBDisposeRef(device);
-		if (intfIter != NULL) {
-			IOUSBDisposeIterator(intfIter);
-			intfIter = NULL;
-		}
-	}
+nextInterface:	IOObjectRelease(ioInterfaceObj);
+				if (interfaceIntf != NULL && !keepOpen)
+					(*interfaceIntf)->Release(interfaceIntf);
+			} // end interface loop
 
-done:
-	// When we're done with it, we must deallocate the mach port
-	mach_port_deallocate(mach_task_self(), port);
+closeDevice:
+			if (intfIter != NULL)
+				IOObjectRelease(intfIter);
+			if (deviceOpen && !keepOpen)
+				verify_noerr((*deviceIntf)->USBDeviceClose(deviceIntf));				
+		} // end if vendor/product match
+nextDevice:
+		if (deviceIntf != NULL && !keepOpen)
+			(*deviceIntf)->Release(deviceIntf);
+		IOObjectRelease(ioDeviceObj);
+	} 
+	// Device iteration is complete.  Deallocate mach port & iterators. 
+
+errexit:		
 	if (devIter != NULL)
-		IOUSBDisposeIterator(devIter);
-	if (intfIter != NULL)
-		IOUSBDisposeIterator(intfIter);
-
-	return 0;
-}
-
-void		USBInterfaceDispose(XUSBInterface interface)
-{
-	IOReturn ret;
-#if USBUTILS_OLD_API
-	IOUSBDisposeInterface(interface);
-	ret = 0;
-#else
-	ret = IOUSBDisposeRef(interface);
-#endif
-	if (ret) { printerr("USBInterfaceDispose", ret); }
-}
-
-IOUSBPipeRef	USBFindAndOpenPipe(XUSBInterface interface, UInt8 type, UInt8 direction)
-{
-	IOUSBPipeRef pipe = NULL;
-	IOReturn ret;
+		IOObjectRelease(devIter);
 		
-#if USBUTILS_OLD_API
-	IOUSBEndpoint *endpoint, *theone = NULL;
-	for (int endpointNum = 0; endpointNum < interface->descriptor->numEndpoints; endpointNum++) {
-		endpoint = interface->endpoints[endpointNum];
-		if (endpoint->descriptor->attributes == type) {
-			if (endpoint->direction == direction) {
-				theone = endpoint;
-				break;
-			}
-		}
-	}
-	if (theone == NULL) {
-		printerr("endpoint not found!", 0);
-		return NULL;
-	}
-
-	ret = IOUSBOpenPipe(interface->device, theone, &pipe);
-	if (ret || pipe == NULL) {
-		printerr("IOUSBOpenPipe", ret);
-		return NULL;
-	}
-	
-#else
-	IOUSBFindEndpointRequest req;
-
-	req.type = type;
-	req.direction = direction;
-	ret = IOUSBFindNextPipe(interface, NULL, &req, &pipe);
-	if (ret != kIOReturnSuccess)
-		return NULL;
-#endif
-	return pipe;
+	if (matchingDict)
+		CFRelease(matchingDict); 
+		
+	if (master_device_port)
+		mach_port_deallocate(mach_task_self(), master_device_port);
 }
-
