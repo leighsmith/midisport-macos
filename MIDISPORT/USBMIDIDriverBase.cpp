@@ -1,12 +1,15 @@
-// $Id: USBMIDIDriverBase.cpp,v 1.8 2001/05/19 18:44:42 leigh Exp $
+// $Id: USBMIDIDriverBase.cpp,v 1.9 2001/10/03 22:21:38 leigh Exp $
 //
-// MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
+// MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
 //    This class is a modification of the standard version specific to the MIDIMAN MIDISPORT USB devices.
 //    This is necessary as the data format is not USB-MIDI, specifically, the data is communicated down
 //    two endPoints, 2 and 4, using the upper nibble of the 4 byte packet to indicate either an even or
 //    odd numbered port to use. It's slightly hairy, but a diff against the original will reveal there
-//    isn't much that is special.
+//    isn't much that is special. All that has been changed is marked MIDISPORT_SPECIFIC. Unfortunately
+//    it's not really possible to do this by subclassing, since the MIDISPORT class never has a chance
+//    to create an InterfaceState subclass that is specific to MIDISPORT devices and hand it over to
+//    our superclass.
 //
 // Leigh Smith <leigh@tomandandy.com>
 //
@@ -53,19 +56,20 @@
  WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT
  LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
  OF SUCH DAMAGE.  */
-
 #include "USBMIDIDriverBase.h"
-#include <stdio.h>
-#include <unistd.h>
-#include <sched.h>
-#include <Carbon/Carbon.h>
+#include <algorithm>
 
-#define VERBOSE (DEBUG && 0)
-//#define DUMP_INPUT 1
-//#define DUMP_OUTPUT 1
+#if DEBUG
+	#include <stdio.h>
+	//#define VERBOSE 1
+	//#define DUMP_INPUT 1			// only works in USBMIDIHandleInput
+	//#define DUMP_OUTPUT 1
+	//#define ANALYZE_THRU_TIMING 1
+#endif
+
+extern bool		gIsV2Driver;
 
 // __________________________________________________________________________________________________
-//#define ANALYZE_THRU_TIMING 1
 #if ANALYZE_THRU_TIMING
 
 #include <CoreAudio/HostTime.h>
@@ -142,40 +146,100 @@ int		MIDIDataBytes(Byte status)
 
 // __________________________________________________________________________________________________
 
-InterfaceState::InterfaceState(	USBMIDIDriverBase *driver, 
-								MIDIDeviceRef midiDevice, 
-								IOUSBDeviceInterface **usbDevice,
-								IOUSBInterfaceInterface **usbInterface) :
+IOBuffer::IOBuffer() :
+	mBuffer(NULL),
+	mMemory(NULL)
+{
+}
+
+IOBuffer::~IOBuffer()
+{
+	if (mMemory)
+		delete[] mMemory;
+}
+
+void	IOBuffer::Allocate(UInt32 size)
+{
+	mBuffer = mMemory = new Byte[size];
+}
+
+// __________________________________________________________________________________________________
+
+Mutex::Mutex()
+{
+	verify_noerr(pthread_mutex_init(&mMutex, NULL));
+	mOwner = 0;
+}
+
+Mutex::~Mutex()
+{
+	pthread_mutex_destroy(&mMutex);
+}
+	
+bool	Mutex::Lock()
+{
+	pthread_t thisThread = pthread_self();
+	
+	if (mOwner == thisThread)
+		return false;	// already acquired
+	
+	require_noerr(pthread_mutex_lock(&mMutex), done);
+	mOwner = thisThread;
+	return true;	// did acquire lock
+
+done:
+	return false;	// error, didn't acquire lock
+}
+
+void	Mutex::Unlock()
+{
+	require_string(mOwner == pthread_self(), done, "non-owner thread is unlocking mutex");
+	mOwner = 0;
+	pthread_mutex_unlock(&mMutex);
+done: ;
+}
+
+// __________________________________________________________________________________________________
+
+// the device and interface are assumed to have been opened
+InterfaceState::InterfaceState(	USBMIDIDriverBase *			driver, 
+								MIDIDeviceRef 				midiDevice, 
+								io_service_t				ioDevice,
+								IOUSBDeviceInterface **		usbDevice,
+								IOUSBInterfaceInterface **	usbInterface) :
 	mSources(NULL)
 {
 	UInt8	   		numEndpoints, pipeNum, direction, transferType, interval;
 	UInt16			pipeIndex, maxPacketSize; 		
 	
 	mDriver = driver;
+	mMidiDevice = midiDevice;
+	mIODevice = ioDevice;
 	mDevice = usbDevice;
 	mInterface = usbInterface;
 	mHaveInPipe = false;
 	mHaveOutPipe1 = false;
  	mHaveOutPipe2 = false;
-
-	pthread_mutex_init(&mWriteQueueMutex, NULL);
-
+ 
 	GetInterfaceInfo(mInterfaceInfo); 	// Get endpoint types and buffer sizes
-	mReadBuf = new Byte[mInterfaceInfo.readBufferSize];
-	mWriteBuf1 = new Byte[mInterfaceInfo.writeBufferSize];
-	mWriteBuf2 = new Byte[mInterfaceInfo.writeBufferSize];
+	mReadBuf.Allocate(mInterfaceInfo.readBufferSize);
+	mWriteBuf1.Allocate(mInterfaceInfo.writeBufferSize);
+	mWriteBuf2.Allocate(mInterfaceInfo.writeBufferSize);
+
+#if VERBOSE
+	printf("mReadBuf=0x%lx, mWriteBuf=0x%lx\n", (long)mReadBuf.Buffer(), (long)mWriteBuf.Buffer());
+#endif
 
 	numEndpoints = 0;
 	require_noerr((*mInterface)->GetNumEndpoints(mInterface, &numEndpoints), errexit);
 		// find the number of endpoints for this interface
-
-	require_noerr((*mInterface)->USBInterfaceOpen(mInterface), errexit);
 
 	for (pipeIndex = 1; pipeIndex <= numEndpoints; ++pipeIndex) { 
 		require_noerr((*mInterface)->GetPipeProperties(mInterface, pipeIndex, &direction, &pipeNum, &transferType, &maxPacketSize, &interval), nextPipe);
 		#if VERBOSE 
 			printf("pipe index %d: dir=%d, num=%d, tt=%d, maxPacketSize=%d, interval=%d\n", pipeIndex,  direction, pipeNum, transferType, maxPacketSize, interval);
 		#endif
+                // MIDISPORT_SPECIFIC
                 // The MIDIMan MIDISPORT devices output different ports via different endPoints.
                 // This is quite a logical approach but unfortunately differs from the USB-MIDI spec.
 		if (direction == kUSBOut && pipeNum == 2) { // MIDIMan machines are fixed to their endPoints
@@ -219,11 +283,10 @@ nextPipe: ;
 		MIDIEndpointSetRefCons(dest, this, (void *)ient);
 		mSources[ient] = MIDIEntityGetSource(ent, 0);
 	}
-	mStopRequested = false;
 	mWriteCable = 0xFF;
 	mReadCable = 0;
+	mInSysEx = false;
 	mRunningStatus = 0;
-	mInSysEx = 0;
 
 	{
 		CFRunLoopRef ioRunLoop = MIDIGetDriverIORunLoop();
@@ -253,15 +316,7 @@ errexit:
 // __________________________________________________________________________________________________
 InterfaceState::~InterfaceState()
 {
-	CFRunLoopRef ioRunLoop = MIDIGetDriverIORunLoop();
-	CFRunLoopSourceRef source;
-	
-	if (ioRunLoop != NULL) {
-		source = (*mInterface)->GetInterfaceAsyncEventSource(mInterface);
-		if (source != NULL && CFRunLoopContainsSource(ioRunLoop, source, kCFRunLoopDefaultMode))
-			CFRunLoopRemoveSource(ioRunLoop, source, kCFRunLoopDefaultMode);
-	}
-
+        // MIDISPORT_SPECIFIC
 	if (mHaveOutPipe1 || mHaveOutPipe2 || mHaveInPipe)
 		mDriver->StopInterface(this);
 
@@ -271,11 +326,20 @@ InterfaceState::~InterfaceState()
 	if (mHaveOutPipe2) {
 		verify_noerr((*mInterface)->AbortPipe(mInterface, mOutPipe2));
         }
-
+        // MIDISPORT_SPECIFIC
+        
 	if (mHaveInPipe)
 		verify_noerr((*mInterface)->AbortPipe(mInterface, mInPipe)); 
-			// this should force the read thread to die (if we're not using async)
 
+	CFRunLoopRef ioRunLoop = MIDIGetDriverIORunLoop();
+	CFRunLoopSourceRef source;
+	
+	if (ioRunLoop != NULL) {
+		source = (*mInterface)->GetInterfaceAsyncEventSource(mInterface);
+		if (source != NULL && CFRunLoopContainsSource(ioRunLoop, source, kCFRunLoopDefaultMode))
+			CFRunLoopRemoveSource(ioRunLoop, source, kCFRunLoopDefaultMode);
+	}
+	
 	if (mInterface) {
 		verify_noerr((*mInterface)->USBInterfaceClose(mInterface));
 		(*mInterface)->Release(mInterface);
@@ -286,11 +350,14 @@ InterfaceState::~InterfaceState()
 		(*mDevice)->Release(mDevice);
 	}
 	
-	pthread_mutex_destroy(&mWriteQueueMutex);
 	delete[] mSources;
-	delete[] mReadBuf;
+#if 0
+	// Are these needed in the non-MIDISPORT specific case?
+        // MIDISPORT_SPECIFIC
+        delete[] mReadBuf;
 	delete[] mWriteBuf1;
         delete[] mWriteBuf2;
+#endif
 
 #if VERBOSE
 	printf("driver stopped MIDI\n");
@@ -301,20 +368,18 @@ InterfaceState::~InterfaceState()
 void	InterfaceState::HandleInput(ByteCount bytesReceived)
 {
 	AbsoluteTime now = UpTime();
-#if 0
-	printf("packetSize = %ld\n", bytesReceived);
-	printf("mReadBuf[0-23]: ");
-	for (int i = 0; i < 24; i++)
-		printf("%02X ", mReadBuf[i]);
-        printf("\n");
-#endif
+//	printf("packetSize = %ld\n", readBufLength);
+//	printf("mReadBuf[0-23]: ");
+//	for (int i = 0; i < 24; i++)
+//		printf("%02X ", mReadBuf[i]);
+//	   printf("\n");
 	mDriver->HandleInput(this, UnsignedWideToUInt64(now), mReadBuf, bytesReceived);
 }
 
 // __________________________________________________________________________________________________
 void	InterfaceState::Send(const MIDIPacketList *pktlist, int portNumber)
 {
-	pthread_mutex_lock(&mWriteQueueMutex);
+	bool shouldUnlock = mWriteQueueMutex.Lock();
 	const MIDIPacket *srcpkt = pktlist->packet;
 	for (int i = pktlist->numPackets; --i >= 0; ) {
 		WriteQueueElem wqe;
@@ -328,8 +393,8 @@ void	InterfaceState::Send(const MIDIPacketList *pktlist, int portNumber)
 	}
 	if (!mWritePending)
 		DoWrite();
-
-	pthread_mutex_unlock(&mWriteQueueMutex);
+	if (shouldUnlock)
+		mWriteQueueMutex.Unlock();
 }
 
 // __________________________________________________________________________________________________
@@ -344,11 +409,12 @@ void	InterfaceState::DoRead()
 // this is the IOAsyncCallback (static method)
 void	InterfaceState::ReadCallback(void *refcon, IOReturn asyncReadResult, void *arg0)
 {
+	if (asyncReadResult == kIOReturnAborted) goto done;
 	require_noerr(asyncReadResult, done);
 	{
 		InterfaceState *self = (InterfaceState *)refcon;
 		ByteCount bytesReceived = (ByteCount)arg0;
-		// printf("ReadCallback: arg0 is %ld\n", (long)bytesReceived);
+		//printf("ReadCallback: arg0 is %ld\n", (long)bytesReceived);
 		self->HandleInput(bytesReceived);
 		// chain another async read
 		self->DoRead();
@@ -357,6 +423,7 @@ done:
 	;
 }
 
+// whole function is MIDISPORT_SPECIFIC
 // must only be called with mWriteQueueMutex acquired and mWritePending false
 void	InterfaceState::DoWrite()
 {
@@ -400,34 +467,33 @@ void	InterfaceState::WriteCallback(void *refcon, IOReturn asyncWriteResult, void
 	require_noerr(asyncWriteResult, done);
 	{
 		InterfaceState *self = (InterfaceState *)refcon;
+		bool shouldUnlock = self->mWriteQueueMutex.Lock();
 		// chain another write
-		pthread_mutex_lock(&self->mWriteQueueMutex);
 		self->mWritePending = false;
-                // printf("doing another write\n");
 		self->DoWrite();
-		pthread_mutex_unlock(&self->mWriteQueueMutex);
+		if (shouldUnlock)
+			self->mWriteQueueMutex.Unlock();
 	}
 done:
-        // printf("done writing\n");
 	;
 }
 
 // __________________________________________________________________________________________________
 // This class finds interface instances, called from FindDevices()
-class InterfaceLocator : public USBDeviceScanner {
+class InterfaceLocator : public USBDeviceManager {
 public:
 	void			Find(MIDIDeviceListRef devices, USBMIDIDriverBase *driver)
 	{
-		mDeviceList = devices;
+		mFoundDeviceList = devices;
 		mDriver = driver;
 		ScanDevices();
 	}
 	
-	virtual bool	UseDevice(			IOUSBDeviceInterface **	device,
+	virtual bool	MatchDevice(		IOUSBDeviceInterface **	device,
 										UInt16					devVendor,
 										UInt16					devProduct )
 	{
-		return mDriver->UseDevice(device, devVendor, devProduct);
+		return mDriver->MatchDevice(device, devVendor, devProduct);
 	}
 	
 	virtual void	GetInterfaceToUse(	IOUSBDeviceInterface **	device,
@@ -437,43 +503,65 @@ public:
 		mDriver->GetInterfaceToUse(device, outInterfaceNumber, outAltSetting);
 	}
 
-	virtual bool	FoundInterface(		IOUSBDeviceInterface **		device,
+	virtual bool	FoundInterface(		io_service_t				ioDevice,
+										io_service_t				ioInterface,
+										IOUSBDeviceInterface **		device,
 										IOUSBInterfaceInterface **	interface,
 										UInt16						devVendor,
 										UInt16						devProduct,
 										UInt8						interfaceNumber,
 										UInt8						altSetting )
 	{
-		mDriver->FoundDevice(device, interface, devVendor, devProduct, interfaceNumber, altSetting, mDeviceList);
+		MIDIDeviceRef dev = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
+		if (dev != NULL)
+			MIDIDeviceListAddDevice(mFoundDeviceList, dev);
 		return false;		// don't keep device/interface open
 	}
 private:
-	MIDIDeviceListRef	mDeviceList;
+	MIDIDeviceListRef	mFoundDeviceList;
 	USBMIDIDriverBase *	mDriver;
 };
 
 // __________________________________________________________________________________________________
-// This class creates runtime states for interface instances, called from Start()
-class InterfaceStarter : public USBDeviceScanner {
+// This class creates runtime states for interface instances, created in Start(), deleted in Stop()
+class InterfaceRunner : public USBDeviceManager {
 public:
-	void	Start(	USBMIDIDriverBase *driver, 
-					MIDIDeviceListRef devices, 
-					InterfaceStateList *rsl )
+	InterfaceRunner(	USBMIDIDriverBase *	driver,
+						MIDIDeviceListRef	devices ) :
+		USBDeviceManager(CFRunLoopGetCurrent()),
+		mDriver(driver),
+		mInitialDeviceList(devices),
+		mNumDevicesFound(0)
 	{
-		mDriver = driver;
-		mNumDevicesFound = 0;
-		mDevicesToUse = devices;
-		mInterfaceStateList = rsl;
-		if (MIDIDeviceListGetNumberOfDevices(mDevicesToUse) > 0)
+		int nDevs = MIDIDeviceListGetNumberOfDevices(mInitialDeviceList);
+
+		if (gIsV2Driver) {
+			// mark everything previously present as offline
+			for (int i = 0; i < nDevs; ++i) {
+				MIDIDeviceRef midiDevice = MIDIDeviceListGetDevice(mInitialDeviceList, i);
+				MIDIObjectSetIntegerProperty(midiDevice, kMIDIPropertyOffline, true);
+			}
+		}
+
+		if (gIsV2Driver || nDevs > 0)
 			// don't bother doing any work if there are no devices
 			ScanDevices();
 	}
+	
+	~InterfaceRunner()
+	{
+		for (InterfaceStateList::iterator it = mInterfaceStateList.begin(); 
+		it != mInterfaceStateList.end(); ++it) {
+			InterfaceState *rs = *it;
+			delete rs;
+		}
+	}
 
-	virtual bool	UseDevice(			IOUSBDeviceInterface **	device,
+	virtual bool	MatchDevice(		IOUSBDeviceInterface **	device,
 										UInt16					devVendor,
 										UInt16					devProduct )
 	{
-		return mDriver->UseDevice(device, devVendor, devProduct);
+		return mDriver->MatchDevice(device, devVendor, devProduct);
 	}
 	
 	virtual void	GetInterfaceToUse(	IOUSBDeviceInterface **device, 
@@ -483,39 +571,116 @@ public:
 		mDriver->GetInterfaceToUse(device, outInterfaceNumber, outAltSetting);
 	}
 
-	virtual bool	FoundInterface(		IOUSBDeviceInterface **		device,
+	virtual bool	FoundInterface(		io_service_t				ioDevice,
+										io_service_t				ioInterface,
+										IOUSBDeviceInterface **		device,
 										IOUSBInterfaceInterface **	interface,
 										UInt16						devVendor,
 										UInt16						devProduct,
 										UInt8						interfaceNumber,
 										UInt8						altSetting )
 	{
-		// We're trying to make matches between the devices that were found during 
-		// an earlier search, and being provided to us in mDevicesToUse,
-		// vs. the devices that are now present.
-		
-		// But this is designed for the simplistic case of only one device having been found
-		// earlier, and 0 or 1 devices being present now.
-		// To support multiple device instances properly, we'd need more complex matching code.
-		if (mNumDevicesFound < MIDIDeviceListGetNumberOfDevices(mDevicesToUse)) {
-			MIDIDeviceRef midiDevice = MIDIDeviceListGetDevice(mDevicesToUse, mNumDevicesFound);
-			InterfaceState *ifs = new InterfaceState(mDriver, midiDevice, device, interface);
-			mInterfaceStateList->push_back(ifs);
-			++mNumDevicesFound;
-			return true;	// keep device/interface open
+		MIDIDeviceRef midiDevice;
+
+		#if VERBOSE
+			printf("InterfaceRunner::FoundInterface, ioDevice 0x%X\n", (int)ioDevice);
+		#endif
+
+		if (!gIsV2Driver) {
+			// We're trying to make matches between the devices that were found during 
+			// an earlier search, and being provided to us in mInitialDeviceList,
+			// vs. the devices that are now present.
+			
+			// But this is designed for the simplistic case of only one device having been found
+			// earlier, and 0 or 1 devices being present now.
+			// To support multiple device instances properly, we'd need more complex matching code.
+			if (mNumDevicesFound < MIDIDeviceListGetNumberOfDevices(mInitialDeviceList)) {
+				midiDevice = MIDIDeviceListGetDevice(mInitialDeviceList, mNumDevicesFound);
+				InterfaceState *ifs = new InterfaceState(mDriver, midiDevice, ioDevice, device, interface);
+				mInterfaceStateList.push_back(ifs);
+				++mNumDevicesFound;
+				return true;	// keep device/interface open
+			}
+			return false;	// close device/interface
+		} else {
+			bool deviceInSetup = false;
+			int nDevs;
+			UInt32 locationID;
+			UInt32 vendorProduct = ((UInt32)devVendor << 16) | devProduct;
+			OSStatus err;
+			MIDIDeviceListRef curDevices;
+			
+			require_noerr((*device)->GetLocationID(device, &locationID), errexit);
+
+			// see if it's already in the setup, matching by locationID and productID
+			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
+			nDevs = MIDIDeviceListGetNumberOfDevices(curDevices);
+			for (int i = 0; i < nDevs; ++i) {
+				SInt32 prevDevLocation, prevVendorProduct;
+				midiDevice = MIDIDeviceListGetDevice(curDevices, i);
+				err = MIDIObjectGetIntegerProperty(midiDevice, kUSBLocationProperty, &prevDevLocation);
+				if (!err && (UInt32)prevDevLocation == locationID) {
+					err = MIDIObjectGetIntegerProperty(midiDevice, kUSBVendorProductProperty, &prevVendorProduct);
+					if (!err && (UInt32)prevVendorProduct == vendorProduct) {
+						deviceInSetup = true;
+						break;
+					}
+				}
+			}
+			MIDIDeviceListDispose(curDevices);
+			if (!deviceInSetup) {
+				#if VERBOSE
+					printf("creating new device\n");
+				#endif
+				midiDevice = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
+				require(midiDevice != NULL, errexit);
+				MIDIObjectSetIntegerProperty(midiDevice, kUSBLocationProperty, locationID);
+				MIDIObjectSetIntegerProperty(midiDevice, kUSBVendorProductProperty, vendorProduct);
+
+				require_noerr(MIDISetupAddDevice(midiDevice), errexit);
+			} else {
+				#if VERBOSE
+					printf("old device found\n");
+				#endif
+			}
+			InterfaceState *ifs = new InterfaceState(mDriver, midiDevice, ioDevice, device, interface);
+			mInterfaceStateList.push_back(ifs);
+			MIDIObjectSetIntegerProperty(midiDevice, kMIDIPropertyOffline, false);
 		}
-		return false;	// close device/interface
+		return true;		// keep device/interface open
+errexit:
+		return false;
 	}
 	
+	virtual void	DeviceRemoved(io_service_t removedDevice)
+	{
+		for (InterfaceStateList::iterator it = mInterfaceStateList.begin(); 
+		it != mInterfaceStateList.end(); ++it) {
+			InterfaceState *rs = *it;
+			if (rs->mIODevice == removedDevice) {
+				#if VERBOSE
+					printf("shutting down removed device 0x%X\n", (int)removedDevice);
+				#endif
+				MIDIObjectSetIntegerProperty(rs->mMidiDevice, kMIDIPropertyOffline, true);
+				delete rs;
+				mInterfaceStateList.erase(it);
+				break;
+			}
+		}
+	}
+	
+	typedef vector<InterfaceState *> InterfaceStateList;
+
 	USBMIDIDriverBase *		mDriver;
-	InterfaceStateList *	mInterfaceStateList;
-	MIDIDeviceListRef		mDevicesToUse;
+	InterfaceStateList		mInterfaceStateList;
+	MIDIDeviceListRef		mInitialDeviceList;
 	ItemCount				mNumDevicesFound;
 };
 
 // __________________________________________________________________________________________________
 USBMIDIDriverBase::USBMIDIDriverBase(CFUUIDRef factoryID) :
-	MIDIDriver(factoryID)
+	MIDIDriver(factoryID),
+	mInterfaceRunner(NULL)
 {
 }
 
@@ -536,10 +701,7 @@ OSStatus	USBMIDIDriverBase::FindDevices(MIDIDeviceListRef devices)
 // __________________________________________________________________________________________________
 OSStatus	USBMIDIDriverBase::Start(MIDIDeviceListRef devices)
 {
-	InterfaceStarter starter;
-	
-	mInterfaceStateList = new InterfaceStateList;
-	starter.Start(this, devices, mInterfaceStateList);
+	mInterfaceRunner = new InterfaceRunner(this, devices);
 
 #if ANALYZE_THRU_TIMING
 	gTimingAnalyzer.Clear();
@@ -550,15 +712,9 @@ OSStatus	USBMIDIDriverBase::Start(MIDIDeviceListRef devices)
 // __________________________________________________________________________________________________
 OSStatus	USBMIDIDriverBase::Stop()
 {
-	if (mInterfaceStateList != NULL) {
-		for (InterfaceStateList::iterator it = mInterfaceStateList->begin(); 
-		it != mInterfaceStateList->end(); ++it) {
-			InterfaceState *rs = *it;
-			delete rs;
-		}
-		delete mInterfaceStateList;
-		mInterfaceStateList = NULL;
-	}
+	delete mInterfaceRunner;
+	mInterfaceRunner = NULL;
+
 #if ANALYZE_THRU_TIMING
 	gTimingAnalyzer.Dump();
 #endif
@@ -569,6 +725,7 @@ OSStatus	USBMIDIDriverBase::Stop()
 OSStatus	USBMIDIDriverBase::Send(const MIDIPacketList *pktlist, void *endptRef1, void *endptRef2)
 {
 	InterfaceState *intf = (InterfaceState *)endptRef1;
+	if (intf == NULL) return kMIDIUnknownEndpoint;
 #if ANALYZE_THRU_TIMING
 	const MIDIPacket *pkt = &pktlist->packet[0];
 	for (int i = pktlist->numPackets; --i >= 0; ) {
@@ -614,6 +771,12 @@ void	USBMIDIDriverBase::USBMIDIHandleInput(	InterfaceState *intf,
 #endif
 		
 		int cable = src[0] >> 4;
+		
+		// support single-entity devices that seem to use an arbitrary cable number
+		// (besides which, it's good to have range-checking)
+		if (cable < 0) cable = 0;
+		else if (cable >= intf->mNumEntities) cable = intf->mNumEntities - 1;
+		
 		if (prevCable != -1 && cable != prevCable) {
 			MIDIReceived(intf->mSources[prevCable], pktlist);
 			pkt = MIDIPacketListInit(pktlist);
@@ -637,8 +800,8 @@ void	USBMIDIDriverBase::USBMIDIHandleInput(	InterfaceState *intf,
 			insysex = true;
 			// --- fall ---
 		case 0x3:		// 3-byte system common
-		case 0x8:		// note-on
-		case 0x9:		// note-off
+		case 0x8:		// note-off
+		case 0x9:		// note-on
 		case 0xA:		// poly pressure
 		case 0xB:		// control change
 		case 0xE:		// pitch bend
@@ -687,10 +850,14 @@ ByteCount	USBMIDIDriverBase::USBMIDIPrepareOutput(	InterfaceState *intf,
 	
 	while (true) {
 		if (writeQueue.empty()) {
-			// ??? should we be zeroing the entire remainder of the buffer?
-			// that's what the MPU64 wants anyhow
-			memset(dest, 0, destend - dest);
-			return bufSize;	//dest - destBuf;
+			// the MPU64 wants a full 4 bytes of zeroes for termination, not just 1
+			*dest++ = 0;
+			*dest++ = 0;
+			*dest++ = 0;
+			*dest++ = 0;
+			return dest - destBuf;
+			
+			//return bufSize;	//dest - destBuf;
 		}
 		
 		WriteQueueElem *wqe = &writeQueue.front();
@@ -706,6 +873,8 @@ ByteCount	USBMIDIDriverBase::USBMIDIPrepareOutput(	InterfaceState *intf,
 			case 0x0: case 0x1: case 0x2: case 0x3:
 			case 0x4: case 0x5: case 0x6: case 0x7:
 				// data byte, presumably a sysex continuation
+				// F0 is also handled the same way
+inSysEx:
 				dest[1] = c;
 				if ((dest[2] = *src++) == 0xF7) {
 					dest[0] = cableNibble | 6;		// sysex ends with following 2 bytes
@@ -716,8 +885,8 @@ ByteCount	USBMIDIDriverBase::USBMIDIPrepareOutput(	InterfaceState *intf,
 					dest[0] = cableNibble | 4;		// sysex continues
 				dest += 4;
 				break;
-			case 0x8:	// note-on
-			case 0x9:	// note-off
+			case 0x8:	// note-off
+			case 0x9:	// note-on
 			case 0xA:	// poly pressure
 			case 0xB:	// control change
 			case 0xE:	// pitch bend
@@ -736,11 +905,7 @@ ByteCount	USBMIDIDriverBase::USBMIDIPrepareOutput(	InterfaceState *intf,
 			case 0xF:	// system message
 				switch (c) {
 				case 0xF0:	// sysex start
-					*dest++ = cableNibble | 4;	// sysex start or continued
-					*dest++ = c;
-					*dest++ = *src++;
-					*dest++ = *src++;
-					break;
+					goto inSysEx;
 				case 0xF8:	// clock
 				case 0xFA:	// start
 				case 0xFB:	// continue
@@ -753,7 +918,8 @@ ByteCount	USBMIDIDriverBase::USBMIDIPrepareOutput(	InterfaceState *intf,
 					*dest++ = 0;
 					break;
 				case 0xF6:	// tune request (0)
-					*dest++ = cableNibble | 5;	// 1-byte system common
+				case 0xF7:	// EOX
+					*dest++ = cableNibble | 5;	// 1-byte system common or sysex ends with one byte
 					*dest++ = c;
 					*dest++ = 0;
 					*dest++ = 0;

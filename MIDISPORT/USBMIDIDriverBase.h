@@ -40,16 +40,17 @@
 #ifndef __USBMIDIDriverBase_h__
 #define __USBMIDIDriverBase_h__
 
-#include <CoreMIDIServer/MIDIDriver.h>
 #include <vector.h>
 #include <list.h>
 #include <pthread.h>
+#include "MIDIDriverClass.h"
+#include <CoreMIDI/MIDISetup.h>
 #include "USBUtils.h"
 #include "MIDIPacket.h"
 
 class InterfaceState;
+class InterfaceRunner;
 
-typedef vector<InterfaceState *> InterfaceStateList;
 
 class WriteQueueElem {
 public:
@@ -66,6 +67,11 @@ struct InterfaceInfo {
 	ByteCount			readBufferSize;
 	ByteCount			writeBufferSize;
 };
+
+// some Apple-defined properties useful for USB drivers to attach to their devices
+#define kUSBLocationProperty		CFSTR("USBLocationID")
+#define kUSBVendorProductProperty	CFSTR("USBVendorProduct")
+
 
 // _________________________________________________________________________________________
 // USBMIDIDriverBase
@@ -86,7 +92,7 @@ public:
 
 	// our own virtual methods
 
-	virtual bool		UseDevice(			IOUSBDeviceInterface **	device,
+	virtual bool		MatchDevice(		IOUSBDeviceInterface **	device,
 											UInt16					devVendor,
 											UInt16					devProduct ) = 0;
 							// given a USB device and its vendor/product IDs,
@@ -99,15 +105,15 @@ public:
 							// given a USB device, return the interface number and
 							// alternate setting to use
 
-	virtual void		FoundDevice(	IOUSBDeviceInterface **		device,
+	virtual MIDIDeviceRef CreateDevice(	io_service_t				ioDevice,
+										io_service_t				ioInterface,
+										IOUSBDeviceInterface **		device,
 										IOUSBInterfaceInterface **	interface,
 										UInt16						devVendor,
 										UInt16						devProduct,
 										UInt8						interfaceNumber,
-										UInt8						altSetting,
-										MIDIDeviceListRef			deviceList ) = 0;
-							// given a USB device, create and add a MIDIDevice representation of it
-							// to the MIDIDeviceList
+										UInt8						altSetting ) = 0;
+							// given a USB device, create a MIDIDevice representation of it
 
 	virtual void		GetInterfaceInfo(	InterfaceState *intf,
 											InterfaceInfo &info) = 0;
@@ -126,13 +132,10 @@ public:
 											ByteCount readBufSize ) = 0;
 							// a USB message arrived, parse it into a MIDIPacketList and
 							// call MIDIReceived
-
 	virtual void	PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue, 
                             Byte *destBuf1, ByteCount *bufCount1,
                             Byte *destBuf2, ByteCount *bufCount2) = 0;
-            
-							// dequeue from WriteQueue into a single USB message, return
-							// length of the message.  Called with the queue mutex locked.
+                                                        //  Called with the queue mutex locked.
 
 	// Utilities to implement the USB MIDI class spec methods of encoding MIDI in USB packets
 	static void			USBMIDIHandleInput(	InterfaceState *intf, 
@@ -146,7 +149,43 @@ public:
 											ByteCount bufSize );
 
 private:
-	InterfaceStateList	*mInterfaceStateList;
+	InterfaceRunner		*mInterfaceRunner;
+};
+
+// _________________________________________________________________________________________
+// IOBuffer
+// 
+// encapsulates everything needed for a piece of memory which is used as an I/O buffer
+// not necessary but is future-looking...
+class IOBuffer {
+public:
+	IOBuffer();
+	~IOBuffer();
+
+	void		Allocate(UInt32 size);
+	Byte *		Buffer() const		{ return mBuffer; }
+	operator Byte * () const		{ return mBuffer; }
+
+private:
+	Byte *		mBuffer;		// points into region in mMemory
+	Byte *		mMemory;		// allocated with operator new[]
+};
+
+// _________________________________________________________________________________________
+// Mutex
+//
+// a pthread mutex with handling of recursive locking
+class Mutex {
+public:
+	Mutex();
+	~Mutex();
+	
+	bool			Lock();		// return true if Unlock() should be called
+	void			Unlock();
+
+private:
+	pthread_mutex_t	mMutex;
+	pthread_t		mOwner;
 };
 
 // _________________________________________________________________________________________
@@ -155,10 +194,11 @@ private:
 // This class is the runtime state for one interface instance
 class InterfaceState {
 public:
-	InterfaceState(	USBMIDIDriverBase *driver,
-					MIDIDeviceRef midiDevice, 
-					IOUSBDeviceInterface **usbDevice, 
-					IOUSBInterfaceInterface **usbInterface);
+	InterfaceState(	USBMIDIDriverBase *			driver,
+					MIDIDeviceRef				midiDevice, 
+					io_service_t				ioDevice,
+					IOUSBDeviceInterface **		usbDevice, 
+					IOUSBInterfaceInterface **	usbInterface);
 
 	virtual ~InterfaceState();
 	
@@ -167,40 +207,39 @@ public:
 	void		DoWrite();	
 	static void	WriteCallback(void *refcon, IOReturn result, void *arg0);
 
-	void	HandleInput(ByteCount bytesReceived);
-	void	Send(const MIDIPacketList *pktlist, int portNumber);
+	void		HandleInput(ByteCount bytesReceived);
+	void		Send(const MIDIPacketList *pktlist, int portNumber);
 	
-	void	GetInterfaceInfo(InterfaceInfo &info) 
+	void		GetInterfaceInfo(InterfaceInfo &info) 
 	{
 		mDriver->GetInterfaceInfo(this, info);
 	}
 	
 	// leave data members public, for benefit of driver methods
-	USBMIDIDriverBase *	    mDriver;
-	IOUSBDeviceInterface **	    mDevice; 
-	IOUSBInterfaceInterface	**  mInterface;
-	UInt8			    mInPipe, mOutPipe1, mOutPipe2;
-	bool			    mHaveInPipe, mHaveOutPipe1, mHaveOutPipe2;
-	InterfaceInfo		    mInterfaceInfo;
-	int			    mNumEntities;
-	MIDIEndpointRef *	    mSources;
-	Byte *			    mReadBuf;
-	Byte *			    mWriteBuf1;
-	Byte *			    mWriteBuf2;
+	USBMIDIDriverBase *			mDriver;
+	MIDIDeviceRef				mMidiDevice;
+	io_service_t				mIODevice;
+	IOUSBDeviceInterface **		mDevice; 
+	IOUSBInterfaceInterface	**	mInterface;
+	UInt8						mInPipe, mOutPipe1, mOutPipe2;
+	bool						mHaveInPipe, mHaveOutPipe1, mHaveOutPipe2;
+	InterfaceInfo				mInterfaceInfo;
+	int							mNumEntities;
+	MIDIEndpointRef *			mSources;
+	IOBuffer					mReadBuf, mWriteBuf1, mWriteBuf2;
+	
+	WriteQueue					mWriteQueue;
+	Mutex						mWriteQueueMutex;
 
-	WriteQueue		    mWriteQueue;
-	pthread_mutex_t		    mWriteQueueMutex;
-
-	bool			    mWritePending;
-	bool			    mStopRequested;
+	bool						mWritePending;
 
 	// input parse state
-	Byte			    mReadCable;
-	Byte			    mRunningStatus;
-	bool			    mInSysEx;
+	Byte						mReadCable;
+	bool						mInSysEx;
+	Byte						mRunningStatus;
 	
 	// output state
-	Byte			    mWriteCable;
+	Byte						mWriteCable;
 };
 
 
