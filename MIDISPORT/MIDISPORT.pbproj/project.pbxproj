@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 32;
+	objectVersion = 34;
 	objects = {
 		00C5C68BFEC3504A0A090812 = {
 			isa = PBXFrameworkReference;
@@ -66,6 +66,16 @@
 				);
 			};
 		};
+//000
+//001
+//002
+//003
+//004
+//010
+//011
+//012
+//013
+//014
 		010D0AFDFEE5F5BB0A090812 = {
 			isa = PBXFileReference;
 			path = MIDISPORTUSBDriver.cpp;
@@ -96,6 +106,16 @@
 			settings = {
 			};
 		};
+//010
+//011
+//012
+//013
+//014
+//020
+//021
+//022
+//023
+//024
 		028D229E016913B4CFED3B96 = {
 			isa = PBXFileReference;
 			path = MIDIDriverClass.h;
@@ -107,6 +127,16 @@
 			settings = {
 			};
 		};
+//020
+//021
+//022
+//023
+//024
+//040
+//041
+//042
+//043
+//044
 		046A093EFFB4CC2ECFED3B96 = {
 			isa = PBXFileReference;
 			path = EZLoader.cpp;
@@ -163,6 +193,16 @@
 			settings = {
 			};
 		};
+//040
+//041
+//042
+//043
+//044
+//060
+//061
+//062
+//063
+//064
 		06ACAA26005EFDB8CFED3B96 = {
 			children = (
 				00C5C68DFEC350680A090812,
@@ -176,6 +216,16 @@
 			name = AppleCode;
 			refType = 4;
 		};
+//060
+//061
+//062
+//063
+//064
+//080
+//081
+//082
+//083
+//084
 		089C1669FE841209C02AAC07 = {
 			buildStyles = (
 				0AB3E789004B3117CFED3B96,
@@ -183,7 +233,7 @@
 			);
 			isa = PBXProject;
 			mainGroup = 089C166AFE841209C02AAC07;
-			projectDirPath = .;
+			projectDirPath = "";
 			targets = (
 				089C1673FE841209C02AAC07,
 			);
@@ -223,7 +273,6 @@
 				HEADER_SEARCH_PATHS = .;
 				INSTALL_PATH = "/Library/Audio/MIDI Drivers";
 				LIBRARY_SEARCH_PATHS = "";
-				OPTIMIZATION_CFLAGS = "";
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-lstdc++";
 				OTHER_REZFLAGS = "";
@@ -231,8 +280,6 @@
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 				WRAPPER_EXTENSION = plugin;
-			};
-			conditionalBuildSettings = {
 			};
 			dependencies = (
 			);
@@ -392,6 +439,16 @@
 			name = Source;
 			refType = 4;
 		};
+//080
+//081
+//082
+//083
+//084
+//0A0
+//0A1
+//0A2
+//0A3
+//0A4
 		0AA1909FFE8422F4C02AAC07 = {
 			isa = PBXFrameworkReference;
 			name = CoreFoundation.framework;
@@ -444,6 +501,7 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				OPTIMIZATION_CFLAGS = "-O0";
 			};
 			isa = PBXBuildStyle;
 			name = Development;
@@ -457,6 +515,16 @@
 			isa = PBXBuildStyle;
 			name = Deployment;
 		};
+//0A0
+//0A1
+//0A2
+//0A3
+//0A4
+//190
+//191
+//192
+//193
+//194
 		19C28FB6FE9D52B211CA2CBB = {
 			children = (
 				0AB3E782004B3117CFED3B96,
@@ -465,6 +533,16 @@
 			name = Products;
 			refType = 4;
 		};
+//190
+//191
+//192
+//193
+//194
+//1B0
+//1B1
+//1B2
+//1B3
+//1B4
 		1B44C8D1007286F3CFED3B96 = {
 			isa = PBXFileReference;
 			path = MIDISPORT1x1Firmware.cpp;
@@ -487,6 +565,16 @@
 			settings = {
 			};
 		};
+//1B0
+//1B1
+//1B2
+//1B3
+//1B4
+//1E0
+//1E1
+//1E2
+//1E3
+//1E4
 		1E21D07BFED9A4DC0A090812 = {
 			isa = PBXFileReference;
 			path = USBMIDIDriverBase.cpp;
