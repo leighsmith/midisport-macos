@@ -1,9 +1,9 @@
 #!/bin/zsh
-# $Id: packageBinary,v 2.2 2001/10/04 23:06:23 leigh Exp $
+# $Id: packageBinary,v 2.3 2001/10/17 21:32:13 leigh Exp $
 #
 # zsh Script to automate the packaging of the MIDISPORT plugin ready for user deployment.
 # Taken from an article on Stepwise:
-# http://www.stepwise.com/Articles/Technical/Packages/BuildingAPackage.html
+# http://www.stepwise.com/Articles/Technical/Packages/BuildngAPackage.html
 #
 # Leigh Smith <leigh@tomandandy.com> 1999/11/29
 #
@@ -35,62 +35,70 @@ else
     userClass=$2
 fi
 
-# where to check the source code out to.
-buildDir=/tmp
-
+# where we can create temporary files
 workingDir=/tmp
+
+# where to check the source code out to.
+buildInDir="$workingDir/${packagename}"
+
+# where the plugin is built into before packaging.
+buildToDir="${workingDir}/${packagename}.dst"
+
 # Where the plug-in would be installed with DSTROOT=/
 # For 10.1, we can put it in a local area
-# installFileDir="/Library/Audio/MIDI Drivers"
-# but for 10.0.4 we have to put it in the system location.
-installFileDir=/System/Library/Extensions
+installFileDir='/Library/Audio/MIDI Drivers'
+# but for 10.0.4 we had to put it in the system location.
+# installFileDir=/System/Library/Extensions
+
 # where the plugin to be packaged will reside
-packageFromDir=${workingDir}/${packagename}.dst/${installFileDir}
+packageFromDir="${buildToDir}/${installFileDir}"
+
 # where the package will be created prior to tarball
 packageCreateDir=$workingDir
+
 # name and location of the package when packed.
 shipfile=$workingDir/$packagename-$appversion.b.MOX.pkg.tar
+
 # the location and name of the README file within the package source
 # this is a relative path wrt the package source top dir.
 readmefile=README.rtf
 
-    cvsTag=${packagename}_`echo $appversion | tr '.' '-'`
-    archiverVersion=`echo $appversion | tr -d '.'`
+cvsTag=${packagename}_`echo $appversion | tr '.' '-'`
+archiverVersion=`echo $appversion | tr -d '.'`
 
-    # Checkout the source tree
-    echo Checking out $cvsTag to $buildDir/$packagename
-    mkdir -p $buildDir
-    cd $buildDir
-    cvs -Q checkout -r $cvsTag $packagename
+# Checkout the source tree
+echo Checking out $cvsTag to $buildInDir
+mkdir -p $workingDir
+cd $workingDir
+cvs -Q checkout -r $cvsTag $packagename
 
-    # and build it
-    cd $packagename
+# and build it
+cd $packagename
 
-    # check the user class to control the build
-    case $userClass in
-    dev|development)
-	# development keeps symbols and debugging trace code
-	makeScript="pbxbuild install -buildstyle Development VERSION=$archiverVersion"
-	;;
-    int|internal)
-	# internal keeps debugging trace code, but still strips
-	makeScript="pbxbuild install -buildstyle Development VERSION=$archiverVersion"
-	;;
-    ext|external)
-	# external release do the stripping without debugging trace code.
-	makeScript="pbxbuild install -buildstyle Deployment VERSION=$archiverVersion"
-	;;
-    esac
+# check the user class to control the build
+case $userClass in
+dev|development)
+    # development keeps symbols and debugging trace code
+    makeScript="pbxbuild install DSTROOT=$buildToDir -buildstyle Development VERSION=$archiverVersion"
+    ;;
+int|internal)
+    # internal keeps debugging trace code, but still strips
+    makeScript="pbxbuild install DSTROOT=$buildToDir -buildstyle Development VERSION=$archiverVersion"
+    ;;
+ext|external)
+    # external release do the stripping without debugging trace code.
+    makeScript="pbxbuild install DSTROOT=$buildToDir -buildstyle Deployment VERSION=$archiverVersion"
+    ;;
+esac
 
-    echo Building $packagename using: $makeScript
-    # Check the outcome of make and abort if build failed.
-    # TODO should probably direct the output of the build as a log
+echo Building $packagename using: $makeScript
+# Check the outcome of make and abort if build failed.
+# TODO should probably direct the output of the build as a log
 eval $makeScript
-    if !(eval $makeScript); then
-	echo "$0 Error: build of $packagename failed, aborting packaging"
-	exit;
-    fi
-
+if !(eval $makeScript); then
+    echo "$0 Error: build of $packagename failed, aborting packaging"
+    exit;
+fi
 
 cd $packageCreateDir
 
@@ -103,16 +111,16 @@ cd $packageCreateDir
 # regardless of which user does the installation. To accomplish this, you'll need to be
 # logged in as root. 
 
-/bin/chmod -R ugo-w $packageFromDir/
-/bin/chmod -R ugo+rX $packageFromDir/
+/bin/chmod -R ugo-w "$packageFromDir/"
+/bin/chmod -R ugo+rX "$packageFromDir/"
 
 # we make the installFileDir user writable otherwise the installer
 # will set the parent directory the application is stored into read-only which
 # stops a second reinstall.
-/bin/chmod -R u+w $packageFromDir/
+/bin/chmod -R u+w "$packageFromDir/"
 
 echo "Changing ownership to root.wheel, log in as root."
-echo "/usr/sbin/chown -R root.wheel $packageFromDir/" | su root -s
+echo "/usr/sbin/chown -R root.wheel \"$packageFromDir/\"" | su root -s
 
 cp $MIDISPORTICON ./$packagename.tiff
 
@@ -159,16 +167,15 @@ EOF
 
 # DeleteWarning
 
-
-package $packageFromDir $packagename.info $packagename.tiff
+package "$packageFromDir" $packagename.info $packagename.tiff
+echo
 
 # just tar the file ready for transmission, no point compressing.
-gnutar cf $shipfile $packagename.pkg -C $buildDir/$packagename/ $readmefile
+gnutar --create --file=$shipfile $packagename.pkg --directory=$buildInDir/ $readmefile
 
 echo "Deleting temporary files, log in as root."
-echo "/bin/rm -r -f $packageFromDir" | su root -s
+echo "/bin/rm -r -f \"$packageFromDir\"" | su root -s
 
-rm -r -f $packagename.pkg
-rm -r -f $buildDir/$packagename
+rm -r -f $packagename.pkg $buildInDir $buildToDir $packagename.info $packagename.tiff
 
 echo "Finished. Final package is located at $shipfile"
