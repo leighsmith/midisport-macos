@@ -1,4 +1,4 @@
-// $Id: EZLoader.cpp,v 1.4 2001/10/03 22:37:20 leigh Exp $
+// $Id: EZLoader.cpp,v 1.5 2001/10/15 16:18:21 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -21,7 +21,7 @@
 //
 #include "EZLoader.h"
 
-#define VERBOSE (DEBUG && 1)
+#define VERBOSE (DEBUG && 0)
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0	
