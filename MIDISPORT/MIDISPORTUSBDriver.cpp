@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.9 2001/03/29 22:33:47 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.10 2001/03/31 01:20:29 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
@@ -43,28 +43,21 @@
 // ########
 
 #define kTheInterfaceToUse	0		// 0 is the interface which we need to access the 5 endpoints.
-#define kReadBufSize		32
-#define kWriteBufSize		32
+//#define kReadBufSize		32
+//#define kWriteBufSize		32
 #define midimanVendorID		0x0763		// midiman
 
 // and these
 #define kMyBoxName		"MIDISPORT"
 #define kMyManufacturerName	"MIDIMAN"
 
-#define kNumMaxPorts		8
+#define kNumMaxPorts		9
 
 #define MIDIPACKETLEN		4		// number of bytes in a dword packet received and sent to the MIDISPORT
 #define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
 #define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
 #define VERBOSE (DEBUG && 0)
-
-enum WarmFirmwareProductIDs {
-    MIDISPORT1x1 = 0x1011,
-    MIDISPORT2x2 = 0x1002,
-    MIDISPORT4x4 = 0x1021,
-    MIDISPORT8x8 = 0x1031
-};
 
 extern INTEL_HEX_RECORD firmware1x1[];
 extern INTEL_HEX_RECORD firmware2x2[];
@@ -82,7 +75,9 @@ struct HardwareConfigurationDescription {
     { MIDISPORT1x1, 0x1010, 1, 32, 32, "1x1", firmware1x1 },
     { MIDISPORT2x2, 0x1001, 2, 32, 32, "2x2", firmware2x2 },
     { MIDISPORT4x4, 0x1020, 4, 64, 64, "4x4", firmware4x4 },
-    { MIDISPORT8x8, 0x1030, 8, 64, 32, "8x8", NULL }  // strictly speacking, the endPoint 2 can sustain 40 bytes output
+    // Strictly speacking, the endPoint 2 can sustain 40 bytes output on the 8x8. 
+    // There are 9 ports including the SMPTE control.
+    { MIDISPORT8x8, 0x1030, 9, 64, 32, "8x8", NULL }  
 };
 
 #define PRODUCT_TOTAL (sizeof(productTable) / sizeof(struct HardwareConfigurationDescription))
@@ -117,6 +112,7 @@ MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
 #if VERBOSE
     printf("MIDISPORTUSBDriver init\n");
 #endif
+    connectedMIDISPORTIndex = -1;   // error condition
     for(i = 0; i < PRODUCT_TOTAL; i++) {
         if (ezusb.FindVendorsProduct(midimanVendorID, productTable[i].coldBootProductID, true)) {
 #if VERBOSE
@@ -194,6 +190,7 @@ void MIDISPORT::FoundDevice(IOUSBDeviceInterface **device,
 
     for(i = 0; i < PRODUCT_TOTAL; i++) {
         if(productTable[i].warmFirmwareProductID == devProduct) {
+            connectedMIDISPORTIndex = i;
             break;
         }
     }
@@ -221,7 +218,10 @@ void MIDISPORT::FoundDevice(IOUSBDeviceInterface **device,
             break;
         case MIDISPORT8x8:
         default:
-            sprintf(portname, "%s %s %s Port %d", kMyManufacturerName, kMyBoxName, productTable[i].modelName, port + 1);
+            if (port == 8) // be descriptive in naming the SMPTE channel
+                sprintf(portname, "%s %s %s SMPTE Port", kMyManufacturerName, kMyBoxName, productTable[i].modelName);
+            else
+                sprintf(portname, "%s %s %s Port %d", kMyManufacturerName, kMyBoxName, productTable[i].modelName, port + 1);
             break;
         }
         CFStringRef str = CFStringCreateWithCString(NULL, portname, 0);
@@ -237,8 +237,13 @@ void MIDISPORT::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
 {
     info.inEndpointType = kUSBInterrupt;    // this differs from the SampleUSB and is correct.
     info.outEndpointType = kUSBBulk;
-    info.readBufferSize = kReadBufSize; // TODO needs to be product specific
-    info.writeBufferSize = kWriteBufSize; // TODO needs to be product specific
+    if(connectedMIDISPORTIndex != -1) {
+        info.readBufferSize  = productTable[connectedMIDISPORTIndex].readBufSize;
+        info.writeBufferSize = productTable[connectedMIDISPORTIndex].writeBufSize;
+        // printf("setting readBufferSize = %ld, writeBufferSize = %ld\n", info.readBufferSize, info.writeBufferSize);
+    }
+    else
+        printf("Assertion failed: connectedMIDISPORTIndex == -1\n");
 }
 
 void MIDISPORT::StartInterface(InterfaceState *intf)
@@ -264,9 +269,12 @@ void MIDISPORT::StopInterface(InterfaceState *intf)
 void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, ByteCount readBufSize)
 {
     int prevInputPort = -1;	                         // signifies none
-    static bool inSysex[kNumMaxPorts] = {false, false, false, false, false, false, false, false};     // is it possible to make this mInSysEx?
-    static Byte runningStatus[kNumMaxPorts] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90}; // we gotta start somewhere... or make it mRunningStatus
-    static int remainingBytesInMsg[kNumMaxPorts] = {0, 0, 0, 0, 0, 0, 0, 0};  // how many bytes remain to be processed per MIDI message
+    // is it possible to make this mInSysEx?
+    static bool inSysex[kNumMaxPorts] = {false, false, false, false, false, false, false, false, false};
+    // we gotta start somewhere... or make it mRunningStatus
+    static Byte runningStatus[kNumMaxPorts] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+    // how many bytes remain to be processed per MIDI message
+    static int remainingBytesInMsg[kNumMaxPorts] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     static Byte completeMessage[MIDIPACKETLEN];
     static int numCompleted = 0;
     int preservedMsgCount = 0;	// to preserve the message length when encountering a real-time msg
@@ -283,7 +291,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         if (bytesInPacket == 0)	      // Indicates the end of the buffer, early out.
             break;		
 
-        printf("%c %d: %02X %02X %02X %02X  ", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
+        // printf("%c %d: %02X %02X %02X %02X  \n", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
@@ -383,7 +391,8 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
                                  Byte *destBuf2, ByteCount *bufCount2)
 {
     Byte *dest[2] = {destBuf1, destBuf2};
-    Byte *destEnd[2] = {dest[0] + kWriteBufSize, dest[1] + kWriteBufSize};
+    Byte *destEnd[2] = {dest[0] + productTable[connectedMIDISPORTIndex].writeBufSize,
+                        dest[1] + productTable[connectedMIDISPORTIndex].writeBufSize};
    
     while (true) {
         if (writeQueue.empty()) {
