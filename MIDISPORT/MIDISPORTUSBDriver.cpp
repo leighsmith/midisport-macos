@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.6 2001/03/17 00:40:15 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.7 2001/03/19 20:24:51 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT 2x2 USB MIDI interfaces.
 //
@@ -59,7 +59,7 @@
 #define MIDIPACKETLEN		4		// number of bytes in a dword packet received and sent to the MIDISPORT
 #define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
-#define DEBUG_OUTBUFFER		1		// 1 to printout whenever a msg is to be sent.
+#define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
 #define VERBOSE (DEBUG && 1)
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -211,7 +211,7 @@ void MIDISPORT2x2::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *r
         if (bytesInPacket == 0)	      // Indicates the end of the buffer, early out.
             break;		
 
-        printf("%c %d: %02X %02X %02X %02X  ", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
+        // printf("%c %d: %02X %02X %02X %02X  ", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
@@ -322,7 +322,7 @@ ByteCount MIDISPORT2x2::PrepareOutput(InterfaceState *intf, WriteQueue &writeQue
         Byte *src = pkt->data + wqe->bytesSent;
         Byte *srcend = &pkt->data[pkt->length];
 
-        printf("cableNibble = 0x%x, portNum = %d, cableEndpoint = %d\n", cableNibble, wqe->portNum, cableEndpoint);
+        // printf("cableNibble = 0x%x, portNum = %d, cableEndpoint = %d\n", cableNibble, wqe->portNum, cableEndpoint);
         while (src < srcend && dest < destend) {
             int outPacketLen;
             Byte c = *src++;
