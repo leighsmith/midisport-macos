@@ -42,6 +42,14 @@
 
 #include <CoreMIDIServer/MIDIDriver.h>
 
+#ifndef V1_MIDI_DRIVER_SUPPORT
+	#define V1_MIDI_DRIVER_SUPPORT	1
+#endif
+
+#ifndef V2_MIDI_DRIVER_SUPPORT
+	#define V2_MIDI_DRIVER_SUPPORT	1
+#endif
+
 // drivers implemented in C++ can derive from this (see MIDIDriver.cpp)
 // see the descriptions of the function pointers with the same names in struct MIDIDriverInterface.
 class MIDIDriver {
@@ -56,6 +64,8 @@ public:
 	virtual OSStatus	Send(const MIDIPacketList *pklist, void *destRefCon1, void *destRefCon2) 
 							{ return noErr; }
 	virtual OSStatus	EnableSource(MIDIEndpointRef src, Boolean enabled) { return noErr; }
+
+	// below are for V2 only
 	virtual OSStatus	Flush(MIDIEndpointRef dest, void *destRefCon1, void *destRefCon2) { return noErr; }
 	virtual OSStatus	Monitor(MIDIEndpointRef dest, const MIDIPacketList *pktlist) { return noErr; }
 	
@@ -65,16 +75,22 @@ public:
 	MIDIDriverInterface *	mInterface;		// keep this first
 	CFUUIDRef				mFactoryID;
 	UInt32					mRefCount;
+	int						mVersion;		// which version of the interface the server asked for
 };
 
 // inverse of MIDIDriver::Self() method.
 // MIDIDriverRef is a pointer to the mInterface member of MIDIDriver
-// To avoid relying on the C++ compiler placing this member at offset 0
+// To avoid assuming that the C++ compiler places this member at offset 0
 // of the structure, use this inline function to get from the MIDIDriverRef
 // to the MIDIDriver pointer.
 inline MIDIDriver *	GetMIDIDriver(MIDIDriverRef ref)
 {
 	return (MIDIDriver *)((Byte *)ref - offsetof(MIDIDriver, mInterface));
 }
+
+#if V1_MIDI_DRIVER_SUPPORT && V2_MIDI_DRIVER_SUPPORT
+	#define MIDI_WEAK_LINK_TO_V2_CALLS 1
+	#include "MIDIBackCompatible.h"
+#endif
 
 #endif // __MIDIDriverClass_h__
