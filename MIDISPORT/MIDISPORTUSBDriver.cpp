@@ -1,4 +1,4 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.11 2001/05/19 18:45:12 leigh Exp $
+// $Id: MIDISPORTUSBDriver.cpp,v 1.12 2001/10/03 22:35:30 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
@@ -16,16 +16,43 @@
 // copyright message remains intact and accompanies all derived code.
 //
 /*
-	Copyright (c) 2000 Apple Computer, Inc., All Rights Reserved.
-
-	You may incorporate this Apple sample source code into your program(s) without
-	restriction. This Apple sample source code has been provided "AS IS" and the
-	responsibility for its operation is yours. You are not permitted to redistribute
-	this Apple sample source code as "Apple sample source code" after having made
-	changes. If you're going to re-distribute the source, we require that you make
-	it clear in the source that the code was descended from Apple sample source
-	code, but that you've made changes.
-*/
+ IMPORTANT: This Apple software is supplied to you by Apple Computer,
+ Inc. ("Apple") in consideration of your agreement to the following terms,
+ and your use, installation, modification or redistribution of this Apple
+ software constitutes acceptance of these terms.  If you do not agree with
+ these terms, please do not use, install, modify or redistribute this Apple
+ software.
+ 
+ In consideration of your agreement to abide by the following terms, and
+ subject to these terms, Apple grants you a personal, non-exclusive
+ license, under Apple’s copyrights in this original Apple software (the
+ "Apple Software"), to use, reproduce, modify and redistribute the Apple
+ Software, with or without modifications, in source and/or binary forms;
+ provided that if you redistribute the Apple Software in its entirety and
+ without modifications, you must retain this notice and the following text
+ and disclaimers in all such redistributions of the Apple Software.
+ Neither the name, trademarks, service marks or logos of Apple Computer,
+ Inc. may be used to endorse or promote products derived from the Apple
+ Software without specific prior written permission from Apple. Except as
+ expressly stated in this notice, no other rights or licenses, express or
+ implied, are granted by Apple herein, including but not limited to any
+ patent rights that may be infringed by your derivative works or by other
+ works in which the Apple Software may be incorporated.
+ 
+ The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES
+ NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE
+ IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A
+ PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION
+ ALONE OR IN COMBINATION WITH YOUR PRODUCTS.
+ 
+ IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION,
+ MODIFICATION AND/OR DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND
+ WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT
+ LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
+ OF SUCH DAMAGE.  */
 
 #include <stddef.h>
 #include <stdio.h>
@@ -88,11 +115,12 @@ extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID)
     // If correct type is being requested, allocate an
     // instance of TestType and return the IUnknown interface.
     if (CFEqual(typeID, kMIDIDriverTypeID)) {
-            MIDISPORT *result = new MIDISPORT;
-            return result->Self();
-    } else {
-            // If the requested type is incorrect, return NULL.
-            return NULL;
+        MIDISPORT *result = new MIDISPORT;
+        return result->Self();
+    }
+    else {
+        // If the requested type is incorrect, return NULL.
+        return NULL;
     }
 }
 
@@ -110,6 +138,7 @@ MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
 #if VERBOSE
     printf("MIDISPORTUSBDriver init\n");
 #endif
+    // if (CFEqual(typeID, kMIDIDriverInterfaceID))
     connectedMIDISPORTIndex = -1;   // error condition
     for(i = 0; i < PRODUCT_TOTAL; i++) {
         if (ezusb.FindVendorsProduct(midimanVendorID, productTable[i].coldBootProductID, true)) {
@@ -144,7 +173,7 @@ MIDISPORT::~MIDISPORT()
 
 // __________________________________________________________________________________________________
 
-bool MIDISPORT::UseDevice(IOUSBDeviceInterface **device,
+bool MIDISPORT::MatchDevice(IOUSBDeviceInterface **device,
                              UInt16 devVendor,
                              UInt16 devProduct)
 {
@@ -159,6 +188,7 @@ bool MIDISPORT::UseDevice(IOUSBDeviceInterface **device,
 #if VERBOSE
                 printf("found it\n");
 #endif
+                connectedMIDISPORTIndex = i;
                 return true;
             }
         }
@@ -174,18 +204,20 @@ void MIDISPORT::GetInterfaceToUse(IOUSBDeviceInterface **device,
     outAltSetting = 0;
 }
 
-void MIDISPORT::FoundDevice(IOUSBDeviceInterface **device,
-                               IOUSBInterfaceInterface **interface,
-                               UInt16 devVendor,
-                               UInt16 devProduct,
-                               UInt8 interfaceNumber,
-                               UInt8 altSetting,
-                               MIDIDeviceListRef deviceList)
+MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
+                             io_service_t ioInterface,
+                             IOUSBDeviceInterface **device,
+                             IOUSBInterfaceInterface **interface,
+                             UInt16 devVendor,
+                             UInt16 devProduct,
+                             UInt8 interfaceNumber,
+                             UInt8 altSetting)
 {
     MIDIDeviceRef dev;
     MIDIEntityRef ent;
     unsigned int i;
 
+#if 1 // is this necessary, probably worthwhile for robustness of error messages.
     for(i = 0; i < PRODUCT_TOTAL; i++) {
         if(productTable[i].warmFirmwareProductID == devProduct) {
             connectedMIDISPORTIndex = i;
@@ -194,8 +226,9 @@ void MIDISPORT::FoundDevice(IOUSBDeviceInterface **device,
     }
     if(i == PRODUCT_TOTAL) {
         printf("Unable to recognize MIDIMan device %x\n", devProduct);
-        return;
+        return NULL;  // TODO this needs to be checked if this is legitimate to return in case of error.
     }
+#endif
     
     MIDIDeviceCreate(Self(),
             CFSTR(kMyBoxName),
@@ -227,7 +260,7 @@ void MIDISPORT::FoundDevice(IOUSBDeviceInterface **device,
         CFRelease(str);
     }
 
-    MIDIDeviceListAddDevice(deviceList, dev);
+    return dev;
 }
 
 // note that we're using bulk endpoint for output; interrupt for input...
