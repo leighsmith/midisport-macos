@@ -41,14 +41,13 @@
 
 #include "MIDIDriverClass.h"
 
-bool		gIsV2Driver = false;
-
 // Implementation of the IUnknown QueryInterface function.
 static HRESULT MIDIDriverQueryInterface(MIDIDriverRef ref, REFIID iid, LPVOID *ppv) 
 {
 	// Create a CoreFoundation UUIDRef for the requested interface.
 	CFUUIDRef interfaceID = CFUUIDCreateFromUUIDBytes( NULL, iid );
 
+#if V2_MIDI_DRIVER_SUPPORT
 	if (CFEqual(interfaceID, kMIDIDriverInterface2ID)) {
 		// If the MIDIDriverInterface was requested, bump the ref count,
 		// set the ppv parameter equal to the instance, and
@@ -57,15 +56,30 @@ static HRESULT MIDIDriverQueryInterface(MIDIDriverRef ref, REFIID iid, LPVOID *p
 		self->mInterface->AddRef(self);
 		*ppv = &self->mInterface;
 		CFRelease(interfaceID);
-		gIsV2Driver = true;
+		self->mVersion = 2;
+#if MIDI_WEAK_LINK_TO_V2_CALLS
+		InitMIDIWeakLinks();
+#endif
 		return S_OK;
 	}
+#endif
 
+#if V1_MIDI_DRIVER_SUPPORT
 	// Test the requested ID against the valid interfaces.
-	if (CFEqual(interfaceID, kMIDIDriverInterfaceID) || CFEqual(interfaceID, IUnknownUUID)) {
+	if (CFEqual(interfaceID, kMIDIDriverInterfaceID)) {
 		// If the MIDIDriverInterface was requested, bump the ref count,
 		// set the ppv parameter equal to the instance, and
 		// return good status.
+		MIDIDriver *self = GetMIDIDriver(ref);
+		self->mInterface->AddRef(self);
+		*ppv = &self->mInterface;
+		CFRelease(interfaceID);
+		self->mVersion = 1;
+		return S_OK;
+	}
+#endif
+
+	if (CFEqual(interfaceID, IUnknownUUID)) {
 		MIDIDriver *self = GetMIDIDriver(ref);
 		self->mInterface->AddRef(self);
 		*ppv = &self->mInterface;
@@ -175,6 +189,7 @@ MIDIDriver::MIDIDriver(CFUUIDRef factoryID)
 	CFPlugInAddInstanceForFactory(factoryID);
 
 	mRefCount = 1;
+	mVersion = 0;
 }
 
 MIDIDriver::~MIDIDriver()
