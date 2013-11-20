@@ -7,34 +7,34 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01808E38FFBB5EC8CFED3B96 /* PlayNotes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1001C122FFAE4A3FCFED3B93 /* PlayNotes.cpp */; settings = {ATTRIBUTES = (); }; };
-		01808E3CFFBB5FC8CFED3B96 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */; };
-		01D792D00062C8FDCFED3B96 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */; };
-		02859628002A4B0DCFED3B96 /* Echo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01319EB4FF894950CFED3B93 /* Echo.cpp */; settings = {ATTRIBUTES = (); }; };
+		D89D815F183D7C5900446B12 /* PlayNotes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1001C122FFAE4A3FCFED3B93 /* PlayNotes.cpp */; settings = {ATTRIBUTES = (); }; };
+		D89D8161183D7C5900446B12 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */; };
+		D89D816C183D7C5A00446B12 /* Echo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01319EB4FF894950CFED3B93 /* Echo.cpp */; settings = {ATTRIBUTES = (); }; };
+		D89D816E183D7C5A00446B12 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		01319EB4FF894950CFED3B93 /* Echo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Echo.cpp; sourceTree = "<group>"; };
 		01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		1001C122FFAE4A3FCFED3B93 /* PlayNotes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlayNotes.cpp; sourceTree = "<group>"; };
-		D87F9881183D18B100FE7B48 /* PlayNotes */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlayNotes; sourceTree = BUILT_PRODUCTS_DIR; };
-		D87F9883183D18B100FE7B48 /* MidiThruTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MidiThruTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D89D8167183D7C5900446B12 /* PlayNotes */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = PlayNotes; path = build/Development/PlayNotes; sourceTree = "<group>"; };
+		D89D8174183D7C5A00446B12 /* MidiThruTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = MidiThruTest; path = build/Development/MidiThruTest; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		00FF11B6FFBA02DACFED3B96 /* Frameworks */ = {
+		D89D8160183D7C5900446B12 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01D792D00062C8FDCFED3B96 /* CoreMIDI.framework in Frameworks */,
+				D89D8161183D7C5900446B12 /* CoreMIDI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		00FF11BBFFBA02DACFED3B96 /* Frameworks */ = {
+		D89D816D183D7C5A00446B12 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01808E3CFFBB5FC8CFED3B96 /* CoreMIDI.framework in Frameworks */,
+				D89D816E183D7C5A00446B12 /* CoreMIDI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,8 +71,8 @@
 		275A78C200CC5F7ECFED3B96 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D87F9881183D18B100FE7B48 /* PlayNotes */,
-				D87F9883183D18B100FE7B48 /* MidiThruTest */,
+				D89D8167183D7C5900446B12 /* PlayNotes */,
+				D89D8174183D7C5A00446B12 /* MidiThruTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -80,14 +80,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		00FF11B4FFBA02DACFED3B96 /* Headers */ = {
+		D89D815D183D7C5900446B12 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		00FF11B9FFBA02DACFED3B96 /* Headers */ = {
+		D89D816A183D7C5A00446B12 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -95,6 +95,47 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D89D815C183D7C5900446B12 /* PlayNotes (Upgraded) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D89D8163183D7C5900446B12 /* Build configuration list for PBXNativeTarget "PlayNotes (Upgraded)" */;
+			buildPhases = (
+				D89D815D183D7C5900446B12 /* Headers */,
+				D89D815E183D7C5900446B12 /* Sources */,
+				D89D8160183D7C5900446B12 /* Frameworks */,
+				D89D8162183D7C5900446B12 /* Rez */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "PlayNotes (Upgraded)";
+			productInstallPath = /usr/local/bin;
+			productName = PlayNotes;
+			productReference = D89D8167183D7C5900446B12 /* PlayNotes */;
+			productType = "com.apple.product-type.tool";
+		};
+		D89D8169183D7C5A00446B12 /* MidiThruTest (Upgraded) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D89D8170183D7C5A00446B12 /* Build configuration list for PBXNativeTarget "MidiThruTest (Upgraded)" */;
+			buildPhases = (
+				D89D816A183D7C5A00446B12 /* Headers */,
+				D89D816B183D7C5A00446B12 /* Sources */,
+				D89D816D183D7C5A00446B12 /* Frameworks */,
+				D89D816F183D7C5A00446B12 /* Rez */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "MidiThruTest (Upgraded)";
+			productInstallPath = /usr/local/bin;
+			productName = Echo;
+			productReference = D89D8174183D7C5A00446B12 /* MidiThruTest */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
@@ -106,21 +147,21 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				00FF11B3FFBA02DACFED3B96 /* PlayNotes */,
-				00FF11B8FFBA02DACFED3B96 /* MidiThruTest */,
+				D89D815C183D7C5900446B12 /* PlayNotes (Upgraded) */,
+				D89D8169183D7C5A00446B12 /* MidiThruTest (Upgraded) */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXRezBuildPhase section */
-		00FF11B7FFBA02DACFED3B96 /* Rez */ = {
+		D89D8162183D7C5900446B12 /* Rez */ = {
 			isa = PBXRezBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		00FF11BCFFBA02DACFED3B96 /* Rez */ = {
+		D89D816F183D7C5A00446B12 /* Rez */ = {
 			isa = PBXRezBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -130,58 +171,23 @@
 /* End PBXRezBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		00FF11B5FFBA02DACFED3B96 /* Sources */ = {
+		D89D815E183D7C5900446B12 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01808E38FFBB5EC8CFED3B96 /* PlayNotes.cpp in Sources */,
+				D89D815F183D7C5900446B12 /* PlayNotes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		00FF11BAFFBA02DACFED3B96 /* Sources */ = {
+		D89D816B183D7C5A00446B12 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02859628002A4B0DCFED3B96 /* Echo.cpp in Sources */,
+				D89D816C183D7C5A00446B12 /* Echo.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXToolTarget section */
-		00FF11B3FFBA02DACFED3B96 /* PlayNotes */ = {
-			isa = PBXToolTarget;
-			buildConfigurationList = D87F9893183D18B200FE7B48 /* Build configuration list for PBXToolTarget "PlayNotes" */;
-			buildPhases = (
-				00FF11B4FFBA02DACFED3B96 /* Headers */,
-				00FF11B5FFBA02DACFED3B96 /* Sources */,
-				00FF11B6FFBA02DACFED3B96 /* Frameworks */,
-				00FF11B7FFBA02DACFED3B96 /* Rez */,
-			);
-			dependencies = (
-			);
-			name = PlayNotes;
-			productInstallPath = /usr/local/bin;
-			productName = PlayNotes;
-			productReference = D87F9881183D18B100FE7B48 /* PlayNotes */;
-		};
-		00FF11B8FFBA02DACFED3B96 /* MidiThruTest */ = {
-			isa = PBXToolTarget;
-			buildConfigurationList = D87F9894183D18B200FE7B48 /* Build configuration list for PBXToolTarget "MidiThruTest" */;
-			buildPhases = (
-				00FF11B9FFBA02DACFED3B96 /* Headers */,
-				00FF11BAFFBA02DACFED3B96 /* Sources */,
-				00FF11BBFFBA02DACFED3B96 /* Frameworks */,
-				00FF11BCFFBA02DACFED3B96 /* Rez */,
-			);
-			dependencies = (
-			);
-			name = MidiThruTest;
-			productInstallPath = /usr/local/bin;
-			productName = Echo;
-			productReference = D87F9883183D18B100FE7B48 /* MidiThruTest */;
-		};
-/* End PBXToolTarget section */
 
 /* Begin XCBuildConfiguration section */
 		D87F9889183D18B200FE7B48 /* Development */ = {
@@ -202,7 +208,7 @@
 			};
 			name = Default;
 		};
-		D87F988C183D18B200FE7B48 /* Development */ = {
+		D89D8164183D7C5900446B12 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
@@ -226,7 +232,7 @@
 			};
 			name = Development;
 		};
-		D87F988D183D18B200FE7B48 /* Deployment */ = {
+		D89D8165183D7C5900446B12 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
@@ -247,7 +253,7 @@
 			};
 			name = Deployment;
 		};
-		D87F988E183D18B200FE7B48 /* Default */ = {
+		D89D8166183D7C5900446B12 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INSTALL_PATH = /usr/local/bin;
@@ -265,7 +271,7 @@
 			};
 			name = Default;
 		};
-		D87F988F183D18B200FE7B48 /* Development */ = {
+		D89D8171183D7C5A00446B12 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
@@ -289,7 +295,7 @@
 			};
 			name = Development;
 		};
-		D87F9890183D18B200FE7B48 /* Deployment */ = {
+		D89D8172183D7C5A00446B12 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
@@ -310,7 +316,7 @@
 			};
 			name = Deployment;
 		};
-		D87F9891183D18B200FE7B48 /* Default */ = {
+		D89D8173183D7C5A00446B12 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INSTALL_PATH = /usr/local/bin;
@@ -341,22 +347,22 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		D87F9893183D18B200FE7B48 /* Build configuration list for PBXToolTarget "PlayNotes" */ = {
+		D89D8163183D7C5900446B12 /* Build configuration list for PBXNativeTarget "PlayNotes (Upgraded)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D87F988C183D18B200FE7B48 /* Development */,
-				D87F988D183D18B200FE7B48 /* Deployment */,
-				D87F988E183D18B200FE7B48 /* Default */,
+				D89D8164183D7C5900446B12 /* Development */,
+				D89D8165183D7C5900446B12 /* Deployment */,
+				D89D8166183D7C5900446B12 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		D87F9894183D18B200FE7B48 /* Build configuration list for PBXToolTarget "MidiThruTest" */ = {
+		D89D8170183D7C5A00446B12 /* Build configuration list for PBXNativeTarget "MidiThruTest (Upgraded)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D87F988F183D18B200FE7B48 /* Development */,
-				D87F9890183D18B200FE7B48 /* Deployment */,
-				D87F9891183D18B200FE7B48 /* Default */,
+				D89D8171183D7C5A00446B12 /* Development */,
+				D89D8172183D7C5A00446B12 /* Deployment */,
+				D89D8173183D7C5A00446B12 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

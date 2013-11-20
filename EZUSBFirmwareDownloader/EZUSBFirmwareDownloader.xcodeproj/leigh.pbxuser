@@ -2,11 +2,11 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeBuildConfigurationName = Development;
-		activeExecutable = D87F9864183D185B00FE7B48 /* EZUSBFirmwareDownloader */;
-		activeTarget = 08FB779FFE84155DC02AAC07 /* EZUSBFirmwareDownloader */;
+		activeExecutable = D89D8148183D7BCA00446B12 /* EZUSBFirmwareDownloader (Upgraded) */;
+		activeTarget = D89D8135183D7BC900446B12 /* EZUSBFirmwareDownloader (Upgraded) */;
 		codeSenseManager = D87F9879183D185E00FE7B48 /* Code sense */;
 		executables = (
-			D87F9864183D185B00FE7B48 /* EZUSBFirmwareDownloader */,
+			D89D8148183D7BCA00446B12 /* EZUSBFirmwareDownloader (Upgraded) */,
 		);
 		perUserDictionary = {
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
@@ -16,7 +16,7 @@
 					20,
 					341,
 					20,
-					48.16259765625,
+					48,
 					43,
 					43,
 					20,
@@ -31,20 +31,53 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 406657116;
-			PBXWorkspaceStateSaveDate = 406657116;
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					301,
+					60,
+					20,
+					48.16259765625,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 406682785;
+			PBXWorkspaceStateSaveDate = 406682785;
 		};
 		sourceControlManager = D87F9878183D185E00FE7B48 /* Source Control */;
 		userBuildSettings = {
 		};
 	};
-	08FB779FFE84155DC02AAC07 /* EZUSBFirmwareDownloader */ = {
+	D87F9878183D185E00FE7B48 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+	};
+	D87F9879183D185E00FE7B48 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	D89D8135183D7BC900446B12 /* EZUSBFirmwareDownloader (Upgraded) */ = {
 		activeExec = 0;
 		executables = (
-			D87F9864183D185B00FE7B48 /* EZUSBFirmwareDownloader */,
+			D89D8148183D7BCA00446B12 /* EZUSBFirmwareDownloader (Upgraded) */,
 		);
 	};
-	D87F9864183D185B00FE7B48 /* EZUSBFirmwareDownloader */ = {
+	D89D8148183D7BCA00446B12 /* EZUSBFirmwareDownloader (Upgraded) */ = {
 		isa = PBXExecutable;
 		activeArgIndices = (
 		);
@@ -63,19 +96,8 @@
 		executableSystemSymbolLevel = 0;
 		executableUserSymbolLevel = 0;
 		libgmallocEnabled = 0;
-		name = EZUSBFirmwareDownloader;
+		name = "EZUSBFirmwareDownloader (Upgraded)";
 		sourceDirectories = (
 		);
-	};
-	D87F9878183D185E00FE7B48 /* Source Control */ = {
-		isa = PBXSourceControlManager;
-		fallbackIsa = XCSourceControlManager;
-		isSCMEnabled = 0;
-		scmConfiguration = {
-		};
-	};
-	D87F9879183D185E00FE7B48 /* Code sense */ = {
-		isa = PBXCodeSenseManager;
-		indexTemplatePath = "";
 	};
 }

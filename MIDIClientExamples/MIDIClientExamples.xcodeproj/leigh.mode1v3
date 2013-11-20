@@ -266,12 +266,13 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateExpansionKey</key>
 							<array>
 								<string>08FB7794FE84155DC02AAC07</string>
+								<string>1C37FBAC04509CD000000102</string>
 								<string>1C37FABC05509CD000000102</string>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>0</integer>
+									<integer>4</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
@@ -294,7 +295,7 @@
 							<real>186</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>446 429 788 504 0 0 1680 1028 </string>
+						<string>446 428 788 504 0 0 1680 1028 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -331,7 +332,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {580, 285}}</string>
 								<key>RubberWindowFrame</key>
-								<string>446 429 788 504 0 0 1680 1028 </string>
+								<string>446 428 788 504 0 0 1680 1028 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -351,7 +352,7 @@
 								<key>Frame</key>
 								<string>{{0, 290}, {580, 173}}</string>
 								<key>RubberWindowFrame</key>
-								<string>446 429 788 504 0 0 1680 1028 </string>
+								<string>446 428 788 504 0 0 1680 1028 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
@@ -375,9 +376,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>D87F98B0183D190400FE7B48</string>
+				<string>D89D8177183D7C9D00446B12</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>D87F98B1183D190400FE7B48</string>
+				<string>D89D8178183D7C9D00446B12</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -511,11 +512,10 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>D87F9898183D18D800FE7B48</string>
 		<string>/Volumes/leigh/Sources/Drivers/MIDI/MIDISPORT/MIDIClientExamples/MIDIClientExamples.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>446 429 788 504 0 0 1680 1028 </string>
+	<string>446 428 788 504 0 0 1680 1028 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>
