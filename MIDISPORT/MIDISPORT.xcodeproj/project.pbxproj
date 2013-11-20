@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 42;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -167,9 +167,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		D89D8102183D7B2200446B12 /* MIDISPORT (Upgraded) */ = {
+		D89D8102183D7B2200446B12 /* MIDISPORT */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D89D811F183D7B2200446B12 /* Build configuration list for PBXNativeTarget "MIDISPORT (Upgraded)" */;
+			buildConfigurationList = D89D811F183D7B2200446B12 /* Build configuration list for PBXNativeTarget "MIDISPORT" */;
 			buildPhases = (
 				D89D8103183D7B2200446B12 /* Headers */,
 				D89D810B183D7B2200446B12 /* Resources */,
@@ -181,7 +181,7 @@
 			);
 			dependencies = (
 			);
-			name = "MIDISPORT (Upgraded)";
+			name = MIDISPORT;
 			productInstallPath = "/Library/Audio/MIDI Drivers";
 			productName = MIDISPORT2x2;
 			productReference = D89D8124183D7B2300446B12 /* MIDISPORT.plugin */;
@@ -192,14 +192,21 @@
 /* Begin PBXProject section */
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+			};
 			buildConfigurationList = D8EA9071183D17D200F595A8 /* Build configuration list for PBXProject "MIDISPORT" */;
-			compatibilityVersion = "Xcode 2.4";
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 089C166AFE841209C02AAC07 /* CFPlugInBundle */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D89D8102183D7B2200446B12 /* MIDISPORT (Upgraded) */,
+				D89D8102183D7B2200446B12 /* MIDISPORT */,
 			);
 		};
 /* End PBXProject section */
@@ -261,6 +268,7 @@
 		D89D8120183D7B2200446B12 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -291,6 +299,7 @@
 		D89D8121183D7B2200446B12 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -318,6 +327,7 @@
 		D89D8122183D7B2200446B12 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
 				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -360,7 +370,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D89D811F183D7B2200446B12 /* Build configuration list for PBXNativeTarget "MIDISPORT (Upgraded)" */ = {
+		D89D811F183D7B2200446B12 /* Build configuration list for PBXNativeTarget "MIDISPORT" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D89D8120183D7B2200446B12 /* Development */,

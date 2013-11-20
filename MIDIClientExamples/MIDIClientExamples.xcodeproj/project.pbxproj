@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 42;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,8 +17,8 @@
 		01319EB4FF894950CFED3B93 /* Echo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Echo.cpp; sourceTree = "<group>"; };
 		01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		1001C122FFAE4A3FCFED3B93 /* PlayNotes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlayNotes.cpp; sourceTree = "<group>"; };
-		D89D8167183D7C5900446B12 /* PlayNotes */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = PlayNotes; path = build/Development/PlayNotes; sourceTree = "<group>"; };
-		D89D8174183D7C5A00446B12 /* MidiThruTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = MidiThruTest; path = build/Development/MidiThruTest; sourceTree = "<group>"; };
+		D89D8167183D7C5900446B12 /* PlayNotes */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlayNotes; sourceTree = BUILT_PRODUCTS_DIR; };
+		D89D8174183D7C5A00446B12 /* MidiThruTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MidiThruTest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,9 +97,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		D89D815C183D7C5900446B12 /* PlayNotes (Upgraded) */ = {
+		D89D815C183D7C5900446B12 /* PlayNotes */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D89D8163183D7C5900446B12 /* Build configuration list for PBXNativeTarget "PlayNotes (Upgraded)" */;
+			buildConfigurationList = D89D8163183D7C5900446B12 /* Build configuration list for PBXNativeTarget "PlayNotes" */;
 			buildPhases = (
 				D89D815D183D7C5900446B12 /* Headers */,
 				D89D815E183D7C5900446B12 /* Sources */,
@@ -110,15 +110,15 @@
 			);
 			dependencies = (
 			);
-			name = "PlayNotes (Upgraded)";
+			name = PlayNotes;
 			productInstallPath = /usr/local/bin;
 			productName = PlayNotes;
 			productReference = D89D8167183D7C5900446B12 /* PlayNotes */;
 			productType = "com.apple.product-type.tool";
 		};
-		D89D8169183D7C5A00446B12 /* MidiThruTest (Upgraded) */ = {
+		D89D8169183D7C5A00446B12 /* MidiThruTest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D89D8170183D7C5A00446B12 /* Build configuration list for PBXNativeTarget "MidiThruTest (Upgraded)" */;
+			buildConfigurationList = D89D8170183D7C5A00446B12 /* Build configuration list for PBXNativeTarget "MidiThruTest" */;
 			buildPhases = (
 				D89D816A183D7C5A00446B12 /* Headers */,
 				D89D816B183D7C5A00446B12 /* Sources */,
@@ -129,7 +129,7 @@
 			);
 			dependencies = (
 			);
-			name = "MidiThruTest (Upgraded)";
+			name = MidiThruTest;
 			productInstallPath = /usr/local/bin;
 			productName = Echo;
 			productReference = D89D8174183D7C5A00446B12 /* MidiThruTest */;
@@ -140,15 +140,22 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+			};
 			buildConfigurationList = D87F9892183D18B200FE7B48 /* Build configuration list for PBXProject "MIDIClientExamples" */;
-			compatibilityVersion = "Xcode 2.4";
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* MIDIClientExample */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D89D815C183D7C5900446B12 /* PlayNotes (Upgraded) */,
-				D89D8169183D7C5A00446B12 /* MidiThruTest (Upgraded) */,
+				D89D815C183D7C5900446B12 /* PlayNotes */,
+				D89D8169183D7C5A00446B12 /* MidiThruTest */,
 			);
 		};
 /* End PBXProject section */
@@ -347,7 +354,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		D89D8163183D7C5900446B12 /* Build configuration list for PBXNativeTarget "PlayNotes (Upgraded)" */ = {
+		D89D8163183D7C5900446B12 /* Build configuration list for PBXNativeTarget "PlayNotes" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D89D8164183D7C5900446B12 /* Development */,
@@ -357,7 +364,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		D89D8170183D7C5A00446B12 /* Build configuration list for PBXNativeTarget "MidiThruTest (Upgraded)" */ = {
+		D89D8170183D7C5A00446B12 /* Build configuration list for PBXNativeTarget "MidiThruTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D89D8171183D7C5A00446B12 /* Development */,

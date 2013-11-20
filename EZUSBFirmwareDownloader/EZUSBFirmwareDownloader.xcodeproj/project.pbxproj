@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 42;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -106,9 +106,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		D89D8135183D7BC900446B12 /* EZUSBFirmwareDownloader (Upgraded) */ = {
+		D89D8135183D7BC900446B12 /* EZUSBFirmwareDownloader */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D89D8143183D7BC900446B12 /* Build configuration list for PBXNativeTarget "EZUSBFirmwareDownloader (Upgraded)" */;
+			buildConfigurationList = D89D8143183D7BC900446B12 /* Build configuration list for PBXNativeTarget "EZUSBFirmwareDownloader" */;
 			buildPhases = (
 				D89D8136183D7BC900446B12 /* Headers */,
 				D89D8137183D7BC900446B12 /* Sources */,
@@ -119,7 +119,7 @@
 			);
 			dependencies = (
 			);
-			name = "EZUSBFirmwareDownloader (Upgraded)";
+			name = EZUSBFirmwareDownloader;
 			productInstallPath = "$(HOME)/bin";
 			productName = EZUSBFirmwareDownloader;
 			productReference = D89D8147183D7BCA00446B12 /* EZUSBFirmwareDownloader */;
@@ -130,14 +130,21 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+			};
 			buildConfigurationList = D87F9876183D185D00FE7B48 /* Build configuration list for PBXProject "EZUSBFirmwareDownloader" */;
-			compatibilityVersion = "Xcode 2.4";
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* EZUSBFirmwareDownloader */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D89D8135183D7BC900446B12 /* EZUSBFirmwareDownloader (Upgraded) */,
+				D89D8135183D7BC900446B12 /* EZUSBFirmwareDownloader */,
 			);
 		};
 /* End PBXProject section */
@@ -267,7 +274,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		D89D8143183D7BC900446B12 /* Build configuration list for PBXNativeTarget "EZUSBFirmwareDownloader (Upgraded)" */ = {
+		D89D8143183D7BC900446B12 /* Build configuration list for PBXNativeTarget "EZUSBFirmwareDownloader" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D89D8144183D7BC900446B12 /* Development */,
