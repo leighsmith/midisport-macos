@@ -1,0 +1,111 @@
+// !$*UTF8*$!
+{
+	00FF11B3FFBA02DACFED3B96 /* PlayNotes */ = {
+		activeExec = 0;
+		executables = (
+			D87F9882183D18B100FE7B48 /* PlayNotes */,
+		);
+	};
+	00FF11B8FFBA02DACFED3B96 /* MidiThruTest */ = {
+		activeExec = 0;
+		executables = (
+			D87F9884183D18B100FE7B48 /* MidiThruTest */,
+		);
+	};
+	08FB7793FE84155DC02AAC07 /* Project object */ = {
+		activeBuildConfigurationName = Development;
+		activeExecutable = D87F9882183D18B100FE7B48 /* PlayNotes */;
+		activeTarget = 00FF11B3FFBA02DACFED3B96 /* PlayNotes */;
+		codeSenseManager = D87F9896183D18B200FE7B48 /* Code sense */;
+		executables = (
+			D87F9882183D18B100FE7B48 /* PlayNotes */,
+			D87F9884183D18B100FE7B48 /* MidiThruTest */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					341,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 406657201;
+			PBXWorkspaceStateSaveDate = 406657201;
+		};
+		sourceControlManager = D87F9895183D18B200FE7B48 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	D87F9882183D18B100FE7B48 /* PlayNotes */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = PlayNotes;
+		sourceDirectories = (
+		);
+	};
+	D87F9884183D18B100FE7B48 /* MidiThruTest */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = MidiThruTest;
+		sourceDirectories = (
+		);
+	};
+	D87F9895183D18B200FE7B48 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+	};
+	D87F9896183D18B200FE7B48 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+}

@@ -339,10 +339,11 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         if (bytesInPacket == 0)	      // Indicates the end of the buffer, early out.
             break;		
 
-        // printf("%c %d: %02X %02X %02X %02X  \n", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
+        printf("%c %d: %02X %02X %02X %02X  \n", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
+            printf("flushing source %d\n", inputPort);
             MIDIReceived(intf->mSources[inputPort], pktlist);
             pkt = MIDIPacketListInit(pktlist);
             inSysex[inputPort] = false;
@@ -381,13 +382,13 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                 numCompleted = 1;
                 // store ready for packetting.
                 completeMessage[0] = status;
-                // printf("new status %02X, remainingBytesInMsg = %d\n", status, remainingBytesInMsg[inputPort]);
+                printf("new status %02X, remainingBytesInMsg = %d\n", status, remainingBytesInMsg[inputPort]);
             }
             else if(remainingBytesInMsg[inputPort] > 0) {   // still within a message
                 remainingBytesInMsg[inputPort]--;
                 // store ready for packetting.
                 completeMessage[numCompleted++] = src[byteIndex];
-                // printf("in message remainingBytesInMsg = %d\n", remainingBytesInMsg[inputPort]);
+                printf("in message remainingBytesInMsg = %d\n", remainingBytesInMsg[inputPort]);
             }
             else if(inSysex[inputPort]) {          // fill the packet with sysex bytes
                 // printf("in sysex numCompleted = %d\n", numCompleted);
@@ -404,12 +405,12 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
             }
 
             if(remainingBytesInMsg[inputPort] == 0 || numCompleted >= (MIDIPACKETLEN - 1)) { // completed
-                // printf("Shipping a packet: ");
-                // for(int i = 0; i < numCompleted; i++)
-                //    printf("%02X ", completeMessage[i]);
+                printf("Shipping a packet: ");
+                for(int i = 0; i < numCompleted; i++)
+                    printf("%02X ", completeMessage[i]);
                 pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
                 numCompleted = 0;
-                // printf("shipped\n");
+                printf("shipped\n");
             }
             if(preservedMsgCount != 0) {
                 remainingBytesInMsg[inputPort] = preservedMsgCount;
@@ -417,9 +418,10 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         }
     }
     if (pktlist->numPackets > 0 && prevInputPort != -1) {
-        // printf("receiving %ld packets\n", pktlist->numPackets);
+        printf("source %d receiving %ld packets\n", prevInputPort, pktlist->numPackets);
+        printf("number of entities %d\n", intf->mNumEntities);
         MIDIReceived(intf->mSources[prevInputPort], pktlist);
-        // printf("\n");
+        printf("\n");
     }
 }
 

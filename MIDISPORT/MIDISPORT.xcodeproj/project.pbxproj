@@ -1,0 +1,419 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00C5C68CFEC3504A0A090812 /* CoreMIDIServer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C5C68BFEC3504A0A090812 /* CoreMIDIServer.framework */; };
+		00C5C68FFEC350680A090812 /* USBUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C5C68DFEC350680A090812 /* USBUtils.cpp */; settings = {ATTRIBUTES = (); }; };
+		00C5C691FEC354650A090812 /* MIDIDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C5C690FEC354650A090812 /* MIDIDriver.cpp */; settings = {ATTRIBUTES = (); }; };
+		00D01142FEDB397F0A090812 /* MIDIPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00D0113FFEDB397F0A090812 /* MIDIPacket.cpp */; settings = {ATTRIBUTES = (); }; };
+		010D0AFFFEE5F5BB0A090812 /* MIDISPORTUSBDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 010D0AFDFEE5F5BB0A090812 /* MIDISPORTUSBDriver.cpp */; settings = {ATTRIBUTES = (); }; };
+		0177C834FEC2D3C80A090812 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0177C833FEC2D3C80A090812 /* IOKit.framework */; };
+		028D229F016913B4CFED3B96 /* MIDIDriverClass.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D229E016913B4CFED3B96 /* MIDIDriverClass.h */; };
+		046A0942FFB4CC2ECFED3B96 /* EZLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 046A093EFFB4CC2ECFED3B96 /* EZLoader.cpp */; settings = {ATTRIBUTES = (); }; };
+		046A0943FFB4CC2ECFED3B96 /* MIDISPORT2x2Firmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 046A0940FFB4CC2ECFED3B96 /* MIDISPORT2x2Firmware.cpp */; settings = {ATTRIBUTES = (); }; };
+		046A0944FFB4CC2ECFED3B96 /* HexLoaderFirmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 046A0941FFB4CC2ECFED3B96 /* HexLoaderFirmware.cpp */; settings = {ATTRIBUTES = (); }; };
+		04C7CB62FF9129AFCFED3B93 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04C7CB61FF9129AFCFED3B93 /* CoreServices.framework */; };
+		089C1680FE841241C02AAC07 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
+		0AA190A0FE8422F4C02AAC07 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
+		0AB3E783004B3117CFED3B96 /* MIDISPORTUSBDriver.h in Headers */ = {isa = PBXBuildFile; fileRef = 010D0AFEFEE5F5BB0A090812 /* MIDISPORTUSBDriver.h */; };
+		0AB3E784004B3117CFED3B96 /* EZLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 046A093FFFB4CC2ECFED3B96 /* EZLoader.h */; };
+		0AB3E785004B3117CFED3B96 /* USBUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 00C5C68EFEC350680A090812 /* USBUtils.h */; };
+		0AB3E786004B3117CFED3B96 /* USBMIDIDriverBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E21D07CFED9A4DC0A090812 /* USBMIDIDriverBase.h */; };
+		0AB3E787004B3117CFED3B96 /* MIDIPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 00D01140FEDB397F0A090812 /* MIDIPacket.h */; };
+		1B44C8D3007286F3CFED3B96 /* MIDISPORT1x1Firmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1B44C8D1007286F3CFED3B96 /* MIDISPORT1x1Firmware.cpp */; };
+		1B44C8D4007286F3CFED3B96 /* MIDISPORT4x4Firmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1B44C8D2007286F3CFED3B96 /* MIDISPORT4x4Firmware.cpp */; };
+		1E21D07DFED9A4DC0A090812 /* USBMIDIDriverBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1E21D07BFED9A4DC0A090812 /* USBMIDIDriverBase.cpp */; settings = {ATTRIBUTES = (); }; };
+		7B2D4BA2018A08F4002A0496 /* MIDIBackCompatible.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B2D4BA1018A08F3002A0496 /* MIDIBackCompatible.h */; };
+		7B2D4BA3018A08F4002A0496 /* MIDIBackCompatible.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B2D4BA0018A08F3002A0496 /* MIDIBackCompatible.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBundleTarget section */
+		089C1673FE841209C02AAC07 /* MIDISPORT */ = {
+			isa = PBXBundleTarget;
+			buildConfigurationList = D8EA9072183D17D200F595A8 /* Build configuration list for PBXBundleTarget "MIDISPORT" */;
+			buildPhases = (
+				089C1674FE841209C02AAC07 /* Headers */,
+				089C1675FE841209C02AAC07 /* Resources */,
+				089C1676FE841209C02AAC07 /* Sources */,
+				089C1677FE841209C02AAC07 /* Frameworks */,
+				089C1679FE841209C02AAC07 /* Rez */,
+			);
+			dependencies = (
+			);
+			name = MIDISPORT;
+			productInstallPath = "/Library/Audio/MIDI Drivers";
+			productName = MIDISPORT2x2;
+			productReference = 0AB3E782004B3117CFED3B96 /* MIDISPORT.plugin */;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>MIDISPORT</string>
+	<key>CFBundleGetInfoString</key>
+	<string>MIDIMan MIDISPORT USB Driver</string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string>com.midiman.midi.driver.midisport</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>MIDISPORT</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>MIDISPORT V2.1.0</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>2.1.0</string>
+	<key>CFPlugInDynamicRegisterFunction</key>
+	<string></string>
+	<key>CFPlugInDynamicRegistration</key>
+	<string>NO</string>
+	<key>CFPlugInFactories</key>
+	<dict>
+		<key>6E443FE8-9EF4-11D4-A2FE-000502B62133</key>
+		<string>NewMIDISPORT2x2</string>
+	</dict>
+	<key>CFPlugInTypes</key>
+	<dict>
+		<key>ECDE9574-0FE4-11D4-BB1A-0050E4CEA526</key>
+		<array>
+			<string>6E443FE8-9EF4-11D4-A2FE-000502B62133</string>
+		</array>
+	</dict>
+	<key>CFPlugInUnloadFunction</key>
+	<string></string>
+</dict>
+</plist>
+";
+		};
+/* End PBXBundleTarget section */
+
+/* Begin PBXFileReference section */
+		00C5C68BFEC3504A0A090812 /* CoreMIDIServer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDIServer.framework; path = /System/Library/Frameworks/CoreMIDIServer.framework; sourceTree = "<absolute>"; };
+		00C5C68DFEC350680A090812 /* USBUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = USBUtils.cpp; sourceTree = "<group>"; };
+		00C5C68EFEC350680A090812 /* USBUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = USBUtils.h; sourceTree = "<group>"; };
+		00C5C690FEC354650A090812 /* MIDIDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIDriver.cpp; sourceTree = "<group>"; };
+		00D0113FFEDB397F0A090812 /* MIDIPacket.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIPacket.cpp; sourceTree = "<group>"; };
+		00D01140FEDB397F0A090812 /* MIDIPacket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDIPacket.h; sourceTree = "<group>"; };
+		010D0AFDFEE5F5BB0A090812 /* MIDISPORTUSBDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDISPORTUSBDriver.cpp; sourceTree = "<group>"; };
+		010D0AFEFEE5F5BB0A090812 /* MIDISPORTUSBDriver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDISPORTUSBDriver.h; sourceTree = "<group>"; };
+		0177C833FEC2D3C80A090812 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		028D229E016913B4CFED3B96 /* MIDIDriverClass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDIDriverClass.h; sourceTree = "<group>"; };
+		046A093EFFB4CC2ECFED3B96 /* EZLoader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EZLoader.cpp; sourceTree = "<group>"; };
+		046A093FFFB4CC2ECFED3B96 /* EZLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EZLoader.h; sourceTree = "<group>"; };
+		046A0940FFB4CC2ECFED3B96 /* MIDISPORT2x2Firmware.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDISPORT2x2Firmware.cpp; sourceTree = "<group>"; };
+		046A0941FFB4CC2ECFED3B96 /* HexLoaderFirmware.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HexLoaderFirmware.cpp; sourceTree = "<group>"; };
+		04C7CB61FF9129AFCFED3B93 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		0AB3E782004B3117CFED3B96 /* MIDISPORT.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = MIDISPORT.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B44C8D1007286F3CFED3B96 /* MIDISPORT1x1Firmware.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDISPORT1x1Firmware.cpp; sourceTree = "<group>"; };
+		1B44C8D2007286F3CFED3B96 /* MIDISPORT4x4Firmware.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDISPORT4x4Firmware.cpp; sourceTree = "<group>"; };
+		1E21D07BFED9A4DC0A090812 /* USBMIDIDriverBase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = USBMIDIDriverBase.cpp; sourceTree = "<group>"; };
+		1E21D07CFED9A4DC0A090812 /* USBMIDIDriverBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = USBMIDIDriverBase.h; sourceTree = "<group>"; };
+		7B2D4BA0018A08F3002A0496 /* MIDIBackCompatible.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIBackCompatible.cpp; sourceTree = "<group>"; };
+		7B2D4BA1018A08F3002A0496 /* MIDIBackCompatible.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDIBackCompatible.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		089C1677FE841209C02AAC07 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0AA190A0FE8422F4C02AAC07 /* CoreFoundation.framework in Frameworks */,
+				0177C834FEC2D3C80A090812 /* IOKit.framework in Frameworks */,
+				00C5C68CFEC3504A0A090812 /* CoreMIDIServer.framework in Frameworks */,
+				04C7CB62FF9129AFCFED3B93 /* CoreServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		06ACAA26005EFDB8CFED3B96 /* AppleCode */ = {
+			isa = PBXGroup;
+			children = (
+				00C5C68DFEC350680A090812 /* USBUtils.cpp */,
+				00C5C68EFEC350680A090812 /* USBUtils.h */,
+				00C5C690FEC354650A090812 /* MIDIDriver.cpp */,
+				00D0113FFEDB397F0A090812 /* MIDIPacket.cpp */,
+				00D01140FEDB397F0A090812 /* MIDIPacket.h */,
+				028D229E016913B4CFED3B96 /* MIDIDriverClass.h */,
+				7B2D4BA0018A08F3002A0496 /* MIDIBackCompatible.cpp */,
+				7B2D4BA1018A08F3002A0496 /* MIDIBackCompatible.h */,
+			);
+			name = AppleCode;
+			sourceTree = "<group>";
+		};
+		089C166AFE841209C02AAC07 /* CFPlugInBundle */ = {
+			isa = PBXGroup;
+			children = (
+				08FB77AFFE84173DC02AAC07 /* Source */,
+				089C167CFE841241C02AAC07 /* Resources */,
+				089C1671FE841209C02AAC07 /* External Frameworks and Libraries */,
+				19C28FB6FE9D52B211CA2CBB /* Products */,
+			);
+			name = CFPlugInBundle;
+			sourceTree = "<group>";
+		};
+		089C1671FE841209C02AAC07 /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */,
+				0177C833FEC2D3C80A090812 /* IOKit.framework */,
+				00C5C68BFEC3504A0A090812 /* CoreMIDIServer.framework */,
+				04C7CB61FF9129AFCFED3B93 /* CoreServices.framework */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		089C167CFE841241C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				089C167DFE841241C02AAC07 /* InfoPlist.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		08FB77AFFE84173DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				010D0AFDFEE5F5BB0A090812 /* MIDISPORTUSBDriver.cpp */,
+				010D0AFEFEE5F5BB0A090812 /* MIDISPORTUSBDriver.h */,
+				046A093EFFB4CC2ECFED3B96 /* EZLoader.cpp */,
+				046A093FFFB4CC2ECFED3B96 /* EZLoader.h */,
+				1B44C8D1007286F3CFED3B96 /* MIDISPORT1x1Firmware.cpp */,
+				046A0940FFB4CC2ECFED3B96 /* MIDISPORT2x2Firmware.cpp */,
+				1B44C8D2007286F3CFED3B96 /* MIDISPORT4x4Firmware.cpp */,
+				046A0941FFB4CC2ECFED3B96 /* HexLoaderFirmware.cpp */,
+				1E21D07BFED9A4DC0A090812 /* USBMIDIDriverBase.cpp */,
+				1E21D07CFED9A4DC0A090812 /* USBMIDIDriverBase.h */,
+				06ACAA26005EFDB8CFED3B96 /* AppleCode */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		19C28FB6FE9D52B211CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3E782004B3117CFED3B96 /* MIDISPORT.plugin */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		089C1674FE841209C02AAC07 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0AB3E783004B3117CFED3B96 /* MIDISPORTUSBDriver.h in Headers */,
+				0AB3E784004B3117CFED3B96 /* EZLoader.h in Headers */,
+				0AB3E785004B3117CFED3B96 /* USBUtils.h in Headers */,
+				0AB3E786004B3117CFED3B96 /* USBMIDIDriverBase.h in Headers */,
+				0AB3E787004B3117CFED3B96 /* MIDIPacket.h in Headers */,
+				028D229F016913B4CFED3B96 /* MIDIDriverClass.h in Headers */,
+				7B2D4BA2018A08F4002A0496 /* MIDIBackCompatible.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXProject section */
+		089C1669FE841209C02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = D8EA9071183D17D200F595A8 /* Build configuration list for PBXProject "MIDISPORT" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 0;
+			mainGroup = 089C166AFE841209C02AAC07 /* CFPlugInBundle */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				089C1673FE841209C02AAC07 /* MIDISPORT */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		089C1675FE841209C02AAC07 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				089C1680FE841241C02AAC07 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXRezBuildPhase section */
+		089C1679FE841209C02AAC07 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXRezBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		089C1676FE841209C02AAC07 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00C5C68FFEC350680A090812 /* USBUtils.cpp in Sources */,
+				00C5C691FEC354650A090812 /* MIDIDriver.cpp in Sources */,
+				1E21D07DFED9A4DC0A090812 /* USBMIDIDriverBase.cpp in Sources */,
+				00D01142FEDB397F0A090812 /* MIDIPacket.cpp in Sources */,
+				010D0AFFFEE5F5BB0A090812 /* MIDISPORTUSBDriver.cpp in Sources */,
+				046A0942FFB4CC2ECFED3B96 /* EZLoader.cpp in Sources */,
+				046A0943FFB4CC2ECFED3B96 /* MIDISPORT2x2Firmware.cpp in Sources */,
+				046A0944FFB4CC2ECFED3B96 /* HexLoaderFirmware.cpp in Sources */,
+				1B44C8D3007286F3CFED3B96 /* MIDISPORT1x1Firmware.cpp in Sources */,
+				1B44C8D4007286F3CFED3B96 /* MIDISPORT4x4Firmware.cpp in Sources */,
+				7B2D4BA3018A08F4002A0496 /* MIDIBackCompatible.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C167DFE841241C02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C167EFE841241C02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		D8EA906B183D17D100F595A8 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Development;
+		};
+		D8EA906C183D17D100F595A8 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Deployment;
+		};
+		D8EA906D183D17D100F595A8 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Default;
+		};
+		D8EA906E183D17D100F595A8 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = .;
+				INSTALL_PATH = "/Library/Audio/MIDI Drivers";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = "-lstdc++";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = MIDISPORT;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				WRAPPER_EXTENSION = plugin;
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		D8EA906F183D17D100F595A8 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				HEADER_SEARCH_PATHS = .;
+				INSTALL_PATH = "/Library/Audio/MIDI Drivers";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = "-lstdc++";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = MIDISPORT;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				WRAPPER_EXTENSION = plugin;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		D8EA9070183D17D100F595A8 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"";
+				HEADER_SEARCH_PATHS = .;
+				INSTALL_PATH = "/Library/Audio/MIDI Drivers";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = "-lstdc++";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = MIDISPORT;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				WRAPPER_EXTENSION = plugin;
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D8EA9071183D17D200F595A8 /* Build configuration list for PBXProject "MIDISPORT" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8EA906B183D17D100F595A8 /* Development */,
+				D8EA906C183D17D100F595A8 /* Deployment */,
+				D8EA906D183D17D100F595A8 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		D8EA9072183D17D200F595A8 /* Build configuration list for PBXBundleTarget "MIDISPORT" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8EA906E183D17D100F595A8 /* Development */,
+				D8EA906F183D17D100F595A8 /* Deployment */,
+				D8EA9070183D17D100F595A8 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 089C1669FE841209C02AAC07 /* Project object */;
+}

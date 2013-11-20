@@ -1,0 +1,81 @@
+// !$*UTF8*$!
+{
+	08FB7793FE84155DC02AAC07 /* Project object */ = {
+		activeBuildConfigurationName = Development;
+		activeExecutable = D87F9864183D185B00FE7B48 /* EZUSBFirmwareDownloader */;
+		activeTarget = 08FB779FFE84155DC02AAC07 /* EZUSBFirmwareDownloader */;
+		codeSenseManager = D87F9879183D185E00FE7B48 /* Code sense */;
+		executables = (
+			D87F9864183D185B00FE7B48 /* EZUSBFirmwareDownloader */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					341,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 406657116;
+			PBXWorkspaceStateSaveDate = 406657116;
+		};
+		sourceControlManager = D87F9878183D185E00FE7B48 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	08FB779FFE84155DC02AAC07 /* EZUSBFirmwareDownloader */ = {
+		activeExec = 0;
+		executables = (
+			D87F9864183D185B00FE7B48 /* EZUSBFirmwareDownloader */,
+		);
+	};
+	D87F9864183D185B00FE7B48 /* EZUSBFirmwareDownloader */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = EZUSBFirmwareDownloader;
+		sourceDirectories = (
+		);
+	};
+	D87F9878183D185E00FE7B48 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+	};
+	D87F9879183D185E00FE7B48 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+}

@@ -1,0 +1,277 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0249A664FF388D9811CA2CEA /* libstdc++.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0249A663FF388D9811CA2CEA /* libstdc++.a */; };
+		08FB77A2FE84155DC02AAC07 /* MIDISPORTDownloader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* MIDISPORTDownloader.cpp */; settings = {ATTRIBUTES = (); }; };
+		090E73B0FF9B593DCFED3B93 /* MIDISPORTFirmware.c in Sources */ = {isa = PBXBuildFile; fileRef = 090E73ACFF9B593DCFED3B93 /* MIDISPORTFirmware.c */; settings = {ATTRIBUTES = (); }; };
+		090E73B9FF9BBBBBCFED3B93 /* HexLoaderFirmware.c in Sources */ = {isa = PBXBuildFile; fileRef = 090E73B7FF9BBBBBCFED3B93 /* HexLoaderFirmware.c */; settings = {ATTRIBUTES = (); }; };
+		0B182F5DFF9BE0C3CFED3B93 /* EZLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B182F58FF9BD7B5CFED3B93 /* EZLoader.cpp */; settings = {ATTRIBUTES = (); }; };
+		0B182F5EFF9BE0C3CFED3B93 /* USBUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 090E73B3FF9B9E8BCFED3B93 /* USBUtils.cpp */; settings = {ATTRIBUTES = (); }; };
+		0B182F60FF9CCEC0CFED3B93 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B182F5FFF9CCEC0CFED3B93 /* CoreFoundation.framework */; };
+		0B182F63FF9CD44FCFED3B93 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B182F61FF9CD44FCFED3B93 /* IOKit.framework */; };
+		0B182F64FF9CD44FCFED3B93 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B182F62FF9CD44FCFED3B93 /* CoreServices.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0249A660FF388D4511CA2CEA /* EZUSBFirmwareDownloader */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = EZUSBFirmwareDownloader; sourceTree = BUILT_PRODUCTS_DIR; };
+		0249A663FF388D9811CA2CEA /* libstdc++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libstdc++.a"; path = "/usr/lib/libstdc++.a"; sourceTree = "<absolute>"; };
+		08FB7796FE84155DC02AAC07 /* MIDISPORTDownloader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDISPORTDownloader.cpp; sourceTree = "<group>"; };
+		090E73ACFF9B593DCFED3B93 /* MIDISPORTFirmware.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = MIDISPORTFirmware.c; sourceTree = "<group>"; };
+		090E73B3FF9B9E8BCFED3B93 /* USBUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = USBUtils.cpp; sourceTree = "<group>"; };
+		090E73B4FF9B9E8BCFED3B93 /* USBUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = USBUtils.h; sourceTree = "<group>"; };
+		090E73B7FF9BBBBBCFED3B93 /* HexLoaderFirmware.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = HexLoaderFirmware.c; sourceTree = "<group>"; };
+		0B182F58FF9BD7B5CFED3B93 /* EZLoader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EZLoader.cpp; sourceTree = "<group>"; };
+		0B182F59FF9BD8C7CFED3B93 /* EZLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EZLoader.h; sourceTree = "<group>"; };
+		0B182F5FFF9CCEC0CFED3B93 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
+		0B182F61FF9CD44FCFED3B93 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		0B182F62FF9CD44FCFED3B93 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		0B182F65FF9CD4C7CFED3B93 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		08FB77A3FE84155DC02AAC07 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0249A664FF388D9811CA2CEA /* libstdc++.a in Frameworks */,
+				0B182F60FF9CCEC0CFED3B93 /* CoreFoundation.framework in Frameworks */,
+				0B182F63FF9CD44FCFED3B93 /* IOKit.framework in Frameworks */,
+				0B182F64FF9CD44FCFED3B93 /* CoreServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0249A662FF388D9811CA2CEA /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				0249A663FF388D9811CA2CEA /* libstdc++.a */,
+				0B182F5FFF9CCEC0CFED3B93 /* CoreFoundation.framework */,
+				0B182F61FF9CD44FCFED3B93 /* IOKit.framework */,
+				0B182F62FF9CD44FCFED3B93 /* CoreServices.framework */,
+				0B182F65FF9CD4C7CFED3B93 /* System.framework */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		08FB7794FE84155DC02AAC07 /* EZUSBFirmwareDownloader */ = {
+			isa = PBXGroup;
+			children = (
+				08FB7795FE84155DC02AAC07 /* Source */,
+				0249A662FF388D9811CA2CEA /* External Frameworks and Libraries */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = EZUSBFirmwareDownloader;
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				08FB7796FE84155DC02AAC07 /* MIDISPORTDownloader.cpp */,
+				0B182F58FF9BD7B5CFED3B93 /* EZLoader.cpp */,
+				0B182F59FF9BD8C7CFED3B93 /* EZLoader.h */,
+				090E73B3FF9B9E8BCFED3B93 /* USBUtils.cpp */,
+				090E73B4FF9B9E8BCFED3B93 /* USBUtils.h */,
+				090E73B7FF9BBBBBCFED3B93 /* HexLoaderFirmware.c */,
+				090E73ACFF9B593DCFED3B93 /* MIDISPORTFirmware.c */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0249A660FF388D4511CA2CEA /* EZUSBFirmwareDownloader */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		08FB77A0FE84155DC02AAC07 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = D87F9876183D185D00FE7B48 /* Build configuration list for PBXProject "EZUSBFirmwareDownloader" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 0;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* EZUSBFirmwareDownloader */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				08FB779FFE84155DC02AAC07 /* EZUSBFirmwareDownloader */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXRezBuildPhase section */
+		08FB77A5FE84155DC02AAC07 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXRezBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		08FB77A1FE84155DC02AAC07 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				08FB77A2FE84155DC02AAC07 /* MIDISPORTDownloader.cpp in Sources */,
+				090E73B0FF9B593DCFED3B93 /* MIDISPORTFirmware.c in Sources */,
+				090E73B9FF9BBBBBCFED3B93 /* HexLoaderFirmware.c in Sources */,
+				0B182F5DFF9BE0C3CFED3B93 /* EZLoader.cpp in Sources */,
+				0B182F5EFF9BE0C3CFED3B93 /* USBUtils.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXToolTarget section */
+		08FB779FFE84155DC02AAC07 /* EZUSBFirmwareDownloader */ = {
+			isa = PBXToolTarget;
+			buildConfigurationList = D87F9877183D185E00FE7B48 /* Build configuration list for PBXToolTarget "EZUSBFirmwareDownloader" */;
+			buildPhases = (
+				08FB77A0FE84155DC02AAC07 /* Headers */,
+				08FB77A1FE84155DC02AAC07 /* Sources */,
+				08FB77A3FE84155DC02AAC07 /* Frameworks */,
+				08FB77A5FE84155DC02AAC07 /* Rez */,
+			);
+			dependencies = (
+			);
+			name = EZUSBFirmwareDownloader;
+			productInstallPath = "$(HOME)/bin";
+			productName = EZUSBFirmwareDownloader;
+			productReference = 0249A660FF388D4511CA2CEA /* EZUSBFirmwareDownloader */;
+		};
+/* End PBXToolTarget section */
+
+/* Begin XCBuildConfiguration section */
+		D87F9870183D185D00FE7B48 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Development;
+		};
+		D87F9871183D185D00FE7B48 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Deployment;
+		};
+		D87F9872183D185D00FE7B48 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Default;
+		};
+		D87F9873183D185D00FE7B48 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = EZUSBFirmwareDownloader;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Development;
+		};
+		D87F9874183D185D00FE7B48 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = EZUSBFirmwareDownloader;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Deployment;
+		};
+		D87F9875183D185D00FE7B48 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "-DDEBUG";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = EZUSBFirmwareDownloader;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D87F9876183D185D00FE7B48 /* Build configuration list for PBXProject "EZUSBFirmwareDownloader" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D87F9870183D185D00FE7B48 /* Development */,
+				D87F9871183D185D00FE7B48 /* Deployment */,
+				D87F9872183D185D00FE7B48 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		D87F9877183D185E00FE7B48 /* Build configuration list for PBXToolTarget "EZUSBFirmwareDownloader" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D87F9873183D185D00FE7B48 /* Development */,
+				D87F9874183D185D00FE7B48 /* Deployment */,
+				D87F9875183D185D00FE7B48 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}
