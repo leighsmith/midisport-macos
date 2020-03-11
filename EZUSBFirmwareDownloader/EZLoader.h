@@ -3,49 +3,15 @@
 // as found in MIDIMan MIDISPORT boxes.
 //
 // This portions of EZLOADER.H which was supplied example code with the EZUSB device.
-// The Win32 specifics have been removed.
 //
-// Modifications By Leigh Smith <leigh@tomandandy.com>
+// Modifications By Leigh Smith <leigh@leighsmith.com>
 //
-// Modifications Copyright (c) 2000 tomandandy music inc. All Rights Reserved.
-// Permission is granted to use and modify this code for commercial and
-// non-commercial purposes so long as the author attribution and this
-// copyright message remains intact and accompanies all derived code.
-//
-//////////////////////////////////////////////////////////////////////
-//
-// File:      ezloader.h
-// $Archive: /EZUSB/ezloader/ezloader.h $
-//
-// Purpose:
-//    Header file for the Ezloader device driver
-//
-// Environment:
-//    kernel mode
-//
-// $Author: leigh $
-//
-// $History: ezloader.h $           
-//  
-//  *****************  Version 2  *****************
-//  User: Markm        Date: 4/10/98    Time: 2:06p
-//  Updated in $/EZUSB/ezloader
-//  Support for downloading Intel Hex
-//  
-//  *****************  Version 1  *****************
-//  User: Markm        Date: 2/24/98    Time: 5:26p
-//  Created in $/EZUSB/ezloader
-//  
-// Copyright (c) 1997 Anchor Chips, Inc.  May not be reproduced without
-// permission.  See the license agreement for more details.
-//
-//////////////////////////////////////////////////////////////////////
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
-//#include "USBUtils.h"
+#include "USBUtils.h"
 
 #ifndef _BYTE_DEFINED
 #define _BYTE_DEFINED
@@ -91,7 +57,7 @@ typedef struct _INTEL_HEX_RECORD
    BYTE  Data[MAX_INTEL_HEX_RECORD_LENGTH];
 } INTEL_HEX_RECORD, *PINTEL_HEX_RECORD;
 
-class EZUSBLoader {
+class EZUSBLoader : public USBDeviceManager {
 public:
     EZUSBLoader();
 //    ~EZUSBLoader();

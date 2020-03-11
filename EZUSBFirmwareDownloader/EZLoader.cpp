@@ -1,4 +1,3 @@
-// $Id: EZLoader.cpp,v 1.6 2001/10/26 20:22:54 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -6,25 +5,16 @@
 // This is the code for downloading any firmware to pre-renumerated EZUSB devices.
 // This is a rewrite of EZLOADER.C which was supplied example code with the EZUSB device.
 //
-// By Leigh Smith <leigh@tomandandy.com>
-//
-// Copyright (c) 2000 tomandandy music inc. All Rights Reserved.
-// Permission is granted to use and modify this code for commercial and
-// non-commercial purposes so long as the author attribution and this
-// copyright message remains intact and accompanies all derived code.
+// By Leigh Smith <leigh@leighsmith.com>
 //
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <CoreFoundation/CFNumber.h>
 #include <mach/mach_port.h>
-
-
-// Include file for the Ezusb Device
-//
 #include "EZLoader.h"
 
-#define VERBOSE (DEBUG && 0)
+#define VERBOSE (DEBUG && 1)
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0	
@@ -115,7 +105,7 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
                          CFNumberCreate(kCFAllocatorDefault,
                                         kCFNumberSInt32Type, &usbProduct));
 #if VERBOSE
-    printf("Finished scanning devices\n");
+    printf("Finished scanning device\n");
 #endif    
     return ezUSBDevice != NULL;
 }
