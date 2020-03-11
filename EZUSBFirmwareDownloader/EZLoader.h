@@ -1,4 +1,3 @@
-// $Id: EZLoader.h,v 1.2 2000/12/13 05:11:15 leigh Exp $
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
 // as found in MIDIMan MIDISPORT boxes.
@@ -46,7 +45,7 @@
 #include <stdio.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
-#include "USBUtils.h"
+//#include "USBUtils.h"
 
 #ifndef _BYTE_DEFINED
 #define _BYTE_DEFINED
@@ -92,17 +91,36 @@ typedef struct _INTEL_HEX_RECORD
    BYTE  Data[MAX_INTEL_HEX_RECORD_LENGTH];
 } INTEL_HEX_RECORD, *PINTEL_HEX_RECORD;
 
-class EZUSBLoader  {
+class EZUSBLoader {
 public:
     EZUSBLoader();
 //    ~EZUSBLoader();
-    IOReturn StartDevice(IOUSBDeviceRef device);
-    IOUSBDeviceRef FindDevice(unsigned int vendorID, unsigned int coldBootProductID);
+    virtual bool MatchDevice(IOUSBDeviceInterface **device,
+                                          UInt16 devVendor,
+                                          UInt16 devProduct);
+
+    virtual void GetInterfaceToUse(IOUSBDeviceInterface **device, 
+                                   UInt8 &outInterfaceNumber,
+				   UInt8 &outAltSetting);
+    bool FoundInterface(io_service_t ioDevice,
+                        io_service_t ioInterface,
+                        IOUSBDeviceInterface **device,
+                        IOUSBInterfaceInterface **interface,
+                        UInt16 devVendor,
+                        UInt16 devProduct,
+                        UInt8 interfaceNumber,
+                        UInt8 altSetting);
+    bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID, bool leaveOpenWhenFound);
+    IOReturn StartDevice();
     void setFirmware(PINTEL_HEX_RECORD firmware);
 protected:
-    IOReturn Reset8051(IOUSBDeviceRef device, unsigned char resetBit);
-    bool DownloadIntelHex(IOUSBDeviceRef device, PINTEL_HEX_RECORD hexRecord);
+    IOReturn Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit);
+    bool DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_RECORD hexRecord);
+
+    // instance variables
+    IOUSBDeviceInterface **ezUSBDevice;
     INTEL_HEX_RECORD *firmware;
-    XUSBInterface EZUSBinterface;
-    IOUSBDeviceRef EZUSBdevice;
+    UInt16 usbVendor;
+    UInt16 usbProduct;
+    bool usbLeaveOpenWhenFound;
 };
