@@ -10,8 +10,6 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <CoreFoundation/CFNumber.h>
-#include <mach/mach_port.h>
 #include "EZLoader.h"
 
 #define VERBOSE (DEBUG && 1)
@@ -68,42 +66,14 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
                                      UInt16 productID,
                                      bool leaveOpenWhenFound)
 {
-    kern_return_t kr;
-    mach_port_t masterPort;
-    CFMutableDictionaryRef  matchingDict;
-    
     usbVendor   = vendorID;
     usbProduct  = productID;
     usbLeaveOpenWhenFound = leaveOpenWhenFound;
-    ezUSBDevice = NULL;  // Used to indicate we have found the device    
+    ezUSBDevice = NULL;  // Used to indicate we have found the device
 #if VERBOSE
     printf("Finding ezusb vendor = 0x%x, product = 0x%x\n", usbVendor, usbProduct);
 #endif
-    
-    //Create a master port for communication with the I/O Kit
-    kr = IOMasterPort(MACH_PORT_NULL, &masterPort);
-    if (kr || !masterPort) {
-        printf("ERR: Couldn’t create a master I/O Kit port(%08x)\n", kr);
-        return false;
-    }
-    // Set up matching dictionary for class IOUSBDevice and its subclasses
-    matchingDict = IOServiceMatching(kIOUSBDeviceClassName);
-    
-    if (!matchingDict) {
-        printf("Couldn’t create a USB matching dictionary\n");
-        mach_port_deallocate(mach_task_self(), masterPort);
-        return -1;
-    }
-    
-    // Add the vendor and product IDs to the matching dictionary.
-    // This is the second key in the table of device-matching keys of the USB Common Class Specification
-    CFDictionarySetValue(matchingDict, CFSTR(kUSBVendorName),
-                         CFNumberCreate(kCFAllocatorDefault,
-                                        kCFNumberSInt32Type, &usbVendor));
-    
-    CFDictionarySetValue(matchingDict, CFSTR(kUSBProductName),
-                         CFNumberCreate(kCFAllocatorDefault,
-                                        kCFNumberSInt32Type, &usbProduct));
+    ScanDevices();  // Start the scanning of the devices.
 #if VERBOSE
     printf("Finished scanning device\n");
 #endif    
@@ -113,6 +83,7 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
 // constructor doing very little.
 EZUSBLoader::EZUSBLoader()
 {
+    // TODO do we need to construct the superclass, passing in CFRunLoopGetCurrent()?
     usbVendor = 0xFFFF;
     usbProduct = 0xFFFF;
     ezUSBDevice = NULL;

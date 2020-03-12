@@ -51,23 +51,23 @@ int main(int argc, const char * argv[])
     // Determine if the MIDISPORT is in firmware downloaded or unloaded state.
     // If cold booted, we need to download the firmware and restart the device to
     // enable the firmware product code to be found.
-    for(unsigned int productIndex = 0; productIndex < PRODUCT_TOTAL; productIndex++) {
+    for (unsigned int productIndex = 0; productIndex < PRODUCT_TOTAL; productIndex++) {
         if (ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].coldBootProductID, true)) {
+            bool foundMIDSPORT = false;
+            
             std::cout << "MIDISPORT " << productTable[productIndex].modelName << " in cold booted state, downloading firmware." << std::endl;
-#if 0
             ezusb.setFirmware(productTable[productIndex].firmware);
             ezusb.StartDevice();
-            // check that we re-enumerated the USB bus properly.
-            for(unsigned int testCount = 0; // Number of 2 second interval tests we'll do for the firmware.
-                testCount < 10 && !ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].warmFirmwareProductID, false);
-                testCount++) {
-                std::cout << "loop searching" << std::endl;
+            // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
+            for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
+                foundMIDSPORT = ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].warmFirmwareProductID, false);
+                std::cout << "waiting before searching" << std::endl;
                 sleep(2);
             }
-            if(testCount == 10) {
+            if (!foundMIDSPORT) {
                 std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
+                return 2;
             }
-#endif
             return 0;
         }
     }
