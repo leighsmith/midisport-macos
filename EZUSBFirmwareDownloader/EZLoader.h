@@ -7,8 +7,7 @@
 // Modifications By Leigh Smith <leigh@leighsmith.com>
 //
 
-#include <stdarg.h>
-#include <stdio.h>
+#include <vector>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 #include "USBUtils.h"
@@ -78,7 +77,9 @@ public:
                         UInt8 altSetting);
     bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID, bool leaveOpenWhenFound);
     IOReturn StartDevice();
-    void setFirmware(PINTEL_HEX_RECORD firmware);
+    void SetFirmware(PINTEL_HEX_RECORD firmware);
+    bool ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> firmware);
+
 protected:
     IOReturn Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit);
     bool DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_RECORD hexRecord);

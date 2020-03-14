@@ -37,7 +37,6 @@
  LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
  OF SUCH DAMAGE.  */
 
-// Work around old assertion code:
 #include <AssertMacros.h>
 #include <CoreServices/CoreServices.h>	// we need Debugging.h, CF, etc.
 #include <IOKit/IOCFPlugIn.h>
@@ -49,8 +48,6 @@
 	#include <stdio.h>
 	#define VERBOSE 1
 #endif
-
-#define LOSE_FIRST_MESSAGE_BUG 0
 
 // _____________________________________________________________________________
 USBDeviceManager::USBDeviceManager(CFRunLoopRef notifyRunLoop) :
@@ -94,14 +91,12 @@ USBDeviceManager::USBDeviceManager(CFRunLoopRef notifyRunLoop) :
         // IOServiceAddMatchingNotification consumes one reference
         matchingDict = (CFMutableDictionaryRef) CFRetain(matchingDict);
         matchingDict = (CFMutableDictionaryRef) CFRetain(matchingDict);
-//        matchingDict = (CFMutableDictionaryRef) CFRetain(matchingDict);
-        
 
         // Now set up two notifications: one to be called when a raw device
         // is first matched by the I/O Kit and another to be called when the
         // device is terminated.
         // Notification of first match:
-        // Changed from kIOPublishNotification to kIOFirstMatchNotification
+        // TODO Changed from kIOPublishNotification to kIOFirstMatchNotification
 		__Require_noErr(IOServiceAddMatchingNotification(mNotifyPort, kIOFirstMatchNotification, matchingDict, DeviceAddCallback, this, &mDeviceAddIterator), errexit);
 
         // Notification of termination:
@@ -214,11 +209,25 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 		bool					keepOpen = false;
 
 		// Get self pointer to device.
-		__Require_noErr(IOCreatePlugInInterfaceForService(
-			ioDeviceObj, kIOUSBDeviceUserClientTypeID, kIOCFPlugInInterfaceID, 
-			&ioPlugin, &score), nextDevice);
-		
-		kr = (*ioPlugin)->QueryInterface(ioPlugin, CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID), (LPVOID *)&deviceIntf);
+        kr = IOCreatePlugInInterfaceForService(ioDeviceObj,
+                                               kIOUSBDeviceUserClientTypeID,
+                                               kIOCFPlugInInterfaceID,
+                                               &ioPlugin, &score);
+        // TODO seems to return kIOReturnNoResources
+        if ((kr != kIOReturnSuccess) || !ioPlugin) {
+            printf("Unable to create a plug-in (%08x)\n", kr);
+            continue;
+        }
+        // __Require_String(kr == kIOReturnSuccess, nextDevice, "Unable to create a plug-in");
+        // Don't need the device object after intermediate plug-in is created
+        kr = IOObjectRelease(ioDeviceObj);
+        __Require(kr == kIOReturnSuccess, nextDevice);
+        
+        // Now create the device interface
+		kr = (*ioPlugin)->QueryInterface(ioPlugin,
+                                         CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID),
+                                         (LPVOID *)&deviceIntf);
+        // Don't need the intermediate plug-in after device interface is created
 		(*ioPlugin)->Release(ioPlugin);
 		ioPlugin = NULL;
 		__Require_String(kr == kIOReturnSuccess, nextDevice, "QueryInterface failed");
@@ -298,19 +307,6 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
                                         #endif
 					if (!keepOpen)
 						__Verify_noErr((*interfaceIntf)->USBInterfaceClose(interfaceIntf));
-// LMS
-#if LOSE_FIRST_MESSAGE_BUG
-                                        else {
-                                            IOBuffer blankBuffer;
-                                            int i;
-                                            
-                                            blankBuffer.Allocate(64);
-                                            printf("sending a blank buffer\n");
-                                            for(i = 0; i < 64; i++)
-                                                ((Byte *) blankBuffer)[i] = 0;
-                                            (*interfaceIntf)->WritePipeAsync(interfaceIntf, 3, blankBuffer, 64, NULL, this);
-                                        }
-#endif
 					break; // would never match more than one interface per device
 				}
 nextInterface:	IOObjectRelease(ioInterfaceObj);

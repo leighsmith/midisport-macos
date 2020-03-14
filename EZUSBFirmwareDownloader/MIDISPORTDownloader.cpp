@@ -25,19 +25,16 @@ enum WarmFirmwareProductIDs {
 
 struct HardwareConfigurationDescription {
     enum WarmFirmwareProductIDs warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
-    int coldBootProductID;                          // product ID indicating the firmware has not been loaded.
-    int numberOfPorts;
-    int readBufSize;
-    int writeBufSize;
+    int coldBootProductID;                               // product ID indicating the firmware has not been loaded.
     const char *modelName;
     INTEL_HEX_RECORD *firmware;
 } productTable[] = {
-    { MIDISPORT1x1, 0x1010, 1, 32, 32, "1x1", firmware1x1 },
-    { MIDISPORT2x2, 0x1001, 2, 32, 32, "2x2", firmware2x2 },
-    { MIDISPORT4x4, 0x1020, 4, 64, 64, "4x4", firmware4x4 },
+    { MIDISPORT1x1, 0x1010, "1x1", firmware1x1 },
+    { MIDISPORT2x2, 0x1001, "2x2", firmware2x2 },
+    { MIDISPORT4x4, 0x1020, "4x4", firmware4x4 },
     // Strictly speaking, the endPoint 2 can sustain 40 bytes output on the 8x8.
     // There are 9 ports including the SMPTE control.
-    { MIDISPORT8x8, 0x1030, 9, 64, 32, "8x8", NULL }
+    { MIDISPORT8x8, 0x1030, "8x8", NULL }
 };
 
 #define PRODUCT_TOTAL (sizeof(productTable) / sizeof(struct HardwareConfigurationDescription))
@@ -56,7 +53,7 @@ int main(int argc, const char * argv[])
             bool foundMIDSPORT = false;
             
             std::cout << "MIDISPORT " << productTable[productIndex].modelName << " in cold booted state, downloading firmware." << std::endl;
-            ezusb.setFirmware(productTable[productIndex].firmware);
+            ezusb.SetFirmware(productTable[productIndex].firmware);
             ezusb.StartDevice();
             // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
             for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {

@@ -8,8 +8,8 @@
 // By Leigh Smith <leigh@leighsmith.com>
 //
 
-#include <stdarg.h>
-#include <stdio.h>
+#include <fstream>
+#include <iostream>
 #include "EZLoader.h"
 
 #define VERBOSE (DEBUG && 1)
@@ -44,7 +44,7 @@ bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
 {
     ezUSBDevice = device;
 #if VERBOSE
-    printf("yep found it, leaving open = %d\n", usbLeaveOpenWhenFound);
+    std::cout << "yep found it, leaving open = " << usbLeaveOpenWhenFound << std::endl;
 #endif
     return usbLeaveOpenWhenFound;
 }
@@ -71,11 +71,11 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
     usbLeaveOpenWhenFound = leaveOpenWhenFound;
     ezUSBDevice = NULL;  // Used to indicate we have found the device
 #if VERBOSE
-    printf("Finding ezusb vendor = 0x%x, product = 0x%x\n", usbVendor, usbProduct);
+    std::cout << "Finding ezusb vendor = 0x" << std::hex << usbVendor << ", product = 0x" << usbProduct << std::endl;
 #endif
     ScanDevices();  // Start the scanning of the devices.
 #if VERBOSE
-    printf("Finished scanning device\n");
+    std::cout << "Finished scanning device" << std::endl;
 #endif    
     return ezUSBDevice != NULL;
 }
@@ -114,7 +114,7 @@ IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char res
     IOUSBDevRequest resetRequest;
     
 #if VERBOSE
-    printf("setting 8051 reset bit to %d\n", resetBit);
+    std::cout << "setting 8051 reset bit to " << resetBit << std::endl;
 #endif
     resetRequest.bmRequestType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
     resetRequest.bRequest = ANCHOR_LOAD_INTERNAL;
@@ -163,7 +163,7 @@ bool EZUSBLoader::DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_REC
         if (!INTERNAL_RAM(ptr->Address)) {
             IOUSBDevRequest loadExternalRequest;
 #if VERBOSE
-            printf("Downloading %d bytes to external 0x%x\n", ptr->Length, ptr->Address);
+            std::cout << "Downloading " << ptr->Length << " bytes to external 0x" << std::hex << ptr->Address << std::endl;
 #endif
             loadExternalRequest.bmRequestType = bmreqType;
             loadExternalRequest.bRequest = ANCHOR_LOAD_EXTERNAL;
@@ -188,7 +188,7 @@ bool EZUSBLoader::DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_REC
         if (INTERNAL_RAM(ptr->Address)) {
             IOUSBDevRequest loadInternalRequest;
 #if VERBOSE
-            printf("Downloading %d bytes to internal 0x%x\n", ptr->Length, ptr->Address);
+            std::cout << "Downloading " << ptr->Length << " bytes to internal 0x" << std::hex << ptr->Address << std::endl;
 #endif
             loadInternalRequest.bmRequestType = bmreqType;
             loadInternalRequest.bRequest = ANCHOR_LOAD_INTERNAL;
@@ -219,7 +219,7 @@ IOReturn EZUSBLoader::StartDevice()
 {
     IOReturn status;
 #if VERBOSE
-    printf("enter Ezusb_StartDevice\n");
+    std::cout << "enter Ezusb_StartDevice" << std::endl;
 #endif
 
     //-----	First download loader firmware.  The loader firmware 
@@ -227,7 +227,7 @@ IOReturn EZUSBLoader::StartDevice()
     //		to anchor load to external ram.
     //
 #if VERBOSE
-    printf("downloading loader\n");
+    std::cout << "downloading loader" << std::endl;
 #endif
     status = Reset8051(ezUSBDevice, 1);
     status = DownloadIntelHex(ezUSBDevice, loader);
@@ -235,22 +235,59 @@ IOReturn EZUSBLoader::StartDevice()
 
     //-----	Now download the device firmware.  //
 #if VERBOSE
-    printf("downloading firmware\n");
+    std::cout << "downloading firmware" << std::endl;
 #endif
     status = DownloadIntelHex(ezUSBDevice, firmware);
     status = Reset8051(ezUSBDevice, 1);
     status = Reset8051(ezUSBDevice, 0);
 
 #if VERBOSE
-    printf("exit Ezusb_StartDevice (%x)\n", 0);
+    std::cout << "exit Ezusb_StartDevice " << std::endl;
 #endif
 
     return status;
 }
 
 // to pass in the application firmware
-void EZUSBLoader::setFirmware(PINTEL_HEX_RECORD newFirmware)
+void EZUSBLoader::SetFirmware(PINTEL_HEX_RECORD newFirmware)
 {
     firmware = newFirmware;
 }
 
+//
+// Reads the Intel Hex File from fileName into the firmware memory structure,
+// suitable for downloading.
+// Returns true if able to load the file, false if there was format error.
+//
+bool EZUSBLoader::ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> firmware)
+{
+    // Open the text file
+    std::ifstream hexFile(fileName);
+    std::string hexLine;
+    // Read each line of the file.
+    while (std::getline(hexFile, hexLine)) {
+        INTEL_HEX_RECORD hexRecord;
+        
+        // verify ':' is the first character.
+        if (hexLine[0] != ':') {
+            std::cerr << "Missing ':' as first character on line, not an Intel hex file?" << std::endl;
+            return false;
+        }
+        // read and convert the next two characters as Length
+        hexRecord.Length = stoi(hexLine.substr(1, 2), NULL, 16);
+        hexRecord.Address = stoi(hexLine.substr(3, 4), NULL, 16);
+        hexRecord.Type = stoi(hexLine.substr(7, 2), NULL, 16);
+        if (hexRecord.Length < MAX_INTEL_HEX_RECORD_LENGTH) {
+            int readLocation = 9;
+            for (int dataIndex = 0; dataIndex < hexRecord.Length; dataIndex++) {
+                hexRecord.Data[dataIndex] = stoi(hexLine.substr(readLocation, 2), NULL, 16);
+            }
+        }
+        else {
+            std::cerr << "More bytes on line (" << hexRecord.Length << ") than maximum record length (" << MAX_INTEL_HEX_RECORD_LENGTH << ")" << std::endl;
+            return false;
+        }
+        firmware.push_back(hexRecord);
+    }
+    return true;
+}
