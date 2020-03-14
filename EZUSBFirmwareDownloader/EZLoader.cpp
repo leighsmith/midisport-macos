@@ -114,7 +114,7 @@ IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char res
     IOUSBDevRequest resetRequest;
     
 #if VERBOSE
-    std::cout << "setting 8051 reset bit to " << resetBit << std::endl;
+    std::cout << "setting 8051 reset bit to " << int(resetBit) << std::endl;
 #endif
     resetRequest.bmRequestType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
     resetRequest.bRequest = ANCHOR_LOAD_INTERNAL;
@@ -163,7 +163,7 @@ bool EZUSBLoader::DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_REC
         if (!INTERNAL_RAM(ptr->Address)) {
             IOUSBDevRequest loadExternalRequest;
 #if VERBOSE
-            std::cout << "Downloading " << ptr->Length << " bytes to external 0x" << std::hex << ptr->Address << std::endl;
+            std::cout << "Downloading " << std::dec << int(ptr->Length) << " bytes to external 0x" << std::hex << ptr->Address << std::endl;
 #endif
             loadExternalRequest.bmRequestType = bmreqType;
             loadExternalRequest.bRequest = ANCHOR_LOAD_EXTERNAL;
@@ -188,7 +188,7 @@ bool EZUSBLoader::DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_REC
         if (INTERNAL_RAM(ptr->Address)) {
             IOUSBDevRequest loadInternalRequest;
 #if VERBOSE
-            std::cout << "Downloading " << ptr->Length << " bytes to internal 0x" << std::hex << ptr->Address << std::endl;
+            std::cout << "Downloading " << std::dec << int(ptr->Length) << " bytes to internal 0x" << std::hex << ptr->Address << std::endl;
 #endif
             loadInternalRequest.bmRequestType = bmreqType;
             loadInternalRequest.bRequest = ANCHOR_LOAD_INTERNAL;
@@ -242,7 +242,7 @@ IOReturn EZUSBLoader::StartDevice()
     status = Reset8051(ezUSBDevice, 0);
 
 #if VERBOSE
-    std::cout << "exit Ezusb_StartDevice " << std::endl;
+    std::cout << "exit Ezusb_StartDevice" << std::endl;
 #endif
 
     return status;
