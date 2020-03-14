@@ -40,11 +40,11 @@
 #ifndef __MIDIDriverClass_h__
 #define __MIDIDriverClass_h__
 
-#include <CoreMIDIServer/MIDIDriver.h>
+#include <CoreMIDI/MIDIDriver.h>
 
-#ifndef V1_MIDI_DRIVER_SUPPORT
-	#define V1_MIDI_DRIVER_SUPPORT	1
-#endif
+//#ifndef V1_MIDI_DRIVER_SUPPORT
+//	#define V1_MIDI_DRIVER_SUPPORT	1
+//#endif
 
 #ifndef V2_MIDI_DRIVER_SUPPORT
 	#define V2_MIDI_DRIVER_SUPPORT	1
@@ -85,9 +85,12 @@ public:
 // to the MIDIDriver pointer.
 inline MIDIDriver *	GetMIDIDriver(MIDIDriverRef ref)
 {
-	return (MIDIDriver *)((Byte *)ref - offsetof(MIDIDriver, mInterface));
+//	return (MIDIDriver *)((Byte *)ref - offsetof(MIDIDriver, mInterface));
+// TODO
+        return (MIDIDriver *)(NULL);
 }
 
+// TODO disabled
 #if V1_MIDI_DRIVER_SUPPORT && V2_MIDI_DRIVER_SUPPORT
 	#define MIDI_WEAK_LINK_TO_V2_CALLS 1
 	#include "MIDIBackCompatible.h"

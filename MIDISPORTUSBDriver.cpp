@@ -59,7 +59,6 @@
 #include <algorithm>
 #include "MIDISPORTUSBDriver.h"
 #include "USBUtils.h"
-#include "EZLoader.h"
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -82,33 +81,28 @@
 #define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
 #define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
-#define VERBOSE (DEBUG && 0)
-
-extern INTEL_HEX_RECORD firmware1x1[];
-extern INTEL_HEX_RECORD firmware2x2[];
-extern INTEL_HEX_RECORD firmware4x4[];
+#define VERBOSE                 (DEBUG || 1)
 
 struct HardwareConfigurationDescription {
     WarmFirmwareProductIDs warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
-    int coldBootProductID;                          // product ID indicating the firmware has not been loaded.
     int numberOfPorts;
     int readBufSize;
     int writeBufSize;
-    char *modelName;
-    INTEL_HEX_RECORD *firmware;
+    const char *modelName;
 } productTable[] = {
-    { MIDISPORT1x1, 0x1010, 1, 32, 32, "1x1", firmware1x1 },
-    { MIDISPORT2x2, 0x1001, 2, 32, 32, "2x2", firmware2x2 },
-    { MIDISPORT4x4, 0x1020, 4, 64, 64, "4x4", firmware4x4 },
+    { MIDISPORT1x1, 1, 32, 32, "1x1" },
+    { MIDISPORT2x2, 2, 32, 32, "2x2" },
+    { MIDISPORT4x4, 4, 64, 64, "4x4" },
     // Strictly speaking, the endPoint 2 can sustain 40 bytes output on the 8x8. 
     // There are 9 ports including the SMPTE control.
-    { MIDISPORT8x8, 0x1030, 9, 64, 32, "8x8", NULL }  
+    { MIDISPORT8x8, 9, 64, 32, "8x8" }
 };
 
 #define PRODUCT_TOTAL (sizeof(productTable) / sizeof(struct HardwareConfigurationDescription))
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#if 0
 // Implementation of the factory function for this type.
 extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID) 
 {
@@ -123,47 +117,17 @@ extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID)
         return NULL;
     }
 }
+#endif
 
 // __________________________________________________________________________________________________
 
-// Determine if the MIDISPORT is in firmware downloaded or unloaded state.
-// If cold booted, we need to download the firmware and restart the device to
-// enable the firmware product code to be found.
 MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
 {
-    EZUSBLoader ezusb;
-    unsigned int i;
-    unsigned int testCount; // Number of 2 second interval tests we'll do for the firmware.
-    
 #if VERBOSE
     printf("MIDISPORTUSBDriver init\n");
 #endif
     // if (CFEqual(typeID, kMIDIDriverInterfaceID))
     connectedMIDISPORTIndex = -1;   // error condition
-    for(i = 0; i < PRODUCT_TOTAL; i++) {
-        if (ezusb.FindVendorsProduct(midimanVendorID, productTable[i].coldBootProductID, true)) {
-#if VERBOSE
-            printf("in cold booted state, downloading firmware\n");
-#endif
-            ezusb.setFirmware(productTable[i].firmware);
-            ezusb.StartDevice();
-            // check that we re-enumerated the USB bus properly.
-            for(testCount = 0; 
-                testCount < 10 && !ezusb.FindVendorsProduct(midimanVendorID, productTable[i].warmFirmwareProductID, false);
-                testCount++) {
-#if VERBOSE
-                printf("loop searching\n");
-#endif
-                sleep(2);
-            }
-            if(testCount == 10) {
-#if VERBOSE
-                printf("Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware.\n");
-#endif
-            }
-            return;
-        }
-    }
 }
 
 MIDISPORT::~MIDISPORT()

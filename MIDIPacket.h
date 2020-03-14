@@ -40,7 +40,7 @@
 #ifndef __MIDIPacket_h__
 #define __MIDIPacket_h__
 
-#include <new.h>
+//#include <new.h>
 #include <stddef.h>
 #include <CoreMIDI/MIDIServices.h>
 

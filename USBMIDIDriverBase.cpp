@@ -1,4 +1,3 @@
-// $Id: USBMIDIDriverBase.cpp,v 1.11 2001/10/29 23:28:02 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
@@ -10,13 +9,6 @@
 //    it's not really possible to do this by subclassing, since the MIDISPORT class never has a chance
 //    to create an InterfaceState subclass that is specific to MIDISPORT devices and hand it over to
 //    our superclass.
-//
-// Leigh Smith <leigh@tomandandy.com>
-//
-// Copyright (c) 2001 tomandandy music inc. All Rights Reserved.
-// Permission is granted to use and modify this code for commercial and
-// non-commercial purposes so long as the author attribution and this
-// copyright message remains intact and accompanies all derived code.
 //
 /*
  IMPORTANT: This Apple software is supplied to you by Apple Computer,
