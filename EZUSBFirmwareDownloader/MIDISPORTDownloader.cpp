@@ -27,7 +27,7 @@ struct HardwareConfigurationDescription {
     enum WarmFirmwareProductIDs warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
     int coldBootProductID;                               // product ID indicating the firmware has not been loaded.
     const char *modelName;
-    INTEL_HEX_RECORD *firmware;
+    INTEL_HEX_RECORD *firmware;                          // NULL indicates no firmware needs to be downloaded.
 } productTable[] = {
     { MIDISPORT1x1, 0x1010, "1x1", firmware1x1 },
     { MIDISPORT2x2, 0x1001, "2x2", firmware2x2 },
@@ -42,6 +42,13 @@ struct HardwareConfigurationDescription {
 int main(int argc, const char * argv[])
 {
     EZUSBLoader ezusb;
+    std::vector <INTEL_HEX_RECORD> myFirmware;
+    
+    std::string fileName = "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport1x1.ihx";
+    std::cout << "Reading MIDISPORT Firmware Intel hex file " << fileName << std::endl;
+    if (!ezusb.ReadFirmwareFromHexFile(fileName, myFirmware)) {
+        return 3;
+    }
     
     std::cout << "Downloading MIDISPORT Firmware" << std::endl;
     
