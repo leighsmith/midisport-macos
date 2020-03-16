@@ -17,10 +17,6 @@
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0	
 
-// these files contain images of the device firmware
-//
-extern INTEL_HEX_RECORD loader[];
-
 void EZUSBLoader::GetInterfaceToUse(IOUSBDeviceInterface **device, 
                                     UInt8 &outInterfaceNumber,
                                     UInt8 &outAltSetting)
@@ -40,7 +36,7 @@ bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
                                  UInt16 devVendor,
                                  UInt16 devProduct,
                                  UInt8 interfaceNumber,
-				 UInt8 altSetting)
+                                 UInt8 altSetting)
 {
     ezUSBDevice = device;
 #if VERBOSE
@@ -94,20 +90,17 @@ EZUSBLoader::EZUSBLoader()
 //{
 //}
 
-/*++
-
-Routine Description:
-   Uses the ANCHOR LOAD vendor specific command to either set or release the
-   8051 reset bit in the EZ-USB chip.
-
-Arguments:
-   device - pointer to the device object for this instance of an Ezusb Device
-   resetBit - 1 sets the 8051 reset bit (holds the 8051 in reset)
-              0 clears the 8051 reset bit (8051 starts running)
-              
-Return Value:
-   kIOReturnSuccess if we reset correctly.
---*/
+//
+// Uses the ANCHOR LOAD vendor specific command to either set or release the
+// 8051 reset bit in the EZ-USB chip.
+//
+// Arguments:
+//   device - pointer to the device object for this instance of an Ezusb Device
+//   resetBit - 1 sets the 8051 reset bit (holds the 8051 in reset)
+//              0 clears the 8051 reset bit (8051 starts running)
+//
+// Returns: kIOReturnSuccess if we reset correctly.
+//
 IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit)
 {
     IOReturn status;
@@ -126,100 +119,83 @@ IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char res
     return status;
 }
 
-/*
-****************************************************************************
-*  Routine Description:
-*	This function downloads Intel Hex Records to the EZ-USB device.  
-*	If any of the hex records are destined for external RAM, then 
-*	the caller must have previously downloaded firmware to the device 
-*	that knows how to download to external RAM (ie. firmware that 
-*	implements the ANCHOR_LOAD_EXTERNAL vendor specific command).
-* 
-*  Arguments:
-*	fdo       - Pointer to the device object for this instance of an Ezusb Device
-*       hexRecord - Pointer to an array of INTEL_HEX_RECORD structures.
-*                   This array is terminated by an Intel Hex End record (Type = 1).
-* 
-*  Return Value:
-*		STATUS_SUCCESS if successful,
-*		STATUS_UNSUCCESSFUL otherwise
-****************************************************************************/
-bool EZUSBLoader::DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_RECORD hexRecord)
+//
+//	This function downloads Intel Hex Records to the EZ-USB device.
+//	If any of the hex records are destined for external RAM, then
+//	the caller must have previously downloaded firmware to the device
+//	that knows how to download to external RAM (ie. firmware that
+//	implements the ANCHOR_LOAD_EXTERNAL vendor specific command).
+//
+//  Arguments:
+//	device   - Pointer to the IOUSBDeviceInterface instance of an Ezusb Device
+//  firmware - Vector of INTEL_HEX_RECORD structures.
+//             This array is terminated by an Intel Hex End record (Type = 1).
+//  Returns: true if successful, false otherwise
+//
+bool EZUSBLoader::DownloadFirmware(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> firmware)
 {
-    PINTEL_HEX_RECORD ptr = hexRecord;
     IOReturn status = kIOReturnError;
     UInt8 bmreqType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
 
     //
     // The download must be performed in two passes.  The first pass loads all of the
     // external addresses, and the 2nd pass loads to all of the internal addresses.
-    // why?  because downloading to the internal addresses will probably wipe out the firmware
-    // running on the device that knows how to receive external ram downloads.
+    // why? Because downloading to the internal addresses will probably wipe out the firmware
+    // running on the device that knows how to receive external RAM downloads.
     //
+    // First download all the records that go in external RAM
     //
-    // First download all the records that go in external ram
-    //
-    while (ptr->Type == 0) {
-        if (!INTERNAL_RAM(ptr->Address)) {
+    for(std::vector<INTEL_HEX_RECORD>::iterator hexRecord = firmware.begin(); hexRecord != firmware.end() && hexRecord->Type == 0; ++hexRecord) {
+        if (!INTERNAL_RAM(hexRecord->Address)) {
             IOUSBDevRequest loadExternalRequest;
 #if VERBOSE
-            std::cout << "Downloading " << std::dec << int(ptr->Length) << " bytes to external 0x" << std::hex << ptr->Address << std::endl;
+            std::cout << "Downloading " << std::dec << int(hexRecord->Length) << " bytes to external 0x" << std::hex << hexRecord->Address << std::endl;
 #endif
             loadExternalRequest.bmRequestType = bmreqType;
             loadExternalRequest.bRequest = ANCHOR_LOAD_EXTERNAL;
-            loadExternalRequest.wValue = ptr->Address;
+            loadExternalRequest.wValue = hexRecord->Address;
             loadExternalRequest.wIndex = 0;
-            loadExternalRequest.wLength = ptr->Length;
-            loadExternalRequest.pData = (void *) ptr->Data;
+            loadExternalRequest.wLength = hexRecord->Length;
+            loadExternalRequest.pData = (void *) hexRecord->Data;
             status = (*device)->DeviceRequest(device, &loadExternalRequest);
             if (status != kIOReturnSuccess)
                return status;
         }
-        ptr++;
     }
 
     //
-    // Now download all of the records that are in internal RAM.  Before starting
-    // the download, stop the 8051.
+    // Now download all of the records that are in internal RAM.
+    // Before starting the download, stop the 8051.
     //
     Reset8051(device, 1);
-    ptr = hexRecord;
-    while (ptr->Type == 0) {
-        if (INTERNAL_RAM(ptr->Address)) {
+    for(std::vector<INTEL_HEX_RECORD>::iterator hexRecord = firmware.begin(); hexRecord != firmware.end() && hexRecord->Type == 0; ++hexRecord) {
+        if (INTERNAL_RAM(hexRecord->Address)) {
             IOUSBDevRequest loadInternalRequest;
 #if VERBOSE
-            std::cout << "Downloading " << std::dec << int(ptr->Length) << " bytes to internal 0x" << std::hex << ptr->Address << std::endl;
+            std::cout << "Downloading " << std::dec << int(hexRecord->Length) << " bytes to internal 0x" << std::hex << hexRecord->Address << std::endl;
 #endif
             loadInternalRequest.bmRequestType = bmreqType;
             loadInternalRequest.bRequest = ANCHOR_LOAD_INTERNAL;
-            loadInternalRequest.wValue = ptr->Address;
+            loadInternalRequest.wValue = hexRecord->Address;
             loadInternalRequest.wIndex = 0;
-            loadInternalRequest.wLength = ptr->Length;
-            loadInternalRequest.pData = (void *) ptr->Data;
+            loadInternalRequest.wLength = hexRecord->Length;
+            loadInternalRequest.pData = (void *) hexRecord->Data;
             status = (*device)->DeviceRequest(device, &loadInternalRequest);
             if (status != kIOReturnSuccess)
                 return status;
         }
-        ptr++;
     }
     return status;
 }
 
-/*
-****************************************************************************
-*  Routine Description:
-*     Initializes a given instance of the Ezusb Device on the USB.
-*
-*  Arguments:
-*     device - Pointer to the device object for this instance of a
-*                      Ezusb Device.
-*
-****************************************************************************/
+//
+// Initializes a given instance of the Ezusb Device on the USB.
+//
 IOReturn EZUSBLoader::StartDevice()
 {
     IOReturn status;
 #if VERBOSE
-    std::cout << "enter Ezusb_StartDevice" << std::endl;
+    std::cout << "enter EZUSBLoader::StartDevice" << std::endl;
 #endif
 
     //-----	First download loader firmware.  The loader firmware 
@@ -230,28 +206,38 @@ IOReturn EZUSBLoader::StartDevice()
     std::cout << "downloading loader" << std::endl;
 #endif
     status = Reset8051(ezUSBDevice, 1);
-    status = DownloadIntelHex(ezUSBDevice, loader);
+    status = DownloadFirmware(ezUSBDevice, loader);
     status = Reset8051(ezUSBDevice, 0);
 
     //-----	Now download the device firmware.  //
 #if VERBOSE
-    std::cout << "downloading firmware" << std::endl;
+    std::cout << "downloading application firmware" << std::endl;
 #endif
-    status = DownloadIntelHex(ezUSBDevice, firmware);
+    status = DownloadFirmware(ezUSBDevice, applicationFirmware);
     status = Reset8051(ezUSBDevice, 1);
     status = Reset8051(ezUSBDevice, 0);
 
 #if VERBOSE
-    std::cout << "exit Ezusb_StartDevice" << std::endl;
+    std::cout << "exit EZUSBLoader::StartDevice" << std::endl;
 #endif
 
     return status;
 }
 
-// to pass in the application firmware
-void EZUSBLoader::SetFirmware(PINTEL_HEX_RECORD newFirmware)
+//
+// Sets the application firmware to be downloaded next.
+//
+void EZUSBLoader::SetApplicationFirmware(std::vector<INTEL_HEX_RECORD> newFirmware)
 {
-    firmware = newFirmware;
+    applicationFirmware = newFirmware;
+}
+
+//
+// Sets the application firmware to be downloaded next.
+//
+void EZUSBLoader::SetApplicationLoader(std::vector<INTEL_HEX_RECORD> newLoader)
+{
+    loader = newLoader;
 }
 
 //
@@ -259,7 +245,7 @@ void EZUSBLoader::SetFirmware(PINTEL_HEX_RECORD newFirmware)
 // suitable for downloading.
 // Returns true if able to load the file, false if there was format error.
 //
-bool EZUSBLoader::ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> firmware)
+bool EZUSBLoader::ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> &firmware)
 {
     // Open the text file
     std::ifstream hexFile(fileName);

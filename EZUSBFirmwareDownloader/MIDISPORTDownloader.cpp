@@ -43,11 +43,19 @@ int main(int argc, const char * argv[])
 {
     EZUSBLoader ezusb;
     std::vector <INTEL_HEX_RECORD> myFirmware;
-    
-    std::string fileName = "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport1x1.ihx";
-    std::cout << "Reading MIDISPORT Firmware Intel hex file " << fileName << std::endl;
-    if (!ezusb.ReadFirmwareFromHexFile(fileName, myFirmware)) {
-        return 3;
+    std::vector <INTEL_HEX_RECORD> hexLoader;
+
+    std::string hexLoaderFileName = "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSportLoader.ihx";
+    std::cout << "Reading MIDISPORT Firmware Intel hex file " << hexLoaderFileName << std::endl;
+    if (!ezusb.ReadFirmwareFromHexFile(hexLoaderFileName, hexLoader)) {
+        return 1;
+    }
+    ezusb.SetApplicationLoader(hexLoader);
+
+    std::string firmwareFileName = "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport1x1.ihx";
+    std::cout << "Reading MIDISPORT Firmware Intel hex file " << firmwareFileName << std::endl;
+    if (!ezusb.ReadFirmwareFromHexFile(firmwareFileName, myFirmware)) {
+        return 2;
     }
     
     std::cout << "Downloading MIDISPORT Firmware" << std::endl;
@@ -60,7 +68,9 @@ int main(int argc, const char * argv[])
             bool foundMIDSPORT = false;
             
             std::cout << "MIDISPORT " << productTable[productIndex].modelName << " in cold booted state, downloading firmware." << std::endl;
-            ezusb.SetFirmware(productTable[productIndex].firmware);
+            // TODO currently downloading only 1x1 firmware for every device!!!
+            // ezusb.SetFirmware(productTable[productIndex].firmware);
+            ezusb.SetApplicationFirmware(myFirmware);
             ezusb.StartDevice();
             // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
             for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
@@ -70,11 +80,10 @@ int main(int argc, const char * argv[])
             }
             if (!foundMIDSPORT) {
                 std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
-                return 2;
+                return 3;
             }
-            return 0;
         }
     }
-    return 1;
+    return 0;
 }
 

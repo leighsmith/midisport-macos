@@ -54,7 +54,7 @@ typedef struct _INTEL_HEX_RECORD
    WORD  Address;
    BYTE  Type;
    BYTE  Data[MAX_INTEL_HEX_RECORD_LENGTH];
-} INTEL_HEX_RECORD, *PINTEL_HEX_RECORD;
+} INTEL_HEX_RECORD;
 
 class EZUSBLoader : public USBDeviceManager {
 public:
@@ -66,7 +66,7 @@ public:
 
     virtual void GetInterfaceToUse(IOUSBDeviceInterface **device, 
                                    UInt8 &outInterfaceNumber,
-				   UInt8 &outAltSetting);
+                                   UInt8 &outAltSetting);
     bool FoundInterface(io_service_t ioDevice,
                         io_service_t ioInterface,
                         IOUSBDeviceInterface **device,
@@ -77,16 +77,20 @@ public:
                         UInt8 altSetting);
     bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID, bool leaveOpenWhenFound);
     IOReturn StartDevice();
-    void SetFirmware(PINTEL_HEX_RECORD firmware);
-    bool ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> firmware);
+    void SetApplicationFirmware(std::vector<INTEL_HEX_RECORD> firmware);
+    void SetApplicationLoader(std::vector<INTEL_HEX_RECORD> newLoader);
+    bool ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> &firmware);
 
 protected:
     IOReturn Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit);
-    bool DownloadIntelHex(IOUSBDeviceInterface **device, PINTEL_HEX_RECORD hexRecord);
+    bool DownloadFirmware(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> hexRecord);
 
     // instance variables
     IOUSBDeviceInterface **ezUSBDevice;
-    INTEL_HEX_RECORD *firmware;
+    // The hex records to download for the application.
+    std::vector<INTEL_HEX_RECORD> applicationFirmware;
+    // These hex records that contain the application loader.
+    std::vector<INTEL_HEX_RECORD> loader;
     UInt16 usbVendor;
     UInt16 usbProduct;
     bool usbLeaveOpenWhenFound;
