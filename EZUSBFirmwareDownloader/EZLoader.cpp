@@ -12,7 +12,7 @@
 #include <iostream>
 #include "EZLoader.h"
 
-#define VERBOSE (DEBUG && 1)
+#define VERBOSE (DEBUG && 0)
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0	

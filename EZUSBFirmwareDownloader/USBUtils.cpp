@@ -44,9 +44,9 @@
 #include <mach/mach_port.h>
 #include "USBUtils.h"
 
-#if DEBUG || 1
+#if DEBUG
 	#include <stdio.h>
-	#define VERBOSE 1
+	#define VERBOSE 0
 #endif
 
 // _____________________________________________________________________________
