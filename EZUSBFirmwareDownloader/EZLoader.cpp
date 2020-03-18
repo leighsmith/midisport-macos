@@ -119,6 +119,34 @@ IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char res
     return status;
 }
 
+IOReturn EZUSBLoader::DownloadFirmwareToRAM(IOUSBDeviceInterface **device,
+                                            std::vector<INTEL_HEX_RECORD> firmware,
+                                            bool internalRAM)
+{
+    IOReturn status = kIOReturnError;
+    UInt8 bmreqType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
+
+    for(std::vector<INTEL_HEX_RECORD>::iterator hexRecord = firmware.begin(); hexRecord != firmware.end() && hexRecord->Type == 0; ++hexRecord) {
+        if ((internalRAM && INTERNAL_RAM(hexRecord->Address)) || (!internalRAM && !INTERNAL_RAM(hexRecord->Address))) {
+            IOUSBDevRequest loadRequest;
+#if VERBOSE
+            std::string RAMname = internalRAM ? "internal" : "external";
+            std::cout << "Downloading " << std::dec << int(hexRecord->Length) <<
+                         " bytes to " << RAMname << " 0x" << std::hex << hexRecord->Address << std::endl;
+#endif
+            loadRequest.bmRequestType = bmreqType;
+            loadRequest.bRequest = internalRAM ? ANCHOR_LOAD_INTERNAL : ANCHOR_LOAD_EXTERNAL;
+            loadRequest.wValue = hexRecord->Address;
+            loadRequest.wIndex = 0;
+            loadRequest.wLength = hexRecord->Length;
+            loadRequest.pData = (void *) hexRecord->Data;
+            status = (*device)->DeviceRequest(device, &loadRequest);
+            if (status != kIOReturnSuccess)
+                return status;
+        }
+    }
+    return status;
+}
 //
 //	This function downloads Intel Hex Records to the EZ-USB device.
 //	If any of the hex records are destined for external RAM, then
@@ -134,58 +162,23 @@ IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char res
 //
 bool EZUSBLoader::DownloadFirmware(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> firmware)
 {
-    IOReturn status = kIOReturnError;
-    UInt8 bmreqType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
+    IOReturn status;
 
-    //
     // The download must be performed in two passes.  The first pass loads all of the
     // external addresses, and the 2nd pass loads to all of the internal addresses.
     // why? Because downloading to the internal addresses will probably wipe out the firmware
     // running on the device that knows how to receive external RAM downloads.
     //
     // First download all the records that go in external RAM
-    //
-    for(std::vector<INTEL_HEX_RECORD>::iterator hexRecord = firmware.begin(); hexRecord != firmware.end() && hexRecord->Type == 0; ++hexRecord) {
-        if (!INTERNAL_RAM(hexRecord->Address)) {
-            IOUSBDevRequest loadExternalRequest;
-#if VERBOSE
-            std::cout << "Downloading " << std::dec << int(hexRecord->Length) << " bytes to external 0x" << std::hex << hexRecord->Address << std::endl;
-#endif
-            loadExternalRequest.bmRequestType = bmreqType;
-            loadExternalRequest.bRequest = ANCHOR_LOAD_EXTERNAL;
-            loadExternalRequest.wValue = hexRecord->Address;
-            loadExternalRequest.wIndex = 0;
-            loadExternalRequest.wLength = hexRecord->Length;
-            loadExternalRequest.pData = (void *) hexRecord->Data;
-            status = (*device)->DeviceRequest(device, &loadExternalRequest);
-            if (status != kIOReturnSuccess)
-               return status;
-        }
-    }
+    status = EZUSBLoader::DownloadFirmwareToRAM(device, firmware, false);
+    if (status != kIOReturnSuccess)
+        return false;
 
-    //
     // Now download all of the records that are in internal RAM.
     // Before starting the download, stop the 8051.
-    //
     Reset8051(device, 1);
-    for(std::vector<INTEL_HEX_RECORD>::iterator hexRecord = firmware.begin(); hexRecord != firmware.end() && hexRecord->Type == 0; ++hexRecord) {
-        if (INTERNAL_RAM(hexRecord->Address)) {
-            IOUSBDevRequest loadInternalRequest;
-#if VERBOSE
-            std::cout << "Downloading " << std::dec << int(hexRecord->Length) << " bytes to internal 0x" << std::hex << hexRecord->Address << std::endl;
-#endif
-            loadInternalRequest.bmRequestType = bmreqType;
-            loadInternalRequest.bRequest = ANCHOR_LOAD_INTERNAL;
-            loadInternalRequest.wValue = hexRecord->Address;
-            loadInternalRequest.wIndex = 0;
-            loadInternalRequest.wLength = hexRecord->Length;
-            loadInternalRequest.pData = (void *) hexRecord->Data;
-            status = (*device)->DeviceRequest(device, &loadInternalRequest);
-            if (status != kIOReturnSuccess)
-                return status;
-        }
-    }
-    return status;
+    status = EZUSBLoader::DownloadFirmwareToRAM(device, firmware, true);
+    return status == kIOReturnSuccess;
 }
 
 //

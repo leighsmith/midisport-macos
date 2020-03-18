@@ -83,6 +83,7 @@ public:
 
 protected:
     IOReturn Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit);
+    IOReturn DownloadFirmwareToRAM(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> firmware, bool internalRAM);
     bool DownloadFirmware(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> hexRecord);
 
     // instance variables
