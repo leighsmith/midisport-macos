@@ -9,11 +9,7 @@
 /* Begin PBXBuildFile section */
 		D800BC5624192AA90028A17B /* USBUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D800BC5424192AA90028A17B /* USBUtils.h */; };
 		D800BC5724192AA90028A17B /* USBUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D800BC5524192AA90028A17B /* USBUtils.cpp */; };
-		D8766C6024189EFE008F3EE3 /* MIDISPORT1x1Firmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8766C5D24189EFE008F3EE3 /* MIDISPORT1x1Firmware.cpp */; };
-		D8766C6124189EFE008F3EE3 /* MIDISPORT2x2Firmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8766C5E24189EFE008F3EE3 /* MIDISPORT2x2Firmware.cpp */; };
-		D8766C6224189EFE008F3EE3 /* MIDISPORT4x4Firmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8766C5F24189EFE008F3EE3 /* MIDISPORT4x4Firmware.cpp */; };
 		D89D8138183D7BC900446B12 /* MIDISPORTDownloader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* MIDISPORTDownloader.cpp */; settings = {ATTRIBUTES = (); }; };
-		D89D813A183D7BC900446B12 /* HexLoaderFirmware.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 090E73B7FF9BBBBBCFED3B93 /* HexLoaderFirmware.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D813B183D7BC900446B12 /* EZLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B182F58FF9BD7B5CFED3B93 /* EZLoader.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D813E183D7BC900446B12 /* libstdc++.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0249A663FF388D9811CA2CEA /* libstdc++.a */; };
 		D89D813F183D7BC900446B12 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B182F5FFF9CCEC0CFED3B93 /* CoreFoundation.framework */; };
@@ -24,7 +20,6 @@
 /* Begin PBXFileReference section */
 		0249A663FF388D9811CA2CEA /* libstdc++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libstdc++.a"; path = "/usr/lib/libstdc++.a"; sourceTree = "<absolute>"; };
 		08FB7796FE84155DC02AAC07 /* MIDISPORTDownloader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = MIDISPORTDownloader.cpp; sourceTree = "<group>"; };
-		090E73B7FF9BBBBBCFED3B93 /* HexLoaderFirmware.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HexLoaderFirmware.cpp; sourceTree = "<group>"; };
 		0B182F58FF9BD7B5CFED3B93 /* EZLoader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EZLoader.cpp; sourceTree = "<group>"; };
 		0B182F59FF9BD8C7CFED3B93 /* EZLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EZLoader.h; sourceTree = "<group>"; };
 		0B182F5FFF9CCEC0CFED3B93 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
@@ -33,9 +28,6 @@
 		0B182F65FF9CD4C7CFED3B93 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
 		D800BC5424192AA90028A17B /* USBUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = USBUtils.h; sourceTree = "<group>"; };
 		D800BC5524192AA90028A17B /* USBUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = USBUtils.cpp; sourceTree = "<group>"; };
-		D8766C5D24189EFE008F3EE3 /* MIDISPORT1x1Firmware.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MIDISPORT1x1Firmware.cpp; path = /Users/leigh/Sources/Drivers/MIDI/MIDISPORT/EZUSBFirmwareDownloader/MIDISPORT1x1Firmware.cpp; sourceTree = "<absolute>"; };
-		D8766C5E24189EFE008F3EE3 /* MIDISPORT2x2Firmware.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MIDISPORT2x2Firmware.cpp; path = /Users/leigh/Sources/Drivers/MIDI/MIDISPORT/EZUSBFirmwareDownloader/MIDISPORT2x2Firmware.cpp; sourceTree = "<absolute>"; };
-		D8766C5F24189EFE008F3EE3 /* MIDISPORT4x4Firmware.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MIDISPORT4x4Firmware.cpp; path = /Users/leigh/Sources/Drivers/MIDI/MIDISPORT/EZUSBFirmwareDownloader/MIDISPORT4x4Firmware.cpp; sourceTree = "<absolute>"; };
 		D89D8147183D7BCA00446B12 /* EZUSBFirmwareDownloader */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EZUSBFirmwareDownloader; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -85,10 +77,6 @@
 				0B182F59FF9BD8C7CFED3B93 /* EZLoader.h */,
 				D800BC5524192AA90028A17B /* USBUtils.cpp */,
 				D800BC5424192AA90028A17B /* USBUtils.h */,
-				090E73B7FF9BBBBBCFED3B93 /* HexLoaderFirmware.cpp */,
-				D8766C5D24189EFE008F3EE3 /* MIDISPORT1x1Firmware.cpp */,
-				D8766C5E24189EFE008F3EE3 /* MIDISPORT2x2Firmware.cpp */,
-				D8766C5F24189EFE008F3EE3 /* MIDISPORT4x4Firmware.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -175,10 +163,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D89D8138183D7BC900446B12 /* MIDISPORTDownloader.cpp in Sources */,
-				D89D813A183D7BC900446B12 /* HexLoaderFirmware.cpp in Sources */,
-				D8766C6024189EFE008F3EE3 /* MIDISPORT1x1Firmware.cpp in Sources */,
-				D8766C6124189EFE008F3EE3 /* MIDISPORT2x2Firmware.cpp in Sources */,
-				D8766C6224189EFE008F3EE3 /* MIDISPORT4x4Firmware.cpp in Sources */,
 				D800BC5724192AA90028A17B /* USBUtils.cpp in Sources */,
 				D89D813B183D7BC900446B12 /* EZLoader.cpp in Sources */,
 			);

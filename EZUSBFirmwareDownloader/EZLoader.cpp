@@ -188,7 +188,6 @@ bool EZUSBLoader::DownloadFirmware(IOUSBDeviceInterface **device, std::vector<IN
 //
 bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
 {
-    IOReturn status;
 #if VERBOSE
     std::cout << "enter EZUSBLoader::StartDevice" << std::endl;
 #endif
@@ -200,13 +199,16 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
 #if VERBOSE
     std::cout << "Downloading bootstrap loader." << std::endl;
 #endif
-    status = Reset8051(ezUSBDevice, 1);
+    if (Reset8051(ezUSBDevice, 1) != kIOReturnSuccess)
+        return false;
+
     if (!DownloadFirmware(ezUSBDevice, loader)) {
         std::cout << "Failed to download bootstrap loader." << std::endl;
         return false;
     }
-    status = Reset8051(ezUSBDevice, 0);
-
+    if (Reset8051(ezUSBDevice, 0) != kIOReturnSuccess)
+        return false;
+    
     //-----	Now download the device firmware.  //
 #if VERBOSE
     std::cout << "Downloading application firmware." << std::endl;
@@ -215,9 +217,10 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
         std::cout << "Failed to download application firmware." << std::endl;
         return false;
     }
-    status = Reset8051(ezUSBDevice, 1);
-    status = Reset8051(ezUSBDevice, 0);
-
+    if (Reset8051(ezUSBDevice, 1) != kIOReturnSuccess)
+        return false;
+    if (Reset8051(ezUSBDevice, 0) != kIOReturnSuccess)
+        return false;
 #if VERBOSE
     std::cout << "Exit EZUSBLoader::StartDevice." << std::endl;
 #endif
