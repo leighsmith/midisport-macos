@@ -32,10 +32,10 @@ struct HardwareConfigurationDescription {
     std::vector<INTEL_HEX_RECORD> firmware;
     std::string firmwareFileName;                        // Path to the Intel hex file of the firmware. NULL indicates no firmware needs to be downloaded.
 } productTable[] = {
-    { MIDISPORT1x1, 0x1010, "1x1", std::vector<INTEL_HEX_RECORD>(), "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport1x1.ihx" },
-    { MIDISPORT2x2, 0x1001, "2x2", std::vector<INTEL_HEX_RECORD>(), "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport2x2.ihx" },
-    { MIDISPORT4x4, 0x1020, "4x4", std::vector<INTEL_HEX_RECORD>(), "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport4x4.ihx" },
-    { MIDISPORT8x8, 0x1030, "8x8", std::vector<INTEL_HEX_RECORD>(), "" }
+    { MIDISPORT1x1, 0x1010, "MIDISPORT 1x1", std::vector<INTEL_HEX_RECORD>(), "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport1x1.ihx" },
+    { MIDISPORT2x2, 0x1001, "MIDISPORT 2x2", std::vector<INTEL_HEX_RECORD>(), "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport2x2.ihx" },
+    { MIDISPORT4x4, 0x1020, "MIDISPORT 4x4", std::vector<INTEL_HEX_RECORD>(), "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport4x4.ihx" },
+    { MIDISPORT8x8, 0x1030, "MIDISPORT 8x8", std::vector<INTEL_HEX_RECORD>(), "" }
 };
 
 #define PRODUCT_TOTAL (sizeof(productTable) / sizeof(struct HardwareConfigurationDescription))
@@ -54,34 +54,34 @@ int main(int argc, const char * argv[])
     }
     ezusb.SetApplicationLoader(hexLoader);
     
-    std::cout << "Looking for uninitialised MIDISPORTs" << std::endl;
-    
+    std::cout << "Looking for uninitialised MIDISPORTs." << std::endl;
     // Determine if the MIDISPORT is in firmware downloaded or unloaded state.
     // If cold booted, we need to download the firmware and restart the device to
     // enable the firmware product code to be found.
     for (unsigned int productIndex = 0; productIndex < PRODUCT_TOTAL; productIndex++) {
         if (ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].coldBootProductID, true)) {
-            bool foundMIDSPORT = false;
-            std::vector <INTEL_HEX_RECORD> firmwareToDownload;
 
-            std::cout << "Found MIDISPORT " << productTable[productIndex].modelName << " in cold booted state." << std::endl;
+            std::cout << "Found " << productTable[productIndex].modelName << " in cold booted state." << std::endl;
             if (productTable[productIndex].firmwareFileName.length() != 0) {
+                bool foundMIDSPORT = false;
+                std::vector <INTEL_HEX_RECORD> firmwareToDownload;
+
                 std::cout << "Reading MIDISPORT Firmware Intel hex file " << productTable[productIndex].firmwareFileName << std::endl;
                 if (!ezusb.ReadFirmwareFromHexFile(productTable[productIndex].firmwareFileName, firmwareToDownload)) {
                     return 2;
                 }
                 std::cout << "Downloading firmware." << std::endl;
-                ezusb.SetApplicationFirmware(firmwareToDownload);
-                ezusb.StartDevice();
-                // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
-                for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
-                    foundMIDSPORT = ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].warmFirmwareProductID, false);
-                    std::cout << "Waiting before searching" << std::endl;
-                    sleep(2);
-                }
-                if (!foundMIDSPORT) {
-                    std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
-                    return 3;
+                if (ezusb.StartDevice(firmwareToDownload)) {
+                    // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
+                    for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
+                        foundMIDSPORT = ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].warmFirmwareProductID, false);
+                        std::cout << "Waiting before searching." << std::endl;
+                        sleep(2);
+                    }
+                    if (!foundMIDSPORT) {
+                        std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
+                        return 3;
+                    }
                 }
             }
         }

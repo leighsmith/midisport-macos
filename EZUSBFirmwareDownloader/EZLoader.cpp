@@ -107,7 +107,7 @@ IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char res
     IOUSBDevRequest resetRequest;
     
 #if VERBOSE
-    std::cout << "setting 8051 reset bit to " << int(resetBit) << std::endl;
+    std::cout << "Setting 8051 reset bit to " << int(resetBit) << std::endl;
 #endif
     resetRequest.bmRequestType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
     resetRequest.bRequest = ANCHOR_LOAD_INTERNAL;
@@ -123,12 +123,13 @@ IOReturn EZUSBLoader::DownloadFirmwareToRAM(IOUSBDeviceInterface **device,
                                             std::vector<INTEL_HEX_RECORD> firmware,
                                             bool internalRAM)
 {
-    IOReturn status = kIOReturnError;
+    IOReturn status = kIOReturnSuccess;
     UInt8 bmreqType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
 
     for(std::vector<INTEL_HEX_RECORD>::iterator hexRecord = firmware.begin(); hexRecord != firmware.end() && hexRecord->Type == 0; ++hexRecord) {
-        if ((internalRAM && INTERNAL_RAM(hexRecord->Address)) || (!internalRAM && !INTERNAL_RAM(hexRecord->Address))) {
+        if ((internalRAM && INTERNAL_RAM_ADDRESS(hexRecord->Address)) || (!internalRAM && !INTERNAL_RAM_ADDRESS(hexRecord->Address))) {
             IOUSBDevRequest loadRequest;
+            
 #if VERBOSE
             std::string RAMname = internalRAM ? "internal" : "external";
             std::cout << "Downloading " << std::dec << int(hexRecord->Length) <<
@@ -182,9 +183,10 @@ bool EZUSBLoader::DownloadFirmware(IOUSBDeviceInterface **device, std::vector<IN
 }
 
 //
-// Initializes a given instance of the Ezusb Device on the USB.
+// Initializes a given instance of the EZUSB Device on the USB
+// and downloads the application firmware.
 //
-IOReturn EZUSBLoader::StartDevice()
+bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
 {
     IOReturn status;
 #if VERBOSE
@@ -193,36 +195,34 @@ IOReturn EZUSBLoader::StartDevice()
 
     //-----	First download loader firmware.  The loader firmware 
     //		implements a vendor-specific command that will allow us 
-    //		to anchor load to external ram.
+    //		to anchor load to external RAM.
     //
 #if VERBOSE
-    std::cout << "downloading loader" << std::endl;
+    std::cout << "Downloading bootstrap loader." << std::endl;
 #endif
     status = Reset8051(ezUSBDevice, 1);
-    status = DownloadFirmware(ezUSBDevice, loader);
+    if (!DownloadFirmware(ezUSBDevice, loader)) {
+        std::cout << "Failed to download bootstrap loader." << std::endl;
+        return false;
+    }
     status = Reset8051(ezUSBDevice, 0);
 
     //-----	Now download the device firmware.  //
 #if VERBOSE
-    std::cout << "downloading application firmware" << std::endl;
+    std::cout << "Downloading application firmware." << std::endl;
 #endif
-    status = DownloadFirmware(ezUSBDevice, applicationFirmware);
+    if (!DownloadFirmware(ezUSBDevice, applicationFirmware)) {
+        std::cout << "Failed to download application firmware." << std::endl;
+        return false;
+    }
     status = Reset8051(ezUSBDevice, 1);
     status = Reset8051(ezUSBDevice, 0);
 
 #if VERBOSE
-    std::cout << "exit EZUSBLoader::StartDevice" << std::endl;
+    std::cout << "Exit EZUSBLoader::StartDevice." << std::endl;
 #endif
 
-    return status;
-}
-
-//
-// Sets the application firmware to be downloaded next.
-//
-void EZUSBLoader::SetApplicationFirmware(std::vector<INTEL_HEX_RECORD> newFirmware)
-{
-    applicationFirmware = newFirmware;
+    return true;
 }
 
 //

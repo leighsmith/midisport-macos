@@ -39,7 +39,7 @@ typedef unsigned short WORD;
 //
 #define MAX_INTERNAL_ADDRESS  0x1B3F
 
-#define INTERNAL_RAM(address) ((address <= MAX_INTERNAL_ADDRESS) ? 1 : 0)
+#define INTERNAL_RAM_ADDRESS(address) ((address <= MAX_INTERNAL_ADDRESS) ? 1 : 0)
 
 //
 // EZ-USB Control and Status Register.  Bit 0 controls 8051 reset
@@ -76,8 +76,7 @@ public:
                         UInt8 interfaceNumber,
                         UInt8 altSetting);
     bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID, bool leaveOpenWhenFound);
-    IOReturn StartDevice();
-    void SetApplicationFirmware(std::vector<INTEL_HEX_RECORD> firmware);
+    bool StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware);
     void SetApplicationLoader(std::vector<INTEL_HEX_RECORD> newLoader);
     bool ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> &firmware);
 
@@ -88,8 +87,6 @@ protected:
 
     // instance variables
     IOUSBDeviceInterface **ezUSBDevice;
-    // The hex records to download for the application.
-    std::vector<INTEL_HEX_RECORD> applicationFirmware;
     // These hex records that contain the application loader.
     std::vector<INTEL_HEX_RECORD> loader;
     UInt16 usbVendor;
