@@ -48,6 +48,7 @@
  WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT
  LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
  OF SUCH DAMAGE.  */
+#include <AssertMacros.h>
 #include "USBMIDIDriverBase.h"
 #include <algorithm>
 
@@ -157,7 +158,7 @@ void	IOBuffer::Allocate(UInt32 size)
 
 Mutex::Mutex()
 {
-	verify_noerr(pthread_mutex_init(&mMutex, NULL));
+	__Verify_noErr(pthread_mutex_init(&mMutex, NULL));
 	mOwner = 0;
 }
 
@@ -173,7 +174,7 @@ bool	Mutex::Lock()
 	if (mOwner == thisThread)
 		return false;	// already acquired
 	
-	require_noerr(pthread_mutex_lock(&mMutex), done);
+	__Require_noErr(pthread_mutex_lock(&mMutex), done);
 	mOwner = thisThread;
 	return true;	// did acquire lock
 
@@ -183,7 +184,7 @@ done:
 
 void	Mutex::Unlock()
 {
-	require_string(mOwner == pthread_self(), done, "non-owner thread is unlocking mutex");
+	__Require_String(mOwner == pthread_self(), done, "non-owner thread is unlocking mutex");
 	mOwner = 0;
 	pthread_mutex_unlock(&mMutex);
 done: ;
@@ -221,11 +222,11 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *			driver,
 #endif
 
 	numEndpoints = 0;
-	require_noerr((*mInterface)->GetNumEndpoints(mInterface, &numEndpoints), errexit);
+	__Require_noErr((*mInterface)->GetNumEndpoints(mInterface, &numEndpoints), errexit);
 		// find the number of endpoints for this interface
 
 	for (pipeIndex = 1; pipeIndex <= numEndpoints; ++pipeIndex) { 
-		require_noerr((*mInterface)->GetPipeProperties(mInterface, pipeIndex, &direction, &pipeNum, &transferType, &maxPacketSize, &interval), nextPipe);
+		__Require_noErr((*mInterface)->GetPipeProperties(mInterface, pipeIndex, &direction, &pipeNum, &transferType, &maxPacketSize, &interval), nextPipe);
 		#if VERBOSE 
 			printf("pipe index %d: dir=%d, num=%d, tt=%d, maxPacketSize=%d, interval=%d\n", pipeIndex,  direction, pipeNum, transferType, maxPacketSize, interval);
 		#endif
@@ -252,7 +253,7 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *			driver,
 nextPipe: ;
 	}
 	// don't go any further if we don't have a valid pipe
-	require(mHaveOutPipe1 || mHaveOutPipe2 || mHaveInPipe, errexit);
+	__Require(mHaveOutPipe1 || mHaveOutPipe2 || mHaveInPipe, errexit);
 
 	#if VERBOSE
 		printf("starting MIDI, mOutPipe1=0x%lX, mOutPipe2=0x%lX, mInPipe=0x%lX\n", (long)mOutPipe1, (long)mOutPipe2, (long)mInPipe);
@@ -290,8 +291,8 @@ nextPipe: ;
 		if (ioRunLoop != NULL) {
 			source = (*mInterface)->GetInterfaceAsyncEventSource(mInterface);
 			if (source == NULL) {
-				require_noerr((*mInterface)->CreateInterfaceAsyncEventSource(mInterface, &source), errexit);
-				require(source != NULL, errexit);
+				__Require_noErr((*mInterface)->CreateInterfaceAsyncEventSource(mInterface, &source), errexit);
+				__Require(source != NULL, errexit);
 			}
 			if (!CFRunLoopContainsSource(ioRunLoop, source, kCFRunLoopDefaultMode))
 				CFRunLoopAddSource(ioRunLoop, source, kCFRunLoopDefaultMode);
@@ -316,15 +317,15 @@ InterfaceState::~InterfaceState()
 		mDriver->StopInterface(this);
 
 	if (mHaveOutPipe1) {
-		verify_noerr((*mInterface)->AbortPipe(mInterface, mOutPipe1));
+		__Verify_noErr((*mInterface)->AbortPipe(mInterface, mOutPipe1));
         }
 	if (mHaveOutPipe2) {
-		verify_noerr((*mInterface)->AbortPipe(mInterface, mOutPipe2));
+		__Verify_noErr((*mInterface)->AbortPipe(mInterface, mOutPipe2));
         }
         // MIDISPORT_SPECIFIC
         
 	if (mHaveInPipe)
-		verify_noerr((*mInterface)->AbortPipe(mInterface, mInPipe)); 
+		__Verify_noErr((*mInterface)->AbortPipe(mInterface, mInPipe)); 
 
 	CFRunLoopRef ioRunLoop = MIDIGetDriverIORunLoop();
 	CFRunLoopSourceRef source;
@@ -336,12 +337,12 @@ InterfaceState::~InterfaceState()
 	}
 	
 	if (mInterface) {
-		verify_noerr((*mInterface)->USBInterfaceClose(mInterface));
+		__Verify_noErr((*mInterface)->USBInterfaceClose(mInterface));
 		(*mInterface)->Release(mInterface);
 	}
 	
 	if (mDevice) {
-		verify_noerr((*mDevice)->USBDeviceClose(mDevice));
+		__Verify_noErr((*mDevice)->USBDeviceClose(mDevice));
 		(*mDevice)->Release(mDevice);
 	}
 	
@@ -390,7 +391,7 @@ void	InterfaceState::Send(const MIDIPacketList *pktlist, int portNumber)
 void	InterfaceState::DoRead()
 {
 	if (mHaveInPipe) {
-		verify_noerr((*mInterface)->ReadPipeAsync(mInterface, mInPipe, mReadBuf, mInterfaceInfo.readBufferSize, ReadCallback, this));
+		__Verify_noErr((*mInterface)->ReadPipeAsync(mInterface, mInPipe, mReadBuf, mInterfaceInfo.readBufferSize, ReadCallback, this));
 	}
 }
 
@@ -398,7 +399,7 @@ void	InterfaceState::DoRead()
 void	InterfaceState::ReadCallback(void *refcon, IOReturn asyncReadResult, void *arg0)
 {
 	if (asyncReadResult == kIOReturnAborted) goto done;
-	require_noerr(asyncReadResult, done);
+	__Require_noErr(asyncReadResult, done);
 	{
 		InterfaceState *self = (InterfaceState *)refcon;
 		ByteCount bytesReceived = (ByteCount)arg0;
@@ -434,7 +435,7 @@ void	InterfaceState::DoWrite()
                                 printf("mInterface = 0x%x, pipeStatus = 0x%x\n", (unsigned int) mInterface, pipeStatus);
 #endif
 				mWritePending = true;
-				verify_noerr((*mInterface)->WritePipeAsync(mInterface, mOutPipe1, mWriteBuf1, msglen1, WriteCallback, this));
+				__Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe1, mWriteBuf1, msglen1, WriteCallback, this));
 			}
 			if (msglen2 > 0) {
 #if DUMP_OUTPUT
@@ -447,7 +448,7 @@ void	InterfaceState::DoWrite()
 				printf("\n");
 #endif
                                 mWritePending = true;
-                                verify_noerr((*mInterface)->WritePipeAsync(mInterface, mOutPipe2, mWriteBuf2, msglen2, WriteCallback, this));
+                                __Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe2, mWriteBuf2, msglen2, WriteCallback, this));
                         }
 		}
 	}
@@ -456,7 +457,7 @@ void	InterfaceState::DoWrite()
 // this is the IOAsyncCallback (static method)
 void	InterfaceState::WriteCallback(void *refcon, IOReturn asyncWriteResult, void *arg0)
 {
-	require_noerr(asyncWriteResult, done);
+	__Require_noErr(asyncWriteResult, done);
 	{
 		InterfaceState *self = (InterfaceState *)refcon;
 		bool shouldUnlock = self->mWriteQueueMutex.Lock();
@@ -504,9 +505,9 @@ public:
 										UInt8						interfaceNumber,
 										UInt8						altSetting )
 	{
-                #if VERBOSE
-                    printf("InterfaceLocator::FoundInterface\n");
-                #endif
+#if VERBOSE
+        printf("InterfaceLocator::FoundInterface\n");
+#endif
 		MIDIDeviceRef dev = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
 		if (dev != NULL)
 			MIDIDeviceListAddDevice(mFoundDeviceList, dev);
@@ -593,7 +594,7 @@ public:
 			OSStatus err;
 			MIDIDeviceListRef curDevices;
 			
-			require_noerr((*device)->GetLocationID(device, &locationID), errexit);
+			__Require_noErr((*device)->GetLocationID(device, &locationID), errexit);
 
 			// see if it's already in the setup, matching by locationID and productID
 			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
@@ -619,11 +620,11 @@ public:
 					printf("creating new device\n");
 				#endif
 				midiDevice = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
-				require(midiDevice != NULL, errexit);
+				__Require(midiDevice != NULL, errexit);
 				MIDIObjectSetIntegerProperty(midiDevice, kUSBLocationProperty, locationID);
 				MIDIObjectSetIntegerProperty(midiDevice, kUSBVendorProductProperty, vendorProduct);
 
-				require_noerr(MIDISetupAddDevice(midiDevice), errexit);
+				__Require_noErr(MIDISetupAddDevice(midiDevice), errexit);
 			} else {
 				#if VERBOSE
 					printf("old device found\n");
@@ -680,7 +681,7 @@ errexit:
 		}
 	}
 	
-	typedef vector<InterfaceState *> InterfaceStateList;
+    typedef std::vector<InterfaceState *> InterfaceStateList;
 
 	USBMIDIDriverBase *		mDriver;
 	InterfaceStateList		mInterfaceStateList;

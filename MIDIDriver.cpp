@@ -42,8 +42,9 @@
 #include "MIDIDriverClass.h"
 
 // Implementation of the IUnknown QueryInterface function.
-static HRESULT MIDIDriverQueryInterface(MIDIDriverRef ref, REFIID iid, LPVOID *ppv) 
+static HRESULT MIDIDriverQueryInterface(void *driverRef, REFIID iid, LPVOID *ppv)
 {
+    MIDIDriverRef ref = (MIDIDriverRef) driverRef;
 	// Create a CoreFoundation UUIDRef for the requested interface.
 	CFUUIDRef interfaceID = CFUUIDCreateFromUUIDBytes( NULL, iid );
 
@@ -99,8 +100,9 @@ static HRESULT MIDIDriverQueryInterface(MIDIDriverRef ref, REFIID iid, LPVOID *p
 // Whenever an interface is requested, bump the refCount for
 // the instance. NOTE: returning the refcount is a convention
 // but is not required so don't rely on it.
-static ULONG MIDIDriverAddRef(MIDIDriverRef ref) 
+static ULONG MIDIDriverAddRef(void *driverRef)
 {
+    MIDIDriverRef ref = (MIDIDriverRef) driverRef;
 	MIDIDriver *self = GetMIDIDriver(ref);
 
 	return ++self->mRefCount;
@@ -108,8 +110,9 @@ static ULONG MIDIDriverAddRef(MIDIDriverRef ref)
 
 // When an interface is released, decrement the refCount.
 // If the refCount goes to zero, deallocate the instance.
-static ULONG MIDIDriverRelease(MIDIDriverRef ref) 
+static ULONG MIDIDriverRelease(void *driverRef) 
 {
+    MIDIDriverRef ref = (MIDIDriverRef) driverRef;
 	MIDIDriver *self = GetMIDIDriver(ref);
 
 	if (--self->mRefCount == 0) {

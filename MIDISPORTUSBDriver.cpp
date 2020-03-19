@@ -81,7 +81,7 @@
 #define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
 #define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
-#define VERBOSE                 (DEBUG || 1)
+#define VERBOSE             (DEBUG || 1)
 
 struct HardwareConfigurationDescription {
     WarmFirmwareProductIDs warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
@@ -382,7 +382,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         }
     }
     if (pktlist->numPackets > 0 && prevInputPort != -1) {
-        printf("source %d receiving %ld packets\n", prevInputPort, pktlist->numPackets);
+        printf("source %d receiving %d packets\n", prevInputPort, pktlist->numPackets);
         printf("number of entities %d\n", intf->mNumEntities);
         MIDIReceived(intf->mSources[prevInputPort], pktlist);
         printf("\n");
@@ -401,8 +401,8 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
 // the MidiSport’s internal buffer requirements."
 // Now that's going to be tricky to implement... :-(
 void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
-                                 Byte *destBuf1, ByteCount *bufCount1,
-                                 Byte *destBuf2, ByteCount *bufCount2)
+                              Byte *destBuf1, ByteCount *bufCount1,
+                              Byte *destBuf2, ByteCount *bufCount2)
 {
     Byte *dest[2] = {destBuf1, destBuf2};
     Byte *destEnd[2] = {dest[0] + productTable[connectedMIDISPORTIndex].writeBufSize,
@@ -410,8 +410,8 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
    
     while (true) {
         if (writeQueue.empty()) {
-            int buf1Length = dest[0] - destBuf1;
-            int buf2Length = dest[1] - destBuf2;
+            long buf1Length = dest[0] - destBuf1;
+            long buf2Length = dest[1] - destBuf2;
 #if DEBUG_OUTBUFFER
             printf("dest buffer = ");
             for(int i = 0; i < dest[0] - destBuf1; i++)
@@ -444,8 +444,8 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
 
         // printf("cableNibble = 0x%x, portNum = %d\n", cableNibble, wqe->portNum);
         while (src < srcend && dest[cableEndpoint] < destEnd[cableEndpoint]) {
-            int outPacketLen;
-            int numToBeSent;
+            long outPacketLen;
+            long numToBeSent;
             Byte c = *src++;
             
             // printf("byte %02X\n", c);

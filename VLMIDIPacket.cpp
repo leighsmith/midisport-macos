@@ -37,7 +37,7 @@
  LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
  OF SUCH DAMAGE.  */
 
-#include "MIDIPacket.h"
+#include "VLMIDIPacket.h"
 #include <string.h>
 
 void	*VLMIDIPacket::operator new(size_t size, int ndata)

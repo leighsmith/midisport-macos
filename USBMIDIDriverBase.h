@@ -40,13 +40,13 @@
 #ifndef __USBMIDIDriverBase_h__
 #define __USBMIDIDriverBase_h__
 
-#include <vector.h>
-#include <list.h>
+#include <vector>
+#include <list>
 #include <pthread.h>
 #include "MIDIDriverClass.h"
 #include <CoreMIDI/MIDISetup.h>
 #include "USBUtils.h"
-#include "MIDIPacket.h"
+#include "VLMIDIPacket.h"
 
 class InterfaceState;
 class InterfaceRunner;
@@ -59,7 +59,7 @@ public:
 	ByteCount			bytesSent;	// this much of the packet has been sent
 };
 
-typedef list<WriteQueueElem> WriteQueue;
+typedef std::list<WriteQueueElem> WriteQueue;
 
 struct InterfaceInfo {
 	UInt8				inEndpointType;		// kUSBBulk, etc.

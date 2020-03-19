@@ -10,39 +10,37 @@
 		D89D8104183D7B2200446B12 /* MIDISPORTUSBDriver.h in Headers */ = {isa = PBXBuildFile; fileRef = 010D0AFEFEE5F5BB0A090812 /* MIDISPORTUSBDriver.h */; };
 		D89D8106183D7B2200446B12 /* USBUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 00C5C68EFEC350680A090812 /* USBUtils.h */; };
 		D89D8107183D7B2200446B12 /* USBMIDIDriverBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E21D07CFED9A4DC0A090812 /* USBMIDIDriverBase.h */; };
-		D89D8108183D7B2200446B12 /* MIDIPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 00D01140FEDB397F0A090812 /* MIDIPacket.h */; };
+		D89D8108183D7B2200446B12 /* VLMIDIPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 00D01140FEDB397F0A090812 /* VLMIDIPacket.h */; };
 		D89D8109183D7B2200446B12 /* MIDIDriverClass.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D229E016913B4CFED3B96 /* MIDIDriverClass.h */; };
 		D89D810C183D7B2200446B12 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
 		D89D810E183D7B2200446B12 /* USBUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C5C68DFEC350680A090812 /* USBUtils.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D810F183D7B2200446B12 /* MIDIDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C5C690FEC354650A090812 /* MIDIDriver.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D8110183D7B2200446B12 /* USBMIDIDriverBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1E21D07BFED9A4DC0A090812 /* USBMIDIDriverBase.cpp */; settings = {ATTRIBUTES = (); }; };
-		D89D8111183D7B2200446B12 /* MIDIPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00D0113FFEDB397F0A090812 /* MIDIPacket.cpp */; settings = {ATTRIBUTES = (); }; };
+		D89D8111183D7B2200446B12 /* VLMIDIPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00D0113FFEDB397F0A090812 /* VLMIDIPacket.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D8112183D7B2200446B12 /* MIDISPORTUSBDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 010D0AFDFEE5F5BB0A090812 /* MIDISPORTUSBDriver.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D811A183D7B2200446B12 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */; };
 		D89D811B183D7B2200446B12 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0177C833FEC2D3C80A090812 /* IOKit.framework */; };
 		D89D811D183D7B2200446B12 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04C7CB61FF9129AFCFED3B93 /* CoreServices.framework */; };
-		D8BBDC8522ECF29400F783B4 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8BBDC8422ECF29400F783B4 /* CoreMIDI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		00C5C68DFEC350680A090812 /* USBUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = USBUtils.cpp; sourceTree = "<group>"; };
+		00C5C68DFEC350680A090812 /* USBUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = USBUtils.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		00C5C68EFEC350680A090812 /* USBUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = USBUtils.h; sourceTree = "<group>"; };
-		00C5C690FEC354650A090812 /* MIDIDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIDriver.cpp; sourceTree = "<group>"; };
-		00D0113FFEDB397F0A090812 /* MIDIPacket.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIPacket.cpp; sourceTree = "<group>"; };
-		00D01140FEDB397F0A090812 /* MIDIPacket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDIPacket.h; sourceTree = "<group>"; };
-		010D0AFDFEE5F5BB0A090812 /* MIDISPORTUSBDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDISPORTUSBDriver.cpp; sourceTree = "<group>"; };
-		010D0AFEFEE5F5BB0A090812 /* MIDISPORTUSBDriver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDISPORTUSBDriver.h; sourceTree = "<group>"; };
+		00C5C690FEC354650A090812 /* MIDIDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIDriver.cpp; sourceTree = "<group>"; tabWidth = 4; };
+		00D0113FFEDB397F0A090812 /* VLMIDIPacket.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VLMIDIPacket.cpp; sourceTree = "<group>"; tabWidth = 4; };
+		00D01140FEDB397F0A090812 /* VLMIDIPacket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VLMIDIPacket.h; sourceTree = "<group>"; tabWidth = 4; };
+		010D0AFDFEE5F5BB0A090812 /* MIDISPORTUSBDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MIDISPORTUSBDriver.cpp; sourceTree = "<group>"; tabWidth = 4; };
+		010D0AFEFEE5F5BB0A090812 /* MIDISPORTUSBDriver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDISPORTUSBDriver.h; sourceTree = "<group>"; tabWidth = 4; };
 		0177C833FEC2D3C80A090812 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
-		028D229E016913B4CFED3B96 /* MIDIDriverClass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDIDriverClass.h; sourceTree = "<group>"; };
+		028D229E016913B4CFED3B96 /* MIDIDriverClass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MIDIDriverClass.h; sourceTree = "<group>"; tabWidth = 4; };
 		04C7CB61FF9129AFCFED3B93 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		0AA1909FFE8422F4C02AAC07 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		1E21D07BFED9A4DC0A090812 /* USBMIDIDriverBase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = USBMIDIDriverBase.cpp; sourceTree = "<group>"; tabWidth = 4; };
-		1E21D07CFED9A4DC0A090812 /* USBMIDIDriverBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = USBMIDIDriverBase.h; sourceTree = "<group>"; };
+		1E21D07CFED9A4DC0A090812 /* USBMIDIDriverBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = USBMIDIDriverBase.h; sourceTree = "<group>"; tabWidth = 4; };
 		D86114F8241C816C0099A082 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		D89D8123183D7B2200446B12 /* Info-MIDISPORT__Upgraded_.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-MIDISPORT__Upgraded_.plist"; sourceTree = "<group>"; };
 		D89D8124183D7B2300446B12 /* MIDISPORT.plugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MIDISPORT.plugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BBDC7522ECE3F500F783B4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		D8BBDC8422ECF29400F783B4 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,7 +48,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8BBDC8522ECF29400F783B4 /* CoreMIDI.framework in Frameworks */,
 				D89D811A183D7B2200446B12 /* CoreFoundation.framework in Frameworks */,
 				D89D811B183D7B2200446B12 /* IOKit.framework in Frameworks */,
 				D89D811D183D7B2200446B12 /* CoreServices.framework in Frameworks */,
@@ -66,9 +63,9 @@
 				00C5C68DFEC350680A090812 /* USBUtils.cpp */,
 				00C5C68EFEC350680A090812 /* USBUtils.h */,
 				00C5C690FEC354650A090812 /* MIDIDriver.cpp */,
-				00D0113FFEDB397F0A090812 /* MIDIPacket.cpp */,
-				00D01140FEDB397F0A090812 /* MIDIPacket.h */,
 				028D229E016913B4CFED3B96 /* MIDIDriverClass.h */,
+				00D0113FFEDB397F0A090812 /* VLMIDIPacket.cpp */,
+				00D01140FEDB397F0A090812 /* VLMIDIPacket.h */,
 			);
 			name = AppleCode;
 			sourceTree = "<group>";
@@ -80,7 +77,6 @@
 				089C167CFE841241C02AAC07 /* Resources */,
 				089C1671FE841209C02AAC07 /* External Frameworks and Libraries */,
 				19C28FB6FE9D52B211CA2CBB /* Products */,
-				D8BBDC7822ECEE0900F783B4 /* Frameworks */,
 			);
 			name = CFPlugInBundle;
 			sourceTree = "<group>";
@@ -125,14 +121,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D8BBDC7822ECEE0900F783B4 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				D8BBDC8422ECF29400F783B4 /* CoreMIDI.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -143,7 +131,7 @@
 				D89D8104183D7B2200446B12 /* MIDISPORTUSBDriver.h in Headers */,
 				D89D8106183D7B2200446B12 /* USBUtils.h in Headers */,
 				D89D8107183D7B2200446B12 /* USBMIDIDriverBase.h in Headers */,
-				D89D8108183D7B2200446B12 /* MIDIPacket.h in Headers */,
+				D89D8108183D7B2200446B12 /* VLMIDIPacket.h in Headers */,
 				D89D8109183D7B2200446B12 /* MIDIDriverClass.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -225,7 +213,7 @@
 				D89D810E183D7B2200446B12 /* USBUtils.cpp in Sources */,
 				D89D810F183D7B2200446B12 /* MIDIDriver.cpp in Sources */,
 				D89D8110183D7B2200446B12 /* USBMIDIDriverBase.cpp in Sources */,
-				D89D8111183D7B2200446B12 /* MIDIPacket.cpp in Sources */,
+				D89D8111183D7B2200446B12 /* VLMIDIPacket.cpp in Sources */,
 				D89D8112183D7B2200446B12 /* MIDISPORTUSBDriver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

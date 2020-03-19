@@ -47,14 +47,14 @@ public:
                                    UInt8 &outInterfaceNumber,
                                    UInt8 &outAltSetting);
 
-    virtual MIDIDeviceRef CreateDevice(	io_service_t				ioDevice,
-					io_service_t				ioInterface,
-                                        IOUSBDeviceInterface **device,
-                                        IOUSBInterfaceInterface **interface,
-                                        UInt16 devVendor,
-                                        UInt16 devProduct,
-                                        UInt8 interfaceNumber,
-                                        UInt8 altSetting);
+    virtual MIDIDeviceRef CreateDevice(io_service_t	ioDevice,
+                                       io_service_t	ioInterface,
+                                       IOUSBDeviceInterface **device,
+                                       IOUSBInterfaceInterface **interface,
+                                       UInt16 devVendor,
+                                       UInt16 devProduct,
+                                       UInt8 interfaceNumber,
+                                       UInt8 altSetting);
 
     virtual void GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info);
 
@@ -63,7 +63,7 @@ public:
     virtual void HandleInput( InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, ByteCount readBufSize);
     virtual void PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
                                  Byte *destBuf1, ByteCount *bufCount1,
-                                 Byte *destBuf2, ByteCount *bufCount1);
+                                 Byte *destBuf2, ByteCount *bufCount2);
 private:
     int connectedMIDISPORTIndex;
 };

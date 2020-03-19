@@ -37,17 +37,17 @@
  LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
  OF SUCH DAMAGE.  */
 
+#include <AssertMacros.h>
 #include <CoreServices/CoreServices.h>	// we need Debugging.h, CF, etc.
-#include "USBUtils.h"
 #include <IOKit/IOCFPlugIn.h>
 #include <CoreFoundation/CFNumber.h>
+#include <mach/mach_port.h>
+#include "USBUtils.h"
 
 #if DEBUG
 	#include <stdio.h>
 	#define VERBOSE 0
 #endif
-
-#define LOSE_FIRST_MESSAGE_BUG 0
 
 // _____________________________________________________________________________
 USBDeviceManager::USBDeviceManager(CFRunLoopRef notifyRunLoop) :
@@ -62,32 +62,45 @@ USBDeviceManager::USBDeviceManager(CFRunLoopRef notifyRunLoop) :
 	mDeviceRemoveIterator = NULL;
 	mIteratorsNeedEmptying = false;
 
+    // Create a master port for communication with the I/O Kit.
 	// This gets the master device mach port through which all messages
 	// to the kernel go, and initiates communication with IOKit.
-	require_noerr(IOMasterPort(bootstrap_port, &mMasterDevicePort), errexit);
+    // TODO MACH_PORT_NULL instead of bootstrap_port?
+	__Require_noErr(IOMasterPort(bootstrap_port, &mMasterDevicePort), errexit);
 	
 	if (mRunLoop) {
-            #if VERBOSE
-                printf("mRunLoop true\n");
-            #endif
+        #if VERBOSE
+            printf("mRunLoop true\n");
+        #endif
+        // To set up asynchronous notifications, create a notification port and
+        // add its run loop event source to the programÕs run loop
 		mNotifyPort = IONotificationPortCreate(mMasterDevicePort);
-		require(mNotifyPort != NULL, errexit);
+		__Require(mNotifyPort != NULL, errexit);
 		mRunLoopSource = IONotificationPortGetRunLoopSource(mNotifyPort);
-		require(mRunLoopSource != NULL, errexit);
+		__Require(mRunLoopSource != NULL, errexit);
 		//printf("mRunLoopSource retain count %d initially\n", (int)CFGetRetainCount(mRunLoopSource));
 		
 		CFRunLoopAddSource(mRunLoop, mRunLoopSource, kCFRunLoopDefaultMode);
 		//printf("mRunLoopSource retain count %d after adding to run loop\n", (int)CFGetRetainCount(mRunLoopSource));
 		
+        // Set up matching dictionary for class IOUSBDevice and its subclasses
 		matchingDict = IOServiceMatching(kIOUSBDeviceClassName); 
-		require(matchingDict != NULL, errexit);
-		require_noerr(IOServiceAddMatchingNotification(mNotifyPort, kIOPublishNotification, matchingDict, DeviceAddCallback, this, &mDeviceAddIterator), errexit);
-		matchingDict = NULL;	// Finish handoff of matchingDict
+		__Require(matchingDict != NULL, errexit);
+        
+        // Retain additional dictionary references because each call to
+        // IOServiceAddMatchingNotification consumes one reference
+        matchingDict = (CFMutableDictionaryRef) CFRetain(matchingDict);
+        matchingDict = (CFMutableDictionaryRef) CFRetain(matchingDict);
 
-		matchingDict = IOServiceMatching(kIOUSBDeviceClassName); 
-		require(matchingDict != NULL, errexit);
-		require_noerr(IOServiceAddMatchingNotification(mNotifyPort, kIOTerminatedNotification, matchingDict, DeviceRemoveCallback, this, &mDeviceRemoveIterator), errexit);
-		matchingDict = NULL;	// Finish handoff of matchingDict
+        // Now set up two notifications: one to be called when a raw device
+        // is first matched by the I/O Kit and another to be called when the
+        // device is terminated.
+        // Notification of first match:
+        // TODO Changed from kIOPublishNotification to kIOFirstMatchNotification
+		__Require_noErr(IOServiceAddMatchingNotification(mNotifyPort, kIOFirstMatchNotification, matchingDict, DeviceAddCallback, this, &mDeviceAddIterator), errexit);
+
+        // Notification of termination:
+		__Require_noErr(IOServiceAddMatchingNotification(mNotifyPort, kIOTerminatedNotification, matchingDict, DeviceRemoveCallback, this, &mDeviceRemoveIterator), errexit);
 		
 		// empty the iterators
 		mIteratorsNeedEmptying = true;
@@ -109,10 +122,10 @@ USBDeviceManager::~USBDeviceManager()
 	if (mRunLoopSource != NULL)
 		CFRelease(mRunLoopSource);
 	
-	if (mDeviceAddIterator != NULL)
+	if (mDeviceAddIterator != (io_iterator_t) NULL)
 		IOObjectRelease(mDeviceAddIterator);
 	
-	if (mDeviceRemoveIterator != NULL)
+	if (mDeviceRemoveIterator != (io_iterator_t) NULL)
 		IOObjectRelease(mDeviceRemoveIterator);
 
 	//if (mNotifyPort)
@@ -122,12 +135,12 @@ USBDeviceManager::~USBDeviceManager()
 		mach_port_deallocate(mach_task_self(), mMasterDevicePort);
 }
 
-void		USBDeviceManager::DeviceAddCallback(void *refcon, io_iterator_t it)
+void USBDeviceManager::DeviceAddCallback(void *refcon, io_iterator_t it)
 {
 	((USBDeviceManager *)refcon)->DevicesAdded(it);
 }
 
-void		USBDeviceManager::DeviceRemoveCallback(void *refcon, io_iterator_t it)
+void USBDeviceManager::DeviceRemoveCallback(void *refcon, io_iterator_t it)
 {
 	((USBDeviceManager *)refcon)->DevicesRemoved(it);
 }
@@ -139,9 +152,9 @@ void	USBDeviceManager::ScanDevices()
 	if (mMasterDevicePort == 0) return;
 
 	if (mIteratorsNeedEmptying) {
-            #if VERBOSE
-                printf("mIteratorsNeedEmptying in USBDeviceManager::ScanDevices()\n");
-            #endif
+#if VERBOSE
+        printf("mIteratorsNeedEmptying in USBDeviceManager::ScanDevices()\n");
+#endif
 		mIteratorsNeedEmptying = false;
 		DevicesAdded(mDeviceAddIterator);
 		DevicesRemoved(mDeviceRemoveIterator);
@@ -153,17 +166,17 @@ void	USBDeviceManager::ScanDevices()
 
 	// Create a matching dictionary that specifies an IOService class match.
 	matchingDict = IOServiceMatching(kIOUSBDeviceClassName); 
-	require(matchingDict != NULL, errexit);
+	__Require(matchingDict != NULL, errexit);
  
 	// Find an IOService object currently registered by IOKit that match a 
 	// dictionary, and get an iterator for it
-	require_noerr(IOServiceGetMatchingServices(mMasterDevicePort, matchingDict, &devIter), errexit);
+	__Require_noErr(IOServiceGetMatchingServices(mMasterDevicePort, matchingDict, &devIter), errexit);
 	matchingDict = NULL;	// Finish handoff of matchingDict
 	
 	DevicesAdded(devIter);
 
 errexit:
-	if (devIter != NULL)
+	if (devIter != (io_iterator_t) NULL)
 		IOObjectRelease(devIter);
 		
 	if (matchingDict)
@@ -174,7 +187,7 @@ void	USBDeviceManager::DevicesRemoved(io_iterator_t devIter)
 {
 	io_service_t	ioDeviceObj			= NULL;
 
-	while ((ioDeviceObj = IOIteratorNext(devIter)) != NULL) {
+	while ((ioDeviceObj = IOIteratorNext(devIter)) != (io_iterator_t) NULL) {
 #if VERBOSE
 		printf("removed device 0x%X\n", (int)ioDeviceObj);
 #endif
@@ -186,7 +199,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 {
 	io_service_t	ioDeviceObj			= NULL;
 
-	while ((ioDeviceObj = IOIteratorNext(devIter)) != NULL) {
+	while ((ioDeviceObj = IOIteratorNext(devIter)) != (io_iterator_t) NULL) {
 		IOCFPlugInInterface 	**ioPlugin;
 		IOUSBDeviceInterface 	**deviceIntf = NULL;
 		IOReturn	 			kr;
@@ -196,18 +209,32 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 		bool					keepOpen = false;
 
 		// Get self pointer to device.
-		require_noerr(IOCreatePlugInInterfaceForService(
-			ioDeviceObj, kIOUSBDeviceUserClientTypeID, kIOCFPlugInInterfaceID, 
-			&ioPlugin, &score), nextDevice);
-		
-		kr = (*ioPlugin)->QueryInterface(ioPlugin, CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID), (LPVOID *)&deviceIntf);
+        kr = IOCreatePlugInInterfaceForService(ioDeviceObj,
+                                               kIOUSBDeviceUserClientTypeID,
+                                               kIOCFPlugInInterfaceID,
+                                               &ioPlugin, &score);
+        // TODO seems to return kIOReturnNoResources
+        if ((kr != kIOReturnSuccess) || !ioPlugin) {
+            printf("Unable to create a plug-in (%08x)\n", kr);
+            continue;
+        }
+        // __Require_String(kr == kIOReturnSuccess, nextDevice, "Unable to create a plug-in");
+        // Don't need the device object after intermediate plug-in is created
+        kr = IOObjectRelease(ioDeviceObj);
+        __Require(kr == kIOReturnSuccess, nextDevice);
+        
+        // Now create the device interface
+		kr = (*ioPlugin)->QueryInterface(ioPlugin,
+                                         CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID),
+                                         (LPVOID *)&deviceIntf);
+        // Don't need the intermediate plug-in after device interface is created
 		(*ioPlugin)->Release(ioPlugin);
 		ioPlugin = NULL;
-		require_string(kr == kIOReturnSuccess, nextDevice, "QueryInterface failed");
+		__Require_String(kr == kIOReturnSuccess, nextDevice, "QueryInterface failed");
 
 		// Get device info
-		require_noerr((*deviceIntf)->GetDeviceVendor(deviceIntf, &devVendor), nextDevice);
-		require_noerr((*deviceIntf)->GetDeviceProduct(deviceIntf, &devProduct), nextDevice);
+		__Require_noErr((*deviceIntf)->GetDeviceVendor(deviceIntf, &devVendor), nextDevice);
+		__Require_noErr((*deviceIntf)->GetDeviceProduct(deviceIntf, &devProduct), nextDevice);
 		
 		if (MatchDevice(deviceIntf, devVendor, devProduct)) {
 			bool						deviceOpen = false;
@@ -229,14 +256,14 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 			#endif
 
 			// Make sure it has at least one configuration
-			require_noerr((*deviceIntf)->GetNumberOfConfigurations(deviceIntf, &numConfigs), nextDevice);
-			require(numConfigs > 0, nextDevice);
+			__Require_noErr((*deviceIntf)->GetNumberOfConfigurations(deviceIntf, &numConfigs), nextDevice);
+			__Require(numConfigs > 0, nextDevice);
 
 			// Get a pointer to the configuration descriptor for index 0
-			require_noerr((*deviceIntf)->GetConfigurationDescriptorPtr(deviceIntf, 0, &configDesc), nextDevice);
+			__Require_noErr((*deviceIntf)->GetConfigurationDescriptorPtr(deviceIntf, 0, &configDesc), nextDevice);
 
 			// Open the device
-			require_noerr((*deviceIntf)->USBDeviceOpen(deviceIntf), nextDevice);
+			__Require_noErr((*deviceIntf)->USBDeviceOpen(deviceIntf), nextDevice);
 			deviceOpen = true;
 
 			// Set the configuration
@@ -244,7 +271,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 			#if VERBOSE
 				printf("Setting configuration %d\n", (int)configDesc->bConfigurationValue);
 			#endif
-			require_noerr((*deviceIntf)->SetConfiguration(deviceIntf, configDesc->bConfigurationValue), closeDevice);
+			__Require_noErr((*deviceIntf)->SetConfiguration(deviceIntf, configDesc->bConfigurationValue), closeDevice);
 			
 			GetInterfaceToUse(deviceIntf, desiredInterface, desiredAltSetting);
 				// Get the interface number for this device
@@ -255,44 +282,31 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 			intfRequest.bInterfaceProtocol	= kIOUSBFindInterfaceDontCare;
 			intfRequest.bAlternateSetting	= desiredAltSetting;
 			
-			require_noerr((*deviceIntf)->CreateInterfaceIterator(deviceIntf, &intfRequest, &intfIter), closeDevice);
+			__Require_noErr((*deviceIntf)->CreateInterfaceIterator(deviceIntf, &intfRequest, &intfIter), closeDevice);
 
-			while ((ioInterfaceObj = IOIteratorNext(intfIter)) != NULL) {
+			while ((ioInterfaceObj = IOIteratorNext(intfIter)) != (io_iterator_t) NULL) {
 				#if VERBOSE
 					printf("interface index %d\n", interfaceIndex++);
 				#endif
-				require_noerr(IOCreatePlugInInterfaceForService(ioInterfaceObj, kIOUSBInterfaceUserClientTypeID, kIOCFPlugInInterfaceID, &ioPlugin, &score), nextInterface);
+				__Require_noErr(IOCreatePlugInInterfaceForService(ioInterfaceObj, kIOUSBInterfaceUserClientTypeID, kIOCFPlugInInterfaceID, &ioPlugin, &score), nextInterface);
 
 				kr = (*ioPlugin)->QueryInterface(ioPlugin, CFUUIDGetUUIDBytes(kIOUSBInterfaceInterfaceID), (LPVOID *)&interfaceIntf);
 				(*ioPlugin)->Release(ioPlugin);
 				ioPlugin = NULL;
-				require_string(kr == kIOReturnSuccess && interfaceIntf != NULL, nextInterface, "QueryInterface for USB interface failed");
+				__Require_String(kr == kIOReturnSuccess && interfaceIntf != NULL, nextInterface, "QueryInterface for USB interface failed");
 
-				require_noerr((*interfaceIntf)->GetInterfaceNumber(interfaceIntf, &intfNumber), nextInterface);
+				__Require_noErr((*interfaceIntf)->GetInterfaceNumber(interfaceIntf, &intfNumber), nextInterface);
 				if (desiredInterface == intfNumber) {	// here's the one we want
 					#if VERBOSE
 						printf("found desired interface %d\n", intfNumber);
 					#endif
-					require_noerr((*interfaceIntf)->USBInterfaceOpen(interfaceIntf), nextInterface);
+					__Require_noErr((*interfaceIntf)->USBInterfaceOpen(interfaceIntf), nextInterface);
 					keepOpen = FoundInterface(ioDeviceObj, ioInterfaceObj, deviceIntf, interfaceIntf, devVendor, devProduct, desiredInterface, desiredAltSetting);
                                         #if VERBOSE
                                             printf("keeping it open = %d\n", keepOpen);
                                         #endif
 					if (!keepOpen)
-						verify_noerr((*interfaceIntf)->USBInterfaceClose(interfaceIntf));
-// LMS
-#if LOSE_FIRST_MESSAGE_BUG
-                                        else {
-                                            IOBuffer blankBuffer;
-                                            int i;
-                                            
-                                            blankBuffer.Allocate(64);
-                                            printf("sending a blank buffer\n");
-                                            for(i = 0; i < 64; i++)
-                                                ((Byte *) blankBuffer)[i] = 0;
-                                            (*interfaceIntf)->WritePipeAsync(interfaceIntf, 3, blankBuffer, 64, NULL, this);
-                                        }
-#endif
+						__Verify_noErr((*interfaceIntf)->USBInterfaceClose(interfaceIntf));
 					break; // would never match more than one interface per device
 				}
 nextInterface:	IOObjectRelease(ioInterfaceObj);
@@ -301,10 +315,10 @@ nextInterface:	IOObjectRelease(ioInterfaceObj);
 			} // end interface loop
 
 closeDevice:
-			if (intfIter != NULL)
+			if (intfIter != (io_iterator_t) NULL)
 				IOObjectRelease(intfIter);
 			if (deviceOpen && !keepOpen)
-				verify_noerr((*deviceIntf)->USBDeviceClose(deviceIntf));
+				__Verify_noErr((*deviceIntf)->USBDeviceClose(deviceIntf));
 		} // end if vendor/product match
 nextDevice:
 		if (deviceIntf != NULL && !keepOpen)
