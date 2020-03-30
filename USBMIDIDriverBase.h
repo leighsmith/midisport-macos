@@ -43,8 +43,8 @@
 #include <vector>
 #include <list>
 #include <pthread.h>
-#include "MIDIDriverClass.h"
 #include <CoreMIDI/MIDISetup.h>
+#include "MIDIDriverClass.h"
 #include "USBUtils.h"
 #include "VLMIDIPacket.h"
 
@@ -55,7 +55,7 @@ class InterfaceRunner;
 class WriteQueueElem {
 public:
 	VLMIDIPacket *		packet;
-	int					portNum;
+	UInt64				portNum;
 	ByteCount			bytesSent;	// this much of the packet has been sent
 };
 
@@ -64,8 +64,8 @@ typedef std::list<WriteQueueElem> WriteQueue;
 struct InterfaceInfo {
 	UInt8				inEndpointType;		// kUSBBulk, etc.
 	UInt8				outEndpointType;
-	ByteCount			readBufferSize;
-	ByteCount			writeBufferSize;
+	UInt32  			readBufferSize;
+	UInt32  			writeBufferSize;
 };
 
 // some Apple-defined properties useful for USB drivers to attach to their devices
@@ -208,7 +208,7 @@ public:
 	static void	WriteCallback(void *refcon, IOReturn result, void *arg0);
 
 	void		HandleInput(ByteCount bytesReceived);
-	void		Send(const MIDIPacketList *pktlist, int portNumber);
+	void		Send(const MIDIPacketList *pktlist, UInt64 portNumber);
 	
 	void		GetInterfaceInfo(InterfaceInfo &info) 
 	{
@@ -224,7 +224,7 @@ public:
 	UInt8						mInPipe, mOutPipe1, mOutPipe2;
 	bool						mHaveInPipe, mHaveOutPipe1, mHaveOutPipe2;
 	InterfaceInfo				mInterfaceInfo;
-	int							mNumEntities;
+	ItemCount					mNumEntities;
 	MIDIEndpointRef *			mSources;
 	IOBuffer					mReadBuf, mWriteBuf1, mWriteBuf2;
 	

@@ -247,7 +247,7 @@ void MIDISPORT::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
         info.readBufferSize  = productTable[connectedMIDISPORTIndex].readBufSize;
         info.writeBufferSize = productTable[connectedMIDISPORTIndex].writeBufSize;
 #if VERBOSE
-        printf("setting readBufferSize = %ld, writeBufferSize = %ld\n", info.readBufferSize, info.writeBufferSize);
+        printf("setting readBufferSize = %d, writeBufferSize = %d\n", (unsigned int) info.readBufferSize, (unsigned int) info.writeBufferSize);
 #endif
     }
     else
@@ -383,7 +383,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
     }
     if (pktlist->numPackets > 0 && prevInputPort != -1) {
         printf("source %d receiving %d packets\n", prevInputPort, pktlist->numPackets);
-        printf("number of entities %d\n", intf->mNumEntities);
+        printf("number of entities %d\n", (unsigned int) intf->mNumEntities);
         MIDIReceived(intf->mSources[prevInputPort], pktlist);
         printf("\n");
     }
@@ -410,8 +410,8 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
    
     while (true) {
         if (writeQueue.empty()) {
-            long buf1Length = dest[0] - destBuf1;
-            long buf2Length = dest[1] - destBuf2;
+            ByteCount buf1Length = dest[0] - destBuf1;
+            ByteCount buf2Length = dest[1] - destBuf2;
 #if DEBUG_OUTBUFFER
             printf("dest buffer = ");
             for(int i = 0; i < dest[0] - destBuf1; i++)

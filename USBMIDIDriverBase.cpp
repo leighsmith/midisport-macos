@@ -49,8 +49,9 @@
  LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY
  OF SUCH DAMAGE.  */
 #include <AssertMacros.h>
-#include "USBMIDIDriverBase.h"
 #include <algorithm>
+#include <CoreAudio/HostTime.h>
+#include "USBMIDIDriverBase.h"
 
 #if DEBUG
 	#include <stdio.h>
@@ -356,17 +357,17 @@ InterfaceState::~InterfaceState()
 // __________________________________________________________________________________________________
 void	InterfaceState::HandleInput(ByteCount bytesReceived)
 {
-	AbsoluteTime now = UpTime();
+	UInt64 now = AudioGetCurrentHostTime();
 //	printf("bytesReceived = %ld\n", bytesReceived);
 //	printf("mReadBuf[0-23]: ");
 //	for (int i = 0; i < 24; i++)
 //		printf("%02X ", mReadBuf[i]);
 //	   printf("\n");
-	mDriver->HandleInput(this, UnsignedWideToUInt64(now), mReadBuf, bytesReceived);
+	mDriver->HandleInput(this, now, mReadBuf, bytesReceived);
 }
 
 // __________________________________________________________________________________________________
-void	InterfaceState::Send(const MIDIPacketList *pktlist, int portNumber)
+void	InterfaceState::Send(const MIDIPacketList *pktlist, UInt64 portNumber)
 {
 	bool shouldUnlock = mWriteQueueMutex.Lock();
 	const MIDIPacket *srcpkt = pktlist->packet;
@@ -419,10 +420,10 @@ void	InterfaceState::DoWrite()
 	if (mHaveOutPipe1 || mHaveOutPipe2) {
 		if (!mWriteQueue.empty()) {
 			ByteCount msglen1 = 0, msglen2 = 0;
-                        mDriver->PrepareOutput(this, mWriteQueue, mWriteBuf1, &msglen1, mWriteBuf2, &msglen2);
+            mDriver->PrepareOutput(this, mWriteQueue, mWriteBuf1, &msglen1, mWriteBuf2, &msglen2);
 			if (msglen1 > 0) {
 #if DUMP_OUTPUT
-                                IOReturn pipeStatus;
+                IOReturn pipeStatus;
                                 
 				printf("OUT1, %ld: ", msglen1);
 				for (ByteCount i = 0; i < msglen1; i += 4) {
@@ -431,8 +432,8 @@ void	InterfaceState::DoWrite()
 					printf("%02X %02X %02X %02X ", mWriteBuf1[i], mWriteBuf1[i+1], mWriteBuf1[i+2], mWriteBuf1[i+3]);
 				}
 				printf("\n");
-                                pipeStatus = (*mInterface)->GetPipeStatus(mInterface, mOutPipe1);
-                                printf("mInterface = 0x%x, pipeStatus = 0x%x\n", (unsigned int) mInterface, pipeStatus);
+                pipeStatus = (*mInterface)->GetPipeStatus(mInterface, mOutPipe1);
+                printf("mInterface = 0x%x, pipeStatus = 0x%x\n", (unsigned int) mInterface, pipeStatus);
 #endif
 				mWritePending = true;
 				__Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe1, mWriteBuf1, msglen1, WriteCallback, this));
@@ -447,9 +448,9 @@ void	InterfaceState::DoWrite()
 				}
 				printf("\n");
 #endif
-                                mWritePending = true;
-                                __Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe2, mWriteBuf2, msglen2, WriteCallback, this));
-                        }
+                mWritePending = true;
+                __Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe2, mWriteBuf2, msglen2, WriteCallback, this));
+            }
 		}
 	}
 }
@@ -509,7 +510,7 @@ public:
         printf("InterfaceLocator::FoundInterface\n");
 #endif
 		MIDIDeviceRef dev = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
-		if (dev != NULL)
+		if (dev != (MIDIDeviceRef) NULL)
 			MIDIDeviceListAddDevice(mFoundDeviceList, dev);
 		return false;		// don't keep device/interface open
 	}
@@ -529,7 +530,7 @@ public:
 		mInitialDeviceList(devices),
 		mNumDevicesFound(0)
 	{
-		int nDevs = MIDIDeviceListGetNumberOfDevices(mInitialDeviceList);
+		ItemCount nDevs = MIDIDeviceListGetNumberOfDevices(mInitialDeviceList);
 
 #if V2_MIDI_DRIVER_SUPPORT
 		if (driver->mVersion >= 2) {
@@ -588,7 +589,7 @@ public:
 #if V2_MIDI_DRIVER_SUPPORT
 		if (mDriver->mVersion >= 2) {
 			bool deviceInSetup = false;
-			int nDevs;
+			ItemCount nDevs;
 			UInt32 locationID;
 			UInt32 vendorProduct = ((UInt32)devVendor << 16) | devProduct;
 			OSStatus err;
@@ -599,9 +600,9 @@ public:
 			// see if it's already in the setup, matching by locationID and productID
 			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
 			nDevs = MIDIDeviceListGetNumberOfDevices(curDevices);
-                        #if VERBOSE
-                            printf("nDevs = %d, locationID = 0x%x\n", nDevs, (unsigned int) locationID);
-			#endif
+#if VERBOSE
+            printf("nDevs = %d, locationID = 0x%x\n", nDevs, (unsigned int) locationID);
+#endif
 			for (int i = 0; i < nDevs; ++i) {
 				SInt32 prevDevLocation, prevVendorProduct;
 				midiDevice = MIDIDeviceListGetDevice(curDevices, i);
@@ -620,7 +621,7 @@ public:
 					printf("creating new device\n");
 				#endif
 				midiDevice = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
-				__Require(midiDevice != NULL, errexit);
+				__Require(midiDevice != (MIDIDeviceRef) NULL, errexit);
 				MIDIObjectSetIntegerProperty(midiDevice, kUSBLocationProperty, locationID);
 				MIDIObjectSetIntegerProperty(midiDevice, kUSBVendorProductProperty, vendorProduct);
 
@@ -740,7 +741,8 @@ OSStatus	USBMIDIDriverBase::Stop()
 OSStatus	USBMIDIDriverBase::Send(const MIDIPacketList *pktlist, void *endptRef1, void *endptRef2)
 {
 	InterfaceState *intf = (InterfaceState *)endptRef1;
-	if (intf == NULL) return kMIDIUnknownEndpoint;
+	if (intf == NULL)
+        return kMIDIUnknownEndpoint;
 #if ANALYZE_THRU_TIMING
 	const MIDIPacket *pkt = &pktlist->packet[0];
 	for (int i = pktlist->numPackets; --i >= 0; ) {
@@ -753,7 +755,7 @@ OSStatus	USBMIDIDriverBase::Send(const MIDIPacketList *pktlist, void *endptRef1,
 	}
 #endif
 
-	intf->Send(pktlist, (int)endptRef2);	// endptRef2 = port number
+	intf->Send(pktlist, (UInt64)endptRef2);	// endptRef2 = port number
 
 	return noErr;
 }
@@ -768,7 +770,7 @@ void	USBMIDIDriverBase::USBMIDIHandleInput(	InterfaceState *intf,
 	Byte pbuf[512];
 	MIDIPacketList *pktlist = (MIDIPacketList *)pbuf;
 	MIDIPacket *pkt = MIDIPacketListInit(pktlist);
-	int prevCable = -1;	// signifies none
+	ItemCount prevCable = -1;	// signifies none
 	bool insysex = false;
 	int nbytes;
 	
@@ -785,7 +787,7 @@ void	USBMIDIDriverBase::USBMIDIHandleInput(	InterfaceState *intf,
 		printf("%02X %02X %02X %02X  ", src[0], src[1], src[2], src[3]);
 #endif
 		
-		int cable = src[0] >> 4;
+		ItemCount cable = src[0] >> 4;
 		
 		// support single-entity devices that seem to use an arbitrary cable number
 		// (besides which, it's good to have range-checking)
