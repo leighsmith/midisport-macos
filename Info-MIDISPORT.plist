@@ -30,14 +30,14 @@
 	<string>NO</string>
 	<key>CFPlugInFactories</key>
 	<dict>
-		<key>6E443FE8-9EF4-11D4-A2FE-000502B62133</key>
-		<string>NewMIDISPORT2x2</string>
+		<key>E7B460F4-7719-4133-B523-B17CFFF89950</key>
+		<string>NewMIDISPORTDriver</string>
 	</dict>
 	<key>CFPlugInTypes</key>
 	<dict>
 		<key>ECDE9574-0FE4-11D4-BB1A-0050E4CEA526</key>
 		<array>
-			<string>6E443FE8-9EF4-11D4-A2FE-000502B62133</string>
+			<string>E7B460F4-7719-4133-B523-B17CFFF89950</string>
 		</array>
 	</dict>
 	<key>CFPlugInUnloadFunction</key>

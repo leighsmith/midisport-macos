@@ -102,9 +102,8 @@ struct HardwareConfigurationDescription {
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#if 0
 // Implementation of the factory function for this type.
-extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID) 
+extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 {
     // If correct type is being requested, allocate an
     // instance of TestType and return the IUnknown interface.
@@ -117,7 +116,6 @@ extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID)
         return NULL;
     }
 }
-#endif
 
 // __________________________________________________________________________________________________
 
