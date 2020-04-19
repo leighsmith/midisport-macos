@@ -78,7 +78,10 @@ int main(int argc, const char * argv[])
                         std::cout << "Waiting before searching." << std::endl;
                         sleep(2);
                     }
-                    if (!foundMIDSPORT) {
+                    if (foundMIDSPORT) {
+                        std::cout << "Booted MIDISPORT " << productTable[productIndex].modelName << std::endl;
+                    }
+                    else {
                         std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
                         return 3;
                     }
