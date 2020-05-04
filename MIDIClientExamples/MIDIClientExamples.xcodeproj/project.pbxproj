@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D852EF29245FC95F0042923B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D852EF28245FC95F0042923B /* CoreFoundation.framework */; };
 		D89D815F183D7C5900446B12 /* PlayNotes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1001C122FFAE4A3FCFED3B93 /* PlayNotes.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D8161183D7C5900446B12 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */; };
 		D89D816C183D7C5A00446B12 /* Echo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01319EB4FF894950CFED3B93 /* Echo.cpp */; settings = {ATTRIBUTES = (); }; };
@@ -17,6 +18,7 @@
 		01319EB4FF894950CFED3B93 /* Echo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Echo.cpp; sourceTree = "<group>"; };
 		01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		1001C122FFAE4A3FCFED3B93 /* PlayNotes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlayNotes.cpp; sourceTree = "<group>"; };
+		D852EF28245FC95F0042923B /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../../../System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
 		D89D8167183D7C5900446B12 /* PlayNotes */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlayNotes; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89D8174183D7C5A00446B12 /* MidiThruTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MidiThruTest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -26,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D852EF29245FC95F0042923B /* CoreFoundation.framework in Frameworks */,
 				D89D8161183D7C5900446B12 /* CoreMIDI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,6 +48,7 @@
 			isa = PBXGroup;
 			children = (
 				01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */,
+				D852EF28245FC95F0042923B /* CoreFoundation.framework */,
 			);
 			name = "External Frameworks";
 			sourceTree = "<group>";
@@ -144,10 +148,11 @@
 				LastUpgradeCheck = 0500;
 			};
 			buildConfigurationList = D87F9892183D18B200FE7B48 /* Build configuration list for PBXProject "MIDIClientExamples" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 10.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* MIDIClientExample */;

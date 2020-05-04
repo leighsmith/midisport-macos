@@ -17,14 +17,15 @@
 
 #define MIDISPORT_PORT 0                // 0 = Out A on MIDISPORT, 1 = Out B
 
-MIDIPortRef	gOutPort = NULL;
-MIDIEndpointRef	gDest = NULL;
 
+# if 0
 MIDITimeStamp MIDIGetCurrentTime(void)
 {
+    //TODO
     AbsoluteTime now = UpTime();
     return UnsignedWideToUInt64(now);
 }
+#endif
 
 void dumpPackets(MIDIPacketList *pktlist)
 {
@@ -43,57 +44,60 @@ void dumpPackets(MIDIPacketList *pktlist)
     }
 }
 
-int	main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-	static Byte pbuf[512];
-	MIDIPacketList *pktlist = (MIDIPacketList *)pbuf;
-        MIDIPacket *packet;
+    static Byte pbuf[512];
+    MIDIPacketList *pktlist = (MIDIPacketList *)pbuf;
+    MIDIPacket *packet;
+    MIDIPortRef    gOutPort = NULL;
+    MIDIEndpointRef    gDest = NULL;
 
-	// create client and ports
-	MIDIClientRef client = NULL;
-	MIDIClientCreate(CFSTR("MIDI Play notes"), NULL, NULL, &client);
+    // create client and ports
+    MIDIClientRef client = NULL;
+    MIDIClientCreate(CFSTR("MIDI Play notes"), NULL, NULL, &client);
 	
-	MIDIOutputPortCreate(client, CFSTR("Output port"), &gOutPort);
+    MIDIOutputPortCreate(client, CFSTR("Output port"), &gOutPort);
 	
-	// enumerate devices (not really related to purpose of the echo program
-	// but shows how to get information about devices)
-	unsigned int i, n;
-	CFStringRef pname, pmanuf, pmodel;
-	char name[64], manuf[64], model[64];
+    // enumerate devices (not really related to purpose of the echo program
+    // but shows how to get information about devices)
+    unsigned int i, deviceCount, destinationCount;
+    CFStringRef pname, pmanuf, pmodel;
+    char name[64], manuf[64], model[64];
 	
-	n = MIDIGetNumberOfDevices();
-	for (i = 0; i < n; ++i) {
-		MIDIDeviceRef dev = MIDIGetDevice(i);
+    deviceCount = MIDIGetNumberOfDevices();
+    for (i = 0; i < deviceCount; ++i) {
+        MIDIDeviceRef dev = MIDIGetDevice(i);
 		
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &pname);
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyManufacturer, &pmanuf);
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyModel, &pmodel);
+	MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &pname);
+	MIDIObjectGetStringProperty(dev, kMIDIPropertyManufacturer, &pmanuf);
+	MIDIObjectGetStringProperty(dev, kMIDIPropertyModel, &pmodel);
 		
-		CFStringGetCString(pname, name, sizeof(name), 0);
-		CFStringGetCString(pmanuf, manuf, sizeof(manuf), 0);
-		CFStringGetCString(pmodel, model, sizeof(model), 0);
-		CFRelease(pname);
-		CFRelease(pmanuf);
-		CFRelease(pmodel);
+	CFStringGetCString(pname, name, sizeof(name), 0);
+	CFStringGetCString(pmanuf, manuf, sizeof(manuf), 0);
+	CFStringGetCString(pmodel, model, sizeof(model), 0);
+	CFRelease(pname);
+	CFRelease(pmanuf);
+	CFRelease(pmodel);
 
-		printf("name=%s, manuf=%s, model=%s\n", name, manuf, model);
-	}
-	
-	// find the first destination
-	n = MIDIGetNumberOfDestinations();
-        printf("%d destinations\n", n);
-	if (n > 0)
-		gDest = MIDIGetDestination(MIDISPORT_PORT); 
+	printf("name=%s, manuf=%s, model=%s\n", name, manuf, model);
+    }
 
-	if (gDest != NULL) {
-		MIDIObjectGetStringProperty(gDest, kMIDIPropertyName, &pname);
-		CFStringGetCString(pname, name, sizeof(name), 0);
-		CFRelease(pname);
-		printf("Playing to channel %d of %s\n", 1, name);
-	} else {
-		printf("No MIDI destinations present\n");
-	}
+    // find the first destination
+    destinationCount = MIDIGetNumberOfDestinations();
+    printf("%d destinations\n", destinationCount);
+    if (destinationCount > 0)
+        gDest = MIDIGetDestination(MIDISPORT_PORT);
 
+    if (gDest != NULL) {
+	MIDIObjectGetStringProperty(gDest, kMIDIPropertyName, &pname);
+	CFStringGetCString(pname, name, sizeof(name), 0);
+	CFRelease(pname);
+	printf("Playing to channel %d of %s\n", 1, name);
+    }
+    else {
+	printf("No MIDI destinations present\n");
+    }
+#if 0
     packet = MIDIPacketListInit(pktlist);
 
     for(int scaleIndex = 0; scaleIndex < 5; scaleIndex++) {
@@ -115,6 +119,6 @@ int	main(int argc, char *argv[])
     dumpPackets(pktlist);
 
     MIDISend(gOutPort, gDest, pktlist);
-
+#endif
     return 0;
 }
