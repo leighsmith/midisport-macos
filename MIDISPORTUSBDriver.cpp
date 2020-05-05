@@ -64,24 +64,25 @@
 
 // things to customize
 
-// Unique UUID (Universally Unique Identifier) For the MIDIMAN MIDISPORT USB MIDI interface driver
-#define kFactoryUUID CFUUIDGetConstantUUIDWithBytes(NULL, 0x6E, 0x44, 0x3F, 0xE8, 0x9E, 0xF4, 0x11, 0xD4, 0xA2, 0xFE, 0x00, 0x05, 0x02, 0xB6, 0x21, 0x33)
+// Unique UUID (Universally Unique Identifier) For the MIDISPORT USB MIDI interface driver
+#define kFactoryUUID CFUUIDGetConstantUUIDWithBytes(NULL, 0xE7, 0xB4, 0x60, 0xF4, 0x77, 0x19, 0x41, 0x33, 0xB5, 0x23, 0xB1, 0x7C, 0xFF, 0xF8, 0x99, 0x50)
 // ########
 
 #define kTheInterfaceToUse	0		// 0 is the interface which we need to access the 5 endpoints.
 #define midimanVendorID		0x0763		// midiman
 
 // and these
-#define kMyBoxName		"MIDISPORT"
+#define kMyBoxName	        "MIDISPORT"
 #define kMyManufacturerName	"MIDIMAN"
 
 #define kNumMaxPorts		9
 
 #define MIDIPACKETLEN		4		// number of bytes in a dword packet received and sent to the MIDISPORT
-#define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
+#define CMDINDEX	        (MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
 #define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
-#define VERBOSE             (DEBUG || 1)
+//#define VERBOSE             (DEBUG || 1)
+#define VERBOSE 1
 
 struct HardwareConfigurationDescription {
     WarmFirmwareProductIDs warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
@@ -105,13 +106,22 @@ struct HardwareConfigurationDescription {
 // Implementation of the factory function for this type.
 extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 {
+#if VERBOSE
+    fprintf(stderr, "In NewMIDISPORTDriver\n");
+#endif
     // If correct type is being requested, allocate an
     // instance of TestType and return the IUnknown interface.
     if (CFEqual(typeID, kMIDIDriverTypeID)) {
+#if VERBOSE
+        fprintf(stderr, "NewMIDISPORTDriver typedId matched kMIDIDriverTypeID\n");
+#endif
         MIDISPORT *result = new MIDISPORT;
         return result->Self();
     }
     else {
+#if VERBOSE
+        fprintf(stderr, "NewMIDISPORTDriver typedId did not match kMIDIDriverTypeID\n");
+#endif
         // If the requested type is incorrect, return NULL.
         return NULL;
     }
@@ -122,7 +132,7 @@ extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
 {
 #if VERBOSE
-    printf("MIDISPORTUSBDriver init\n");
+    fprintf(stderr, "MIDISPORTUSBDriver init\n");
 #endif
     // if (CFEqual(typeID, kMIDIDriverInterfaceID))
     connectedMIDISPORTIndex = -1;   // error condition
@@ -131,7 +141,7 @@ MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
 MIDISPORT::~MIDISPORT()
 {
 #if VERBOSE
-    printf("~MIDISPORTUSBDriver\n");
+    fprintf(stderr, "~MIDISPORTUSBDriver\n");
 #endif
 }
 

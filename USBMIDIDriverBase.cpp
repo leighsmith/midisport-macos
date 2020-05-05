@@ -55,7 +55,7 @@
 
 #if DEBUG
 	#include <stdio.h>
-	//#define VERBOSE 1
+	#define VERBOSE 1
 	//#define DUMP_INPUT 1			// only works in USBMIDIHandleInput
 	//#define DUMP_OUTPUT 1
 	//#define ANALYZE_THRU_TIMING 1

@@ -2,8 +2,6 @@ Installation instructions for the
 MIDIMAN MIDISPORT USB MIDI device driver V1.0.0
 for MacOS 10.14 (Mojave)
 
-2001/10/19
-
 This driver supports the following devices:
 
     - MIDISPORT 1x1
@@ -33,5 +31,4 @@ interface.
 MIDISPORT will be downloaded which will be indicated by its LED labelled "USB"
 pulsing. Subsequent opening of the device will then use the already downloaded firmware.
 
-5. Copyright (c) 2001 by Leigh M. Smith <leigh@leighsmith.com>.  All rights
-reserved. Permission is granted to MIDIMan Inc. to distribute this driver without charge.
+5. Copyright (c) 2001 by Leigh M. Smith <leigh@leighsmith.com>.  All rights reserved.
