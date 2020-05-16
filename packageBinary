@@ -1,5 +1,4 @@
 #!/bin/zsh
-# $Id: packageBinary,v 2.3 2001/10/17 21:32:13 leigh Exp $
 #
 # zsh Script to automate the packaging of the MIDISPORT plugin ready for user deployment.
 # Taken from an article on Stepwise:

@@ -1,4 +1,3 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.15 2001/10/29 23:28:38 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
@@ -68,12 +67,12 @@
 #define kFactoryUUID CFUUIDGetConstantUUIDWithBytes(NULL, 0xE7, 0xB4, 0x60, 0xF4, 0x77, 0x19, 0x41, 0x33, 0xB5, 0x23, 0xB1, 0x7C, 0xFF, 0xF8, 0x99, 0x50)
 // ########
 
-#define kTheInterfaceToUse	0		// 0 is the interface which we need to access the 5 endpoints.
-#define midimanVendorID		0x0763		// midiman
+#define kTheInterfaceToUse	0		    // 0 is the interface which we need to access the 5 endpoints.
+#define midimanVendorID		0x0763		// MIDIMAN/M-Audio
 
 // and these
-#define kMyBoxName	        "MIDISPORT"
-#define kMyManufacturerName	"MIDIMAN"
+#define kMyBoxName	        "MIDISPORT" // Device name. Not actually used.
+#define kMyManufacturerName	"M-Audio"
 
 #define kNumMaxPorts		9
 
@@ -89,14 +88,14 @@ struct HardwareConfigurationDescription {
     int numberOfPorts;
     int readBufSize;
     int writeBufSize;
-    const char *modelName;
+    const char *modelName;                          // This includes the device name, as it can change on some models.
 } productTable[] = {
-    { MIDISPORT1x1, 1, 32, 32, "1x1" },
-    { MIDISPORT2x2, 2, 32, 32, "2x2" },
-    { MIDISPORT4x4, 4, 64, 64, "4x4" },
+    { MIDISPORT1x1, 1, 32, 32, "MIDISPORT 1x1" },
+    { MIDISPORT2x2, 2, 32, 32, "MIDISPORT 2x2" },
+    { MIDISPORT4x4, 4, 64, 64, "MIDISPORT 4x4" },
     // Strictly speaking, the endPoint 2 can sustain 40 bytes output on the 8x8. 
     // There are 9 ports including the SMPTE control.
-    { MIDISPORT8x8, 9, 64, 32, "8x8" }
+    { MIDISPORT8x8, 9, 64, 32, "MIDISPORT 8x8/S" }
 };
 
 #define PRODUCT_TOTAL (sizeof(productTable) / sizeof(struct HardwareConfigurationDescription))
@@ -192,47 +191,45 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
 {
     MIDIDeviceRef dev;
     MIDIEntityRef ent;
-    unsigned int i;
+    unsigned int productIndex;
 
 #if VERBOSE
     printf("MIDISPORT::CreateDevice\n");
 #endif
-#if 1 // Is this necessary? Probably worthwhile for robustness of error messages.
-    for(i = 0; i < PRODUCT_TOTAL; i++) {
-        if(productTable[i].warmFirmwareProductID == devProduct) {
-            connectedMIDISPORTIndex = i;
+    for(productIndex = 0; productIndex < PRODUCT_TOTAL; productIndex++) {
+        if(productTable[productIndex].warmFirmwareProductID == devProduct) {
+            connectedMIDISPORTIndex = productIndex;
             break;
         }
     }
-    if(i == PRODUCT_TOTAL) {
-        printf("Unable to recognize MIDIMan device %x\n", devProduct);
+    if(productIndex == PRODUCT_TOTAL) {
+        fprintf(stderr, "Unable to recognize MIDIMan device %x\n", devProduct);
         return NULL;  // TODO this needs to be checked if this is legitimate to return in case of error.
     }
-#endif
     
-    MIDIDeviceCreate(Self(),
-            CFSTR(kMyBoxName),
-            CFSTR(kMyManufacturerName),
-            CFStringCreateWithCString(NULL, productTable[i].modelName, 0),
+    CFStringRef modelName = CFStringCreateWithCString(NULL, productTable[productIndex].modelName, 0);
+    MIDIDeviceCreate(Self(),            // This driver creating the device.
+            modelName,                  // The name of the new device.
+            CFSTR(kMyManufacturerName), // The name of the device's manufacturer.
+            modelName,                  // The device's model name.
             &dev);
+    CFRelease(modelName);
 
     // make numberOfPorts entities with 1 source, 1 destination
-    for (int port = 0; port < productTable[i].numberOfPorts; port++) {
+    for (int port = 0; port < productTable[productIndex].numberOfPorts; port++) {
         char portname[64];
-        switch(productTable[i].warmFirmwareProductID) {
+        switch(productTable[productIndex].warmFirmwareProductID) {
         case MIDISPORT1x1:
-            sprintf(portname, "%s %s %s", kMyManufacturerName, kMyBoxName, productTable[i].modelName);
-            break;
         case MIDISPORT2x2:
         case MIDISPORT4x4:
-            sprintf(portname, "%s %s %s Port %c", kMyManufacturerName, kMyBoxName, productTable[i].modelName, port + 'A');
+            sprintf(portname, "Port %c", port + 'A');
             break;
         case MIDISPORT8x8:
         default:
             if (port == 8) // be descriptive in naming the SMPTE channel
-                sprintf(portname, "%s %s %s SMPTE Port", kMyManufacturerName, kMyBoxName, productTable[i].modelName);
+                sprintf(portname, "SMPTE Port");
             else
-                sprintf(portname, "%s %s %s Port %d", kMyManufacturerName, kMyBoxName, productTable[i].modelName, port + 1);
+                sprintf(portname, "Port %d", port + 1);
             break;
         }
         CFStringRef str = CFStringCreateWithCString(NULL, portname, 0);
@@ -311,11 +308,13 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         if (bytesInPacket == 0)	      // Indicates the end of the buffer, early out.
             break;		
 
+#if VERBOSE
         printf("%c %d: %02X %02X %02X %02X  \n", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
+#endif
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
-            printf("flushing source %d\n", inputPort);
+            // printf("flushing source %d\n", inputPort);
             MIDIReceived(intf->mSources[inputPort], pktlist);
             pkt = MIDIPacketListInit(pktlist);
             inSysex[inputPort] = false;
@@ -354,13 +353,13 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                 numCompleted = 1;
                 // store ready for packetting.
                 completeMessage[0] = status;
-                printf("new status %02X, remainingBytesInMsg = %d\n", status, remainingBytesInMsg[inputPort]);
+                // printf("new status %02X, remainingBytesInMsg = %d\n", status, remainingBytesInMsg[inputPort]);
             }
             else if(remainingBytesInMsg[inputPort] > 0) {   // still within a message
                 remainingBytesInMsg[inputPort]--;
                 // store ready for packetting.
                 completeMessage[numCompleted++] = src[byteIndex];
-                printf("in message remainingBytesInMsg = %d\n", remainingBytesInMsg[inputPort]);
+                // printf("in message remainingBytesInMsg = %d\n", remainingBytesInMsg[inputPort]);
             }
             else if(inSysex[inputPort]) {          // fill the packet with sysex bytes
                 // printf("in sysex numCompleted = %d\n", numCompleted);
@@ -377,12 +376,16 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
             }
 
             if(remainingBytesInMsg[inputPort] == 0 || numCompleted >= (MIDIPACKETLEN - 1)) { // completed
-                printf("Shipping a packet: ");
+#if VERBOSE
+               printf("Shipping a packet: ");
                 for(int i = 0; i < numCompleted; i++)
                     printf("%02X ", completeMessage[i]);
+#endif
                 pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
                 numCompleted = 0;
-                printf("shipped\n");
+#if VERBOSE
+               printf("shipped\n");
+#endif
             }
             if(preservedMsgCount != 0) {
                 remainingBytesInMsg[inputPort] = preservedMsgCount;
@@ -390,10 +393,10 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         }
     }
     if (pktlist->numPackets > 0 && prevInputPort != -1) {
-        printf("source %d receiving %d packets\n", prevInputPort, pktlist->numPackets);
-        printf("number of entities %d\n", (unsigned int) intf->mNumEntities);
+        // printf("source %d receiving %d packets\n", prevInputPort, pktlist->numPackets);
+        // printf("number of entities %d\n", (unsigned int) intf->mNumEntities);
         MIDIReceived(intf->mSources[prevInputPort], pktlist);
-        printf("\n");
+        // printf("\n");
     }
 }
 

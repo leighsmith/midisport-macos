@@ -1,5 +1,6 @@
 /*
-	Copyright (c) 2000 Apple Computer, Inc., All Rights Reserved.
+
+    Portions Copyright (c) 2000 Apple Computer, Inc., All Rights Reserved.
 
 	You may incorporate this Apple sample source code into your program(s) without
 	restriction. This Apple sample source code has been provided "AS IS" and the

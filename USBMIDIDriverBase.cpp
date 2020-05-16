@@ -436,7 +436,7 @@ void	InterfaceState::DoWrite()
                 printf("mInterface = 0x%x, pipeStatus = 0x%x\n", (unsigned int) mInterface, pipeStatus);
 #endif
 				mWritePending = true;
-				__Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe1, mWriteBuf1, msglen1, WriteCallback, this));
+				__Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe1, mWriteBuf1, (UInt32) msglen1, WriteCallback, this));
 			}
 			if (msglen2 > 0) {
 #if DUMP_OUTPUT
@@ -449,7 +449,7 @@ void	InterfaceState::DoWrite()
 				printf("\n");
 #endif
                 mWritePending = true;
-                __Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe2, mWriteBuf2, msglen2, WriteCallback, this));
+                __Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe2, mWriteBuf2, (UInt32) msglen2, WriteCallback, this));
             }
 		}
 	}
@@ -601,7 +601,7 @@ public:
 			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
 			nDevs = MIDIDeviceListGetNumberOfDevices(curDevices);
 #if VERBOSE
-            printf("nDevs = %d, locationID = 0x%x\n", nDevs, (unsigned int) locationID);
+            printf("nDevs = %lu, locationID = 0x%x\n", nDevs, (unsigned int) locationID);
 #endif
 			for (int i = 0; i < nDevs; ++i) {
 				SInt32 prevDevLocation, prevVendorProduct;
