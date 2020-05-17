@@ -1,0 +1,180 @@
+#!/bin/zsh
+#
+# zsh Script to automate the packaging of the MIDISPORT plugin ready for user deployment.
+# Taken from an article on Stepwise:
+# http://www.stepwise.com/Articles/Technical/Packages/BuildngAPackage.html
+#
+# Leigh Smith <leigh@tomandandy.com> 1999/11/29
+#
+
+packagename=MIDISPORT
+packagetitle="MIDIMan MIDISPORT USB MIDI Driver plugin"
+
+if [ x_$MIDISPORTICON = x_ ]; then
+    echo "Environment variable MIDISPORTICON should be set to point to the .tiff file used for the $packagetitle icon. Assuming the current working directory."
+    MIDISPORTICON=`pwd`/MIDIMAN.tiff
+fi
+if [ x_$1 = x_ ]; then
+    echo "Usage: $0 version_number [user_class]\n"
+    echo "Where:"
+    echo "    version_number is of the form V.R.P matches the CVS tag ${packagename}_V-R-P"
+    echo "    user_class reduces the debugging information included and can be:"
+    echo
+    echo "    external    = Removes all debugging information (default)."
+    echo "    internal    = Keeps diagnostic messages, but strips."
+    echo "    development = Keeps all debugging information."
+    exit 1;
+else
+    appversion=$1
+fi
+
+if [ x_$2 = x_ ]; then
+    userClass=external
+else
+    userClass=$2
+fi
+
+# where we can create temporary files
+workingDir=/tmp
+
+# where to check the source code out to.
+buildInDir="$workingDir/${packagename}"
+
+# where the plugin is built into before packaging.
+buildToDir="${workingDir}/${packagename}.dst"
+
+# Where the plug-in would be installed with DSTROOT=/
+# For 10.1, we can put it in a local area
+installFileDir='/Library/Audio/MIDI Drivers'
+# but for 10.0.4 we had to put it in the system location.
+# installFileDir=/System/Library/Extensions
+
+# where the plugin to be packaged will reside
+packageFromDir="${buildToDir}/${installFileDir}"
+
+# where the package will be created prior to tarball
+packageCreateDir=$workingDir
+
+# name and location of the package when packed.
+shipfile=$workingDir/$packagename-$appversion.b.MOX.pkg.tar
+
+# the location and name of the README file within the package source
+# this is a relative path wrt the package source top dir.
+readmefile=README.rtf
+
+cvsTag=${packagename}_`echo $appversion | tr '.' '-'`
+archiverVersion=`echo $appversion | tr -d '.'`
+
+# Checkout the source tree
+echo Checking out $cvsTag to $buildInDir
+mkdir -p $workingDir
+cd $workingDir
+cvs -Q checkout -r $cvsTag $packagename
+
+# and build it
+cd $packagename
+
+# check the user class to control the build
+case $userClass in
+dev|development)
+    # development keeps symbols and debugging trace code
+    makeScript="pbxbuild install DSTROOT=$buildToDir -buildstyle Development VERSION=$archiverVersion"
+    ;;
+int|internal)
+    # internal keeps debugging trace code, but still strips
+    makeScript="pbxbuild install DSTROOT=$buildToDir -buildstyle Development VERSION=$archiverVersion"
+    ;;
+ext|external)
+    # external release do the stripping without debugging trace code.
+    makeScript="pbxbuild install DSTROOT=$buildToDir -buildstyle Deployment VERSION=$archiverVersion"
+    ;;
+esac
+
+echo Building $packagename using: $makeScript
+# Check the outcome of make and abort if build failed.
+# TODO should probably direct the output of the build as a log
+eval $makeScript
+if !(eval $makeScript); then
+    echo "$0 Error: build of $packagename failed, aborting packaging"
+    exit;
+fi
+
+cd $packageCreateDir
+
+# This is the point where you'll want to make sure that the permissions and ownership of
+# the files and directories in your application are set to the appropriate values. The
+# goal is to set all the files to the user-id that you'd expect when they are installed
+# by the root user, in most cases you'll want to set the ownership to root. Installations
+# by those other than root will correctly default to the installer's user-id. The
+# situation with respect to permissions is much simpler, since they'll be consistent
+# regardless of which user does the installation. To accomplish this, you'll need to be
+# logged in as root. 
+
+/bin/chmod -R ugo-w "$packageFromDir/"
+/bin/chmod -R ugo+rX "$packageFromDir/"
+
+# we make the installFileDir user writable otherwise the installer
+# will set the parent directory the application is stored into read-only which
+# stops a second reinstall.
+/bin/chmod -R u+w "$packageFromDir/"
+
+echo "Changing ownership to root.wheel, log in as root."
+echo "/usr/sbin/chown -R root.wheel \"$packageFromDir/\"" | su root -s
+
+cp $MIDISPORTICON ./$packagename.tiff
+
+#  The .info file is in a basic key/value format. The keys that are
+#  commonly used are defined below, a more complete list of keys is
+#  available in the Yellow Box release notes
+#  (file:/System/Documentation/Developer/YellowBox/ReleaseNotes/CreatingPackages.html).
+
+#  The Title, Version and Description keys are the values displayed in
+#  the Installer.app user interface. All are single line strings,
+#  including Description.
+
+#  The DefaultLocation key is the destination directory where the
+#  contents of the package will be installed. This can be changed by
+#  the user if the Relocatable key is set to YES.
+
+#  Some packages should only be installed as root, and those packages
+#  will have NeedsAuthorization set to YES. If there is no requirement
+#  to be root, you can set this key to NO.
+
+#  If the package is an application, set the Application key to YES,
+#  otherwise to No. If you do not want your package contents to be
+#  deletable from Installer.app, set InstallOnly to YES. Finally, in
+#  most cases, you will want to allow the installation of a package to
+#  be stopped during the process. There are cases where that may not
+#  be wise (if your application has a packageName.pre_install script
+#  for example), and in those cases you'll want to set the DisableStop
+#  to YES, otherwise it should be set to NO.
+
+cat > $packagename.info << EOF
+Title                $packagetitle
+Version              $appversion
+Description          This package contains $packagetitle.
+DefaultLocation      $installFileDir
+Relocatable          YES
+
+Diskname             $packagename #%d
+
+NeedsAuthorization   YES
+Application          NO
+InstallOnly          NO
+DisableStop          NO
+EOF
+
+# DeleteWarning
+
+package "$packageFromDir" $packagename.info $packagename.tiff
+echo
+
+# just tar the file ready for transmission, no point compressing.
+gnutar --create --file=$shipfile $packagename.pkg --directory=$buildInDir/ $readmefile
+
+echo "Deleting temporary files, log in as root."
+echo "/bin/rm -r -f \"$packageFromDir\"" | su root -s
+
+rm -r -f $packagename.pkg $buildInDir $buildToDir $packagename.info $packagename.tiff
+
+echo "Finished. Final package is located at $shipfile"
