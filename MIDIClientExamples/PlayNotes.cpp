@@ -7,32 +7,27 @@
  *
  */
 
-//#include <CarbonCore/CarbonCore.h>
+#include <Carbon/Carbon.h>
 #include <CoreMIDI/MIDIServices.h>
+#include <CoreAudio/CoreAudio.h>
 #include <stdio.h>
 
 // ___________________________________________________________________________________________
 // test program to play to MIDI Out
 // ___________________________________________________________________________________________
 
-#define MIDISPORT_PORT 0                // 0 = Out A on MIDISPORT, 1 = Out B
 
-
-# if 0
 MIDITimeStamp MIDIGetCurrentTime(void)
 {
-    //TODO
-    AbsoluteTime now = UpTime();
-    return UnsignedWideToUInt64(now);
+    return AudioGetCurrentHostTime();
 }
-#endif
 
 void dumpPackets(MIDIPacketList *pktlist)
 {
     unsigned int i, j;
     MIDIPacket *packet;
 
-    printf("number of packets = %ld\n", pktlist->numPackets);
+    printf("number of packets = %u\n", (unsigned int) pktlist->numPackets);
     
     packet = (MIDIPacket *) pktlist->packet;	// remove const (!)
     for(i = 0; i < pktlist->numPackets; i++) {
@@ -51,6 +46,7 @@ int main(int argc, char *argv[])
     MIDIPacket *packet;
     MIDIPortRef    gOutPort = NULL;
     MIDIEndpointRef    gDest = NULL;
+    int MIDISPORT_PORT = 2;               // 0 = Out on MIDISPORT 1x1, 1 = Out B
 
     // create client and ports
     MIDIClientRef client = NULL;
@@ -85,19 +81,27 @@ int main(int argc, char *argv[])
     // find the first destination
     destinationCount = MIDIGetNumberOfDestinations();
     printf("%d destinations\n", destinationCount);
-    if (destinationCount > 0)
-        gDest = MIDIGetDestination(MIDISPORT_PORT);
+    for (int destinationIndex = 0; destinationIndex < destinationCount; destinationIndex++) {
+        gDest = MIDIGetDestination(destinationIndex);
 
-    if (gDest != NULL) {
-	MIDIObjectGetStringProperty(gDest, kMIDIPropertyName, &pname);
-	CFStringGetCString(pname, name, sizeof(name), 0);
-	CFRelease(pname);
-	printf("Playing to channel %d of %s\n", 1, name);
+        if (gDest != (MIDIEndpointRef) NULL) {
+            MIDIObjectGetStringProperty(gDest, kMIDIPropertyName, &pname);
+            CFStringGetCString(pname, name, sizeof(name), 0);
+            CFRelease(pname);
+            printf("Destination %d: %s\n", destinationIndex, name);
+        }
+    }
+    gDest = MIDIGetDestination(MIDISPORT_PORT);
+    if (gDest != (MIDIEndpointRef) NULL) {
+        MIDIObjectGetStringProperty(gDest, kMIDIPropertyName, &pname);
+        CFStringGetCString(pname, name, sizeof(name), 0);
+        CFRelease(pname);
+        printf("Playing to channel %d of %s\n", 1, name);
     }
     else {
-	printf("No MIDI destinations present\n");
+        printf("MIDI destination not available\n");
     }
-#if 0
+
     packet = MIDIPacketListInit(pktlist);
 
     for(int scaleIndex = 0; scaleIndex < 5; scaleIndex++) {
@@ -118,7 +122,7 @@ int main(int argc, char *argv[])
     }
     dumpPackets(pktlist);
 
-    MIDISend(gOutPort, gDest, pktlist);
-#endif
+    OSStatus result = MIDISend(gOutPort, gDest, pktlist);
+    printf("Result of MIDISend %d\n", result);
     return 0;
 }

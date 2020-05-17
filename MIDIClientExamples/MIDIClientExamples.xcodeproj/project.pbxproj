@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D852EF29245FC95F0042923B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D852EF28245FC95F0042923B /* CoreFoundation.framework */; };
+		D86D2CE3246BA44600E7B822 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D86D2CE2246BA44600E7B822 /* CoreAudio.framework */; };
 		D89D815F183D7C5900446B12 /* PlayNotes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1001C122FFAE4A3FCFED3B93 /* PlayNotes.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D8161183D7C5900446B12 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */; };
 		D89D816C183D7C5A00446B12 /* Echo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01319EB4FF894950CFED3B93 /* Echo.cpp */; settings = {ATTRIBUTES = (); }; };
@@ -19,6 +20,7 @@
 		01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		1001C122FFAE4A3FCFED3B93 /* PlayNotes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlayNotes.cpp; sourceTree = "<group>"; };
 		D852EF28245FC95F0042923B /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = ../../../../../../../System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
+		D86D2CE2246BA44600E7B822 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = ../../../../../../../System/Library/Frameworks/CoreAudio.framework; sourceTree = "<group>"; };
 		D89D8167183D7C5900446B12 /* PlayNotes */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlayNotes; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89D8174183D7C5A00446B12 /* MidiThruTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MidiThruTest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -28,6 +30,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D86D2CE3246BA44600E7B822 /* CoreAudio.framework in Frameworks */,
 				D852EF29245FC95F0042923B /* CoreFoundation.framework in Frameworks */,
 				D89D8161183D7C5900446B12 /* CoreMIDI.framework in Frameworks */,
 			);
@@ -47,6 +50,7 @@
 		01808E37FFBB5EC8CFED3B96 /* External Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D86D2CE2246BA44600E7B822 /* CoreAudio.framework */,
 				01319EB8FF89499DCFED3B93 /* CoreMIDI.framework */,
 				D852EF28245FC95F0042923B /* CoreFoundation.framework */,
 			);
