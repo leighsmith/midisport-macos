@@ -1,4 +1,3 @@
-// $Id: MIDISPORTUSBDriver.cpp,v 1.15 2001/10/29 23:28:38 leigh Exp $
 //
 // MacOS X driver for MIDIMan MIDISPORT USB MIDI interfaces.
 //
@@ -59,50 +58,44 @@
 #include <algorithm>
 #include "MIDISPORTUSBDriver.h"
 #include "USBUtils.h"
-#include "EZLoader.h"
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 // things to customize
 
-// Unique UUID (Universally Unique Identifier) For the MIDIMAN MIDISPORT USB MIDI interface driver
-#define kFactoryUUID CFUUIDGetConstantUUIDWithBytes(NULL, 0x6E, 0x44, 0x3F, 0xE8, 0x9E, 0xF4, 0x11, 0xD4, 0xA2, 0xFE, 0x00, 0x05, 0x02, 0xB6, 0x21, 0x33)
+// Unique UUID (Universally Unique Identifier) For the MIDISPORT USB MIDI interface driver
+#define kFactoryUUID CFUUIDGetConstantUUIDWithBytes(NULL, 0xE7, 0xB4, 0x60, 0xF4, 0x77, 0x19, 0x41, 0x33, 0xB5, 0x23, 0xB1, 0x7C, 0xFF, 0xF8, 0x99, 0x50)
 // ########
 
-#define kTheInterfaceToUse	0		// 0 is the interface which we need to access the 5 endpoints.
-#define midimanVendorID		0x0763		// midiman
+#define kTheInterfaceToUse	0		    // 0 is the interface which we need to access the 5 endpoints.
+#define midimanVendorID		0x0763		// MIDIMAN/M-Audio
 
 // and these
-#define kMyBoxName		"MIDISPORT"
-#define kMyManufacturerName	"MIDIMAN"
+#define kMyBoxName	        "MIDISPORT" // Device name. Not actually used.
+#define kMyManufacturerName	"M-Audio"
 
 #define kNumMaxPorts		9
 
 #define MIDIPACKETLEN		4		// number of bytes in a dword packet received and sent to the MIDISPORT
-#define CMDINDEX		(MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
+#define CMDINDEX	        (MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
 #define DEBUG_OUTBUFFER		0		// 1 to printout whenever a msg is to be sent.
-#define VERBOSE (DEBUG && 0)
-
-extern INTEL_HEX_RECORD firmware1x1[];
-extern INTEL_HEX_RECORD firmware2x2[];
-extern INTEL_HEX_RECORD firmware4x4[];
+//#define VERBOSE             (DEBUG || 1)
+#define VERBOSE 1
 
 struct HardwareConfigurationDescription {
     WarmFirmwareProductIDs warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
-    int coldBootProductID;                          // product ID indicating the firmware has not been loaded.
     int numberOfPorts;
     int readBufSize;
     int writeBufSize;
-    char *modelName;
-    INTEL_HEX_RECORD *firmware;
+    const char *modelName;                          // This includes the device name, as it can change on some models.
 } productTable[] = {
-    { MIDISPORT1x1, 0x1010, 1, 32, 32, "1x1", firmware1x1 },
-    { MIDISPORT2x2, 0x1001, 2, 32, 32, "2x2", firmware2x2 },
-    { MIDISPORT4x4, 0x1020, 4, 64, 64, "4x4", firmware4x4 },
+    { MIDISPORT1x1, 1, 32, 32, "MIDISPORT 1x1" },
+    { MIDISPORT2x2, 2, 32, 32, "MIDISPORT 2x2" },
+    { MIDISPORT4x4, 4, 64, 64, "MIDISPORT 4x4" },
     // Strictly speaking, the endPoint 2 can sustain 40 bytes output on the 8x8. 
     // There are 9 ports including the SMPTE control.
-    { MIDISPORT8x8, 0x1030, 9, 64, 32, "8x8", NULL }  
+    { MIDISPORT8x8, 9, 64, 32, "MIDISPORT 8x8/S" }
 };
 
 #define PRODUCT_TOTAL (sizeof(productTable) / sizeof(struct HardwareConfigurationDescription))
@@ -110,15 +103,24 @@ struct HardwareConfigurationDescription {
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 // Implementation of the factory function for this type.
-extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID) 
+extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 {
+#if VERBOSE
+    fprintf(stderr, "In NewMIDISPORTDriver\n");
+#endif
     // If correct type is being requested, allocate an
     // instance of TestType and return the IUnknown interface.
     if (CFEqual(typeID, kMIDIDriverTypeID)) {
+#if VERBOSE
+        fprintf(stderr, "NewMIDISPORTDriver typedId matched kMIDIDriverTypeID\n");
+#endif
         MIDISPORT *result = new MIDISPORT;
         return result->Self();
     }
     else {
+#if VERBOSE
+        fprintf(stderr, "NewMIDISPORTDriver typedId did not match kMIDIDriverTypeID\n");
+#endif
         // If the requested type is incorrect, return NULL.
         return NULL;
     }
@@ -126,50 +128,19 @@ extern "C" void *NewMIDISPORT2x2(CFAllocatorRef allocator, CFUUIDRef typeID)
 
 // __________________________________________________________________________________________________
 
-// Determine if the MIDISPORT is in firmware downloaded or unloaded state.
-// If cold booted, we need to download the firmware and restart the device to
-// enable the firmware product code to be found.
 MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
 {
-    EZUSBLoader ezusb;
-    unsigned int i;
-    unsigned int testCount; // Number of 2 second interval tests we'll do for the firmware.
-    
 #if VERBOSE
-    printf("MIDISPORTUSBDriver init\n");
+    fprintf(stderr, "MIDISPORTUSBDriver init\n");
 #endif
     // if (CFEqual(typeID, kMIDIDriverInterfaceID))
     connectedMIDISPORTIndex = -1;   // error condition
-    for(i = 0; i < PRODUCT_TOTAL; i++) {
-        if (ezusb.FindVendorsProduct(midimanVendorID, productTable[i].coldBootProductID, true)) {
-#if VERBOSE
-            printf("in cold booted state, downloading firmware\n");
-#endif
-            ezusb.setFirmware(productTable[i].firmware);
-            ezusb.StartDevice();
-            // check that we re-enumerated the USB bus properly.
-            for(testCount = 0; 
-                testCount < 10 && !ezusb.FindVendorsProduct(midimanVendorID, productTable[i].warmFirmwareProductID, false);
-                testCount++) {
-#if VERBOSE
-                printf("loop searching\n");
-#endif
-                sleep(2);
-            }
-            if(testCount == 10) {
-#if VERBOSE
-                printf("Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware.\n");
-#endif
-            }
-            return;
-        }
-    }
 }
 
 MIDISPORT::~MIDISPORT()
 {
 #if VERBOSE
-    printf("~MIDISPORTUSBDriver\n");
+    fprintf(stderr, "~MIDISPORTUSBDriver\n");
 #endif
 }
 
@@ -220,47 +191,45 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
 {
     MIDIDeviceRef dev;
     MIDIEntityRef ent;
-    unsigned int i;
+    unsigned int productIndex;
 
 #if VERBOSE
     printf("MIDISPORT::CreateDevice\n");
 #endif
-#if 1 // Is this necessary? Probably worthwhile for robustness of error messages.
-    for(i = 0; i < PRODUCT_TOTAL; i++) {
-        if(productTable[i].warmFirmwareProductID == devProduct) {
-            connectedMIDISPORTIndex = i;
+    for(productIndex = 0; productIndex < PRODUCT_TOTAL; productIndex++) {
+        if(productTable[productIndex].warmFirmwareProductID == devProduct) {
+            connectedMIDISPORTIndex = productIndex;
             break;
         }
     }
-    if(i == PRODUCT_TOTAL) {
-        printf("Unable to recognize MIDIMan device %x\n", devProduct);
+    if(productIndex == PRODUCT_TOTAL) {
+        fprintf(stderr, "Unable to recognize MIDIMan device %x\n", devProduct);
         return NULL;  // TODO this needs to be checked if this is legitimate to return in case of error.
     }
-#endif
     
-    MIDIDeviceCreate(Self(),
-            CFSTR(kMyBoxName),
-            CFSTR(kMyManufacturerName),
-            CFStringCreateWithCString(NULL, productTable[i].modelName, 0),
+    CFStringRef modelName = CFStringCreateWithCString(NULL, productTable[productIndex].modelName, 0);
+    MIDIDeviceCreate(Self(),            // This driver creating the device.
+            modelName,                  // The name of the new device.
+            CFSTR(kMyManufacturerName), // The name of the device's manufacturer.
+            modelName,                  // The device's model name.
             &dev);
+    CFRelease(modelName);
 
     // make numberOfPorts entities with 1 source, 1 destination
-    for (int port = 0; port < productTable[i].numberOfPorts; port++) {
+    for (int port = 0; port < productTable[productIndex].numberOfPorts; port++) {
         char portname[64];
-        switch(productTable[i].warmFirmwareProductID) {
+        switch(productTable[productIndex].warmFirmwareProductID) {
         case MIDISPORT1x1:
-            sprintf(portname, "%s %s %s", kMyManufacturerName, kMyBoxName, productTable[i].modelName);
-            break;
         case MIDISPORT2x2:
         case MIDISPORT4x4:
-            sprintf(portname, "%s %s %s Port %c", kMyManufacturerName, kMyBoxName, productTable[i].modelName, port + 'A');
+            sprintf(portname, "Port %c", port + 'A');
             break;
         case MIDISPORT8x8:
         default:
             if (port == 8) // be descriptive in naming the SMPTE channel
-                sprintf(portname, "%s %s %s SMPTE Port", kMyManufacturerName, kMyBoxName, productTable[i].modelName);
+                sprintf(portname, "SMPTE Port");
             else
-                sprintf(portname, "%s %s %s Port %d", kMyManufacturerName, kMyBoxName, productTable[i].modelName, port + 1);
+                sprintf(portname, "Port %d", port + 1);
             break;
         }
         CFStringRef str = CFStringCreateWithCString(NULL, portname, 0);
@@ -283,7 +252,7 @@ void MIDISPORT::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
         info.readBufferSize  = productTable[connectedMIDISPORTIndex].readBufSize;
         info.writeBufferSize = productTable[connectedMIDISPORTIndex].writeBufSize;
 #if VERBOSE
-        printf("setting readBufferSize = %ld, writeBufferSize = %ld\n", info.readBufferSize, info.writeBufferSize);
+        printf("setting readBufferSize = %d, writeBufferSize = %d\n", (unsigned int) info.readBufferSize, (unsigned int) info.writeBufferSize);
 #endif
     }
     else
@@ -339,11 +308,13 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         if (bytesInPacket == 0)	      // Indicates the end of the buffer, early out.
             break;		
 
+#if VERBOSE
         printf("%c %d: %02X %02X %02X %02X  \n", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
+#endif
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
-            printf("flushing source %d\n", inputPort);
+            // printf("flushing source %d\n", inputPort);
             MIDIReceived(intf->mSources[inputPort], pktlist);
             pkt = MIDIPacketListInit(pktlist);
             inSysex[inputPort] = false;
@@ -382,13 +353,13 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                 numCompleted = 1;
                 // store ready for packetting.
                 completeMessage[0] = status;
-                printf("new status %02X, remainingBytesInMsg = %d\n", status, remainingBytesInMsg[inputPort]);
+                // printf("new status %02X, remainingBytesInMsg = %d\n", status, remainingBytesInMsg[inputPort]);
             }
             else if(remainingBytesInMsg[inputPort] > 0) {   // still within a message
                 remainingBytesInMsg[inputPort]--;
                 // store ready for packetting.
                 completeMessage[numCompleted++] = src[byteIndex];
-                printf("in message remainingBytesInMsg = %d\n", remainingBytesInMsg[inputPort]);
+                // printf("in message remainingBytesInMsg = %d\n", remainingBytesInMsg[inputPort]);
             }
             else if(inSysex[inputPort]) {          // fill the packet with sysex bytes
                 // printf("in sysex numCompleted = %d\n", numCompleted);
@@ -405,12 +376,16 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
             }
 
             if(remainingBytesInMsg[inputPort] == 0 || numCompleted >= (MIDIPACKETLEN - 1)) { // completed
-                printf("Shipping a packet: ");
+#if VERBOSE
+               printf("Shipping a packet: ");
                 for(int i = 0; i < numCompleted; i++)
                     printf("%02X ", completeMessage[i]);
+#endif
                 pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
                 numCompleted = 0;
-                printf("shipped\n");
+#if VERBOSE
+               printf("shipped\n");
+#endif
             }
             if(preservedMsgCount != 0) {
                 remainingBytesInMsg[inputPort] = preservedMsgCount;
@@ -418,10 +393,10 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         }
     }
     if (pktlist->numPackets > 0 && prevInputPort != -1) {
-        printf("source %d receiving %ld packets\n", prevInputPort, pktlist->numPackets);
-        printf("number of entities %d\n", intf->mNumEntities);
+        // printf("source %d receiving %d packets\n", prevInputPort, pktlist->numPackets);
+        // printf("number of entities %d\n", (unsigned int) intf->mNumEntities);
         MIDIReceived(intf->mSources[prevInputPort], pktlist);
-        printf("\n");
+        // printf("\n");
     }
 }
 
@@ -437,8 +412,8 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
 // the MidiSport’s internal buffer requirements."
 // Now that's going to be tricky to implement... :-(
 void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
-                                 Byte *destBuf1, ByteCount *bufCount1,
-                                 Byte *destBuf2, ByteCount *bufCount2)
+                              Byte *destBuf1, ByteCount *bufCount1,
+                              Byte *destBuf2, ByteCount *bufCount2)
 {
     Byte *dest[2] = {destBuf1, destBuf2};
     Byte *destEnd[2] = {dest[0] + productTable[connectedMIDISPORTIndex].writeBufSize,
@@ -446,8 +421,8 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
    
     while (true) {
         if (writeQueue.empty()) {
-            int buf1Length = dest[0] - destBuf1;
-            int buf2Length = dest[1] - destBuf2;
+            ByteCount buf1Length = dest[0] - destBuf1;
+            ByteCount buf2Length = dest[1] - destBuf2;
 #if DEBUG_OUTBUFFER
             printf("dest buffer = ");
             for(int i = 0; i < dest[0] - destBuf1; i++)
@@ -480,8 +455,8 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
 
         // printf("cableNibble = 0x%x, portNum = %d\n", cableNibble, wqe->portNum);
         while (src < srcend && dest[cableEndpoint] < destEnd[cableEndpoint]) {
-            int outPacketLen;
-            int numToBeSent;
+            long outPacketLen;
+            long numToBeSent;
             Byte c = *src++;
             
             // printf("byte %02X\n", c);
