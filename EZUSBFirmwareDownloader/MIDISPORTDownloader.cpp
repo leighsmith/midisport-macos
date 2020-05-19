@@ -43,11 +43,11 @@ int main(int argc, const char * argv[])
     ezusb.SetApplicationLoader(hexLoader);
     
     std::cout << "Looking for uninitialised MIDISPORTs." << std::endl;
-#if 0
     // Determine if the MIDISPORT is in firmware downloaded or unloaded state.
     // If cold booted, we need to download the firmware and restart the device to
     // enable the firmware product code to be found.
     for (unsigned int productIndex = 0; productIndex < hardwareConfig->productCount(); productIndex++) {
+#if 0
         if (ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].coldBootProductID, true)) {
 
             std::cout << "Found " << productTable[productIndex].modelName << " in cold booted state." << std::endl;
@@ -77,8 +77,8 @@ int main(int argc, const char * argv[])
                 }
             }
         }
-    }
 #endif
+    }
     return FIRMWARE_LOAD_SUCCESS;
 }
 

@@ -13,8 +13,7 @@ HardwareConfiguration::HardwareConfiguration(const char *configFilePath)
     CFURLRef configFileURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, filePath, kCFURLPOSIXPathStyle, false);
     if (configFileURL) {
         if (!this->readConfigFile(configFileURL)) {
-            // Either raise an exception or some other signalling?
-        
+            // TODO Either raise an exception or some other signalling?
         }
         CFRelease(configFileURL);
     }
@@ -22,7 +21,7 @@ HardwareConfiguration::HardwareConfiguration(const char *configFilePath)
 
 HardwareConfiguration::~HardwareConfiguration()
 {
-    
+    // TODO free up the deviceList.
 }
 
 bool HardwareConfiguration::readConfigFile(CFURLRef configFileURL)
@@ -41,8 +40,8 @@ bool HardwareConfiguration::readConfigFile(CFURLRef configFileURL)
                                                                                          &propertyListFormat,
                                                                                          &errorCode);
             if (configurationPropertyList == NULL) {
-                printf("%ld\n", (long) propertyListFormat);
                 // Handle the error
+                printf("%ld\n", (long) propertyListFormat);
                 CFStringRef errorDescription = CFErrorCopyDescription(errorCode);
                 CFShow(errorDescription);
                 CFRelease(errorCode);
@@ -53,11 +52,10 @@ bool HardwareConfiguration::readConfigFile(CFURLRef configFileURL)
                 CFRelease(configurationPropertyList);
                 return false;
             }
-            CFShow(configurationPropertyList);
+            //CFShow(configurationPropertyList);
 
             // Break out the parameters and populate the internal state.
             // Retrieve and save the hex loader file path.
-
             CFTypeRef hexloaderFilePathString = CFDictionaryGetValue((CFDictionaryRef) configurationPropertyList, CFSTR("HexLoader"));
             if (hexloaderFilePathString) CFRetain(hexloaderFilePathString);
             if (!hexloaderFilePathString) return false;
@@ -67,14 +65,32 @@ bool HardwareConfiguration::readConfigFile(CFURLRef configFileURL)
                 return false;
             }
             char fileName[256];
-
             if (CFStringGetCString((CFStringRef) hexloaderFilePathString, fileName, 256, kCFStringEncodingUTF8)) {
                 hexloaderFilePathName = std::string(fileName);
             }
 
-            // Loop over the property list
-            // Create deviceList as std::vector<struct DeviceFirmware> ;
+            // Verify there is a device list:
+            CFTypeRef deviceArray = CFDictionaryGetValue((CFDictionaryRef) configurationPropertyList, CFSTR("Devices"));
+            if (CFGetTypeID(deviceArray) != CFArrayGetTypeID()) {
+                return false;
+            }
+            
+            // Loop over the device list:
+            for (CFIndex deviceIndex = 0; deviceIndex < CFArrayGetCount((CFArrayRef) deviceArray); deviceIndex++) {
+                CFDictionaryRef deviceConfig = (CFDictionaryRef) CFArrayGetValueAtIndex((CFArrayRef) deviceArray, deviceIndex);
 
+                if (CFGetTypeID(deviceConfig) == CFDictionaryGetTypeID()) {
+                    CFShow(deviceConfig);
+
+                    // Create deviceList as std::vector<struct DeviceFirmware> ;
+                    struct DeviceFirmware deviceFirmware;
+                    char fileName[256];
+//                    if (CFStringGetCString((CFStringRef) firmwareFileName, fileName, 256, kCFStringEncodingUTF8)) {
+//                        deviceFirmware.firmwareFileName = std::string(fileName);
+//                    }
+//                    deviceList.append(deviceFirmware);
+                }
+            }
             CFRelease(configurationPropertyList);
         }
     }
