@@ -59,7 +59,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		06ACAA26005EFDB8CFED3B96 /* AppleCode */ = {
+		06ACAA26005EFDB8CFED3B96 /* Apple Code */ = {
 			isa = PBXGroup;
 			children = (
 				00C5C68DFEC350680A090812 /* USBUtils.cpp */,
@@ -69,7 +69,7 @@
 				00D0113FFEDB397F0A090812 /* VLMIDIPacket.cpp */,
 				00D01140FEDB397F0A090812 /* VLMIDIPacket.h */,
 			);
-			name = AppleCode;
+			name = "Apple Code";
 			sourceTree = "<group>";
 		};
 		089C166AFE841209C02AAC07 /* CFPlugInBundle */ = {
@@ -99,7 +99,7 @@
 				010D0AFEFEE5F5BB0A090812 /* MIDISPORTUSBDriver.h */,
 				1E21D07BFED9A4DC0A090812 /* USBMIDIDriverBase.cpp */,
 				1E21D07CFED9A4DC0A090812 /* USBMIDIDriverBase.h */,
-				06ACAA26005EFDB8CFED3B96 /* AppleCode */,
+				06ACAA26005EFDB8CFED3B96 /* Apple Code */,
 			);
 			name = Source;
 			sourceTree = "<group>";

@@ -1,8 +1,8 @@
 //
 // MacOS X standalone firmware downloader for the EZUSB device, 
-// as found in MIDIMan MIDISPORT boxes.
+// as found in MIDIMan/M-Audio MIDISPORT boxes.
 //
-// This portions of EZLOADER.H which was supplied example code with the EZUSB device.
+// This code includes portions of EZLOADER.H which was supplied example code with the EZUSB device.
 //
 // Modifications By Leigh Smith <leigh@leighsmith.com>
 //

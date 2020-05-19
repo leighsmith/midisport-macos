@@ -61,6 +61,16 @@
             ReferencedContainer = "container:EZUSBFirmwareDownloader.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/MIDISPORT_opensource/EZUSBFirmwareDownloader/MIDISPORT_devices.xml"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/System/Library/CoreServices/SystemVersion.plist"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

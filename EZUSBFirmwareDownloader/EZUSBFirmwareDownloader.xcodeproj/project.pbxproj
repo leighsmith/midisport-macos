@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		D800BC5624192AA90028A17B /* USBUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D800BC5424192AA90028A17B /* USBUtils.h */; };
 		D800BC5724192AA90028A17B /* USBUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D800BC5524192AA90028A17B /* USBUtils.cpp */; };
+		D86BAAA82471F9B6001B8BBE /* HardwareConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = D86BAAA62471F9B6001B8BBE /* HardwareConfiguration.h */; };
+		D86BAAA92471F9B6001B8BBE /* HardwareConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D86BAAA72471F9B6001B8BBE /* HardwareConfiguration.cpp */; };
 		D89D8138183D7BC900446B12 /* MIDISPORTDownloader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* MIDISPORTDownloader.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D813B183D7BC900446B12 /* EZLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B182F58FF9BD7B5CFED3B93 /* EZLoader.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D813E183D7BC900446B12 /* libstdc++.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0249A663FF388D9811CA2CEA /* libstdc++.a */; };
@@ -28,6 +30,9 @@
 		0B182F65FF9CD4C7CFED3B93 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
 		D800BC5424192AA90028A17B /* USBUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = USBUtils.h; sourceTree = "<group>"; };
 		D800BC5524192AA90028A17B /* USBUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = USBUtils.cpp; sourceTree = "<group>"; };
+		D86BAAA62471F9B6001B8BBE /* HardwareConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HardwareConfiguration.h; sourceTree = "<group>"; };
+		D86BAAA72471F9B6001B8BBE /* HardwareConfiguration.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HardwareConfiguration.cpp; sourceTree = "<group>"; };
+		D86BAAAA24732C4F001B8BBE /* MIDISPORT_devices.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MIDISPORT_devices.xml; sourceTree = "<group>"; };
 		D89D8147183D7BCA00446B12 /* EZUSBFirmwareDownloader */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EZUSBFirmwareDownloader; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -62,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				08FB7795FE84155DC02AAC07 /* Source */,
+				D86BAAAA24732C4F001B8BBE /* MIDISPORT_devices.xml */,
 				0249A662FF388D9811CA2CEA /* External Frameworks and Libraries */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 			);
@@ -73,10 +79,11 @@
 			isa = PBXGroup;
 			children = (
 				08FB7796FE84155DC02AAC07 /* MIDISPORTDownloader.cpp */,
+				D86BAAA62471F9B6001B8BBE /* HardwareConfiguration.h */,
+				D86BAAA72471F9B6001B8BBE /* HardwareConfiguration.cpp */,
 				0B182F58FF9BD7B5CFED3B93 /* EZLoader.cpp */,
 				0B182F59FF9BD8C7CFED3B93 /* EZLoader.h */,
-				D800BC5524192AA90028A17B /* USBUtils.cpp */,
-				D800BC5424192AA90028A17B /* USBUtils.h */,
+				D86BAAA52471F88E001B8BBE /* Apple Code */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -89,6 +96,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		D86BAAA52471F88E001B8BBE /* Apple Code */ = {
+			isa = PBXGroup;
+			children = (
+				D800BC5424192AA90028A17B /* USBUtils.h */,
+				D800BC5524192AA90028A17B /* USBUtils.cpp */,
+			);
+			name = "Apple Code";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -97,6 +113,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D800BC5624192AA90028A17B /* USBUtils.h in Headers */,
+				D86BAAA82471F9B6001B8BBE /* HardwareConfiguration.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,6 +179,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D86BAAA92471F9B6001B8BBE /* HardwareConfiguration.cpp in Sources */,
 				D89D8138183D7BC900446B12 /* MIDISPORTDownloader.cpp in Sources */,
 				D800BC5724192AA90028A17B /* USBUtils.cpp in Sources */,
 				D89D813B183D7BC900446B12 /* EZLoader.cpp in Sources */,

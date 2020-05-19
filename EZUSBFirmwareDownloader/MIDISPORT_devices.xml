@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+
+<plist version="1.0">
+<dict>
+    <key>HexLoader</key>
+    <string>/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSportLoader.ihx</string>
+    <key>Devices</key>
+    <array>
+        <dict>
+            <key>DeviceName</key>
+            <string>MIDISPORT 1x1</string>
+            <!--
+             <key>WarmFirmwareProductID</key>
+             <integer>0x1011</integer>
+             <key>ColdBootProductID</key>
+             <integer>0x1010</integer>
+             -->
+            <key>FilePath</key>
+            <string>/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport1x1.ihx</string>
+        </dict>
+        <dict>
+            <key>DeviceName</key>
+            <string>MIDISPORT 2x2</string>
+            <!--
+             <key>WarmFirmwareProductID</key>
+             <integer>0x1002</integer>
+             <key>ColdBootProductID</key>
+             <integer>0x1001</integer>
+             -->
+            <key>FilePath</key>
+            <string>/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport2x2.ihx</string>
+        </dict>
+        <dict>
+            <key>DeviceName</key>
+            <string>MIDISPORT 4x4</string>
+            <!--
+             <key>WarmFirmwareProductID</key>
+             <integer>0x1021</integer>
+             <key>ColdBootProductID</key>
+             <integer>0x1020</integer>
+             -->
+            <key>FilePath</key>
+            <string>/Users/leigh/Sources/Drivers/MIDI/MIDISPORT/Linux/midisport-firmware-1.2/MidiSport4x4.ihx</string>
+        </dict>
+        <dict>
+            <key>DeviceName</key>
+            <string>MIDISPORT 8x8</string>
+            <!--
+             <key>WarmFirmwareProductID</key>
+             <integer>0x1031</integer>
+             <key>ColdBootProductID</key>
+             <integer>0x1030</integer>
+             -->
+            <key>FilePath</key>
+            <string></string>
+        </dict>
+    </array>
+</dict>
+</plist>
+
+ 
