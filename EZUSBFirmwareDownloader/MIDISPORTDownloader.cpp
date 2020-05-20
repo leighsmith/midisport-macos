@@ -47,28 +47,27 @@ int main(int argc, const char * argv[])
     // If cold booted, we need to download the firmware and restart the device to
     // enable the firmware product code to be found.
     for (unsigned int productIndex = 0; productIndex < hardwareConfig->productCount(); productIndex++) {
-#if 0
-        if (ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].coldBootProductID, true)) {
+        if (ezusb.FindVendorsProduct(midimanVendorID, hardwareConfig->deviceList[productIndex].coldBootProductID, true)) {
 
-            std::cout << "Found " << productTable[productIndex].modelName << " in cold booted state." << std::endl;
-            if (productTable[productIndex].firmwareFileName.length() != 0) {
+            std::cout << "Found " << hardwareConfig->deviceList[productIndex].modelName << " in cold booted state." << std::endl;
+            if (hardwareConfig->deviceList[productIndex].firmwareFileName.length() != 0) {
                 bool foundMIDSPORT = false;
                 std::vector <INTEL_HEX_RECORD> firmwareToDownload;
 
-                std::cout << "Reading MIDISPORT Firmware Intel hex file " << productTable[productIndex].firmwareFileName << std::endl;
-                if (!ezusb.ReadFirmwareFromHexFile(productTable[productIndex].firmwareFileName, firmwareToDownload)) {
+                std::cout << "Reading MIDISPORT Firmware Intel hex file " << hardwareConfig->deviceList[productIndex].firmwareFileName << std::endl;
+                if (!ezusb.ReadFirmwareFromHexFile(hardwareConfig->deviceList[productIndex].firmwareFileName, firmwareToDownload)) {
                     return FIRMWARE_FILE_READ_FAIL;
                 }
                 std::cout << "Downloading firmware." << std::endl;
                 if (ezusb.StartDevice(firmwareToDownload)) {
                     // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
                     for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
-                        foundMIDSPORT = ezusb.FindVendorsProduct(midimanVendorID, productTable[productIndex].warmFirmwareProductID, false);
+                        foundMIDSPORT = ezusb.FindVendorsProduct(midimanVendorID, hardwareConfig->deviceList[productIndex].warmFirmwareProductID, false);
                         std::cout << "Waiting before searching." << std::endl;
                         sleep(2);
                     }
                     if (foundMIDSPORT) {
-                        std::cout << "Booted MIDISPORT " << productTable[productIndex].modelName << std::endl;
+                        std::cout << "Booted MIDISPORT " << hardwareConfig->deviceList[productIndex].modelName << std::endl;
                     }
                     else {
                         std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
@@ -77,7 +76,6 @@ int main(int argc, const char * argv[])
                 }
             }
         }
-#endif
     }
     return FIRMWARE_LOAD_SUCCESS;
 }

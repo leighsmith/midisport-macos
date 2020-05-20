@@ -31,11 +31,12 @@ public:
 
     std::string hexloaderFilePath() { return hexloaderFilePathName; }
     unsigned int productCount() { return static_cast<unsigned int>(deviceList.size()); }
+    std::vector<struct DeviceFirmware> deviceList; // temporarily public
 private:
-    std::vector<struct DeviceFirmware> deviceList;
     std::string hexloaderFilePathName;
 
     bool readConfigFile(CFURLRef configFileURL);
+    bool deviceListFromDictionary(CFDictionaryRef deviceConfig, struct DeviceFirmware &deviceFirmware);
 };
 
 #endif /* HardwareConfiguration_h */
