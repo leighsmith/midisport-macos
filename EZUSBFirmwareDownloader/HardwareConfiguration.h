@@ -11,7 +11,7 @@
 #ifndef HardwareConfiguration_h
 #define HardwareConfiguration_h
 
-#include <vector>
+#include <map>
 #include <string>
 #include <CoreFoundation/CoreFoundation.h>   // For property list I/O.
 
@@ -19,7 +19,6 @@ struct DeviceFirmware {
     std::string modelName;
     unsigned int warmFirmwareProductID;               // Product ID indicating the firmware has been loaded and is working.
     unsigned int coldBootProductID;                   // Product ID indicating the firmware has not been loaded.
-    // std::vector<INTEL_HEX_RECORD> firmware;
     std::string firmwareFileName;                     // Path to the Intel hex file of the firmware. NULL indicates no firmware needs to be downloaded.
 };
 
@@ -31,7 +30,9 @@ public:
 
     std::string hexloaderFilePath() { return hexloaderFilePathName; }
     unsigned int productCount() { return static_cast<unsigned int>(deviceList.size()); }
-    std::vector<struct DeviceFirmware> deviceList; // temporarily public
+    struct DeviceFirmware deviceFirmwareForBootId(unsigned int);
+
+    std::map<unsigned int, struct DeviceFirmware> deviceList; // temporarily public
 private:
     std::string hexloaderFilePathName;
 

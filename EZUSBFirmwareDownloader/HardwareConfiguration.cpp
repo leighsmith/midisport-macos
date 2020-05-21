@@ -25,6 +25,13 @@ HardwareConfiguration::~HardwareConfiguration()
     // TODO free up the deviceList.
 }
 
+// Retrieve the DeviceFirmware structure for the given cold boot device id.
+struct DeviceFirmware HardwareConfiguration::deviceFirmwareForBootId(unsigned int coldBootDeviceId)
+{
+    // Search for coldBootDeviceId
+    return deviceList[coldBootDeviceId];
+}
+
 // Converts the parameters of a single MIDISPORT model, in a property list CFDictionary, into the C++ DeviceFirmware structure.
 // This does the data validation that all the parameters are there, returning true or false.
 bool HardwareConfiguration::deviceListFromDictionary(CFDictionaryRef deviceConfig, struct DeviceFirmware &deviceFirmware)
@@ -131,12 +138,11 @@ bool HardwareConfiguration::readConfigFile(CFURLRef configFileURL)
             CFDictionaryRef deviceConfig = (CFDictionaryRef) CFArrayGetValueAtIndex((CFArrayRef) deviceArray, deviceIndex);
 
             if (CFGetTypeID(deviceConfig) == CFDictionaryGetTypeID()) {
-                // Create deviceList as std::vector<struct DeviceFirmware> ;
                 struct DeviceFirmware deviceFirmware;
 
                 if (!this->deviceListFromDictionary(deviceConfig, deviceFirmware))
                     return false;
-                deviceList.push_back(deviceFirmware);
+                deviceList[deviceFirmware.coldBootProductID] = deviceFirmware;
             }
         }
         CFRelease(configurationPropertyList);

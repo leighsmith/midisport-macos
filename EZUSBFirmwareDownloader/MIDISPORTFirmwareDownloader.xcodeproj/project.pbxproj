@@ -33,7 +33,7 @@
 		D86BAAA62471F9B6001B8BBE /* HardwareConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HardwareConfiguration.h; sourceTree = "<group>"; };
 		D86BAAA72471F9B6001B8BBE /* HardwareConfiguration.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HardwareConfiguration.cpp; sourceTree = "<group>"; };
 		D86BAAAA24732C4F001B8BBE /* MIDISPORT_devices.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MIDISPORT_devices.xml; sourceTree = "<group>"; };
-		D89D8147183D7BCA00446B12 /* EZUSBFirmwareDownloader */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EZUSBFirmwareDownloader; sourceTree = BUILT_PRODUCTS_DIR; };
+		D89D8147183D7BCA00446B12 /* MIDISPORTFirmwareDownloader */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MIDISPORTFirmwareDownloader; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,7 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				08FB7795FE84155DC02AAC07 /* Source */,
-				D86BAAAA24732C4F001B8BBE /* MIDISPORT_devices.xml */,
+				D83FD03C2475691400EDDD76 /* Configuration */,
 				0249A662FF388D9811CA2CEA /* External Frameworks and Libraries */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 			);
@@ -91,9 +91,17 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D89D8147183D7BCA00446B12 /* EZUSBFirmwareDownloader */,
+				D89D8147183D7BCA00446B12 /* MIDISPORTFirmwareDownloader */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D83FD03C2475691400EDDD76 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				D86BAAAA24732C4F001B8BBE /* MIDISPORT_devices.xml */,
+			);
+			name = Configuration;
 			sourceTree = "<group>";
 		};
 		D86BAAA52471F88E001B8BBE /* Apple Code */ = {
@@ -120,9 +128,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		D89D8135183D7BC900446B12 /* EZUSBFirmwareDownloader */ = {
+		D89D8135183D7BC900446B12 /* MIDISPORTFirmwareDownloader */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D89D8143183D7BC900446B12 /* Build configuration list for PBXNativeTarget "EZUSBFirmwareDownloader" */;
+			buildConfigurationList = D89D8143183D7BC900446B12 /* Build configuration list for PBXNativeTarget "MIDISPORTFirmwareDownloader" */;
 			buildPhases = (
 				D89D8136183D7BC900446B12 /* Headers */,
 				D89D8137183D7BC900446B12 /* Sources */,
@@ -133,10 +141,10 @@
 			);
 			dependencies = (
 			);
-			name = EZUSBFirmwareDownloader;
+			name = MIDISPORTFirmwareDownloader;
 			productInstallPath = "$(HOME)/bin";
 			productName = EZUSBFirmwareDownloader;
-			productReference = D89D8147183D7BCA00446B12 /* EZUSBFirmwareDownloader */;
+			productReference = D89D8147183D7BCA00446B12 /* MIDISPORTFirmwareDownloader */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -147,7 +155,7 @@
 			attributes = {
 				LastUpgradeCheck = 1030;
 			};
-			buildConfigurationList = D87F9876183D185D00FE7B48 /* Build configuration list for PBXProject "EZUSBFirmwareDownloader" */;
+			buildConfigurationList = D87F9876183D185D00FE7B48 /* Build configuration list for PBXProject "MIDISPORTFirmwareDownloader" */;
 			compatibilityVersion = "Xcode 10.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -159,7 +167,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D89D8135183D7BC900446B12 /* EZUSBFirmwareDownloader */,
+				D89D8135183D7BC900446B12 /* MIDISPORTFirmwareDownloader */,
 			);
 		};
 /* End PBXProject section */
@@ -303,7 +311,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = EZUSBFirmwareDownloader;
+				PRODUCT_NAME = MIDISPORTFirmwareDownloader;
 				REZ_EXECUTABLE = YES;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -327,7 +335,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = EZUSBFirmwareDownloader;
+				PRODUCT_NAME = MIDISPORTFirmwareDownloader;
 				REZ_EXECUTABLE = YES;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -350,7 +358,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = EZUSBFirmwareDownloader;
+				PRODUCT_NAME = MIDISPORTFirmwareDownloader;
 				REZ_EXECUTABLE = YES;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -364,7 +372,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D87F9876183D185D00FE7B48 /* Build configuration list for PBXProject "EZUSBFirmwareDownloader" */ = {
+		D87F9876183D185D00FE7B48 /* Build configuration list for PBXProject "MIDISPORTFirmwareDownloader" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D87F9870183D185D00FE7B48 /* Development */,
@@ -374,7 +382,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		D89D8143183D7BC900446B12 /* Build configuration list for PBXNativeTarget "EZUSBFirmwareDownloader" */ = {
+		D89D8143183D7BC900446B12 /* Build configuration list for PBXNativeTarget "MIDISPORTFirmwareDownloader" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D89D8144183D7BC900446B12 /* Development */,
