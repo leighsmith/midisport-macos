@@ -17,11 +17,12 @@
 
 struct DeviceFirmware {
     std::string modelName;
-    unsigned int warmFirmwareProductID;               // Product ID indicating the firmware has been loaded and is working.
-    unsigned int coldBootProductID;                   // Product ID indicating the firmware has not been loaded.
-    std::string firmwareFileName;                     // Path to the Intel hex file of the firmware. NULL indicates no firmware needs to be downloaded.
+    unsigned int warmFirmwareProductID;     // Product ID indicating the firmware has been loaded and is working.
+    unsigned int coldBootProductID;         // Product ID indicating the firmware has not been loaded.
+    std::string firmwareFileName;           // Path to the Intel hex file of the firmware. NULL indicates no firmware needs to be downloaded.
 };
 
+typedef std::map<unsigned int, struct DeviceFirmware> DeviceList;
 
 class HardwareConfiguration {
 public:
@@ -32,7 +33,7 @@ public:
     unsigned int productCount() { return static_cast<unsigned int>(deviceList.size()); }
     struct DeviceFirmware deviceFirmwareForBootId(unsigned int);
 
-    std::map<unsigned int, struct DeviceFirmware> deviceList; // temporarily public
+    DeviceList deviceList; // temporarily public
 private:
     std::string hexloaderFilePathName;
 
