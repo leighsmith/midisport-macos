@@ -13,15 +13,16 @@ devices:
 Other devices which are compatible may also work, although presently, these are the only
 ones which have been tested.
 
-I originally wrote M-Audio's first MacOS X version back in 2000 and donated it to them, as
-part of a start-up project that needed a MIDI device driver running on what was then a
-pre-release version of MacOS X. M-Audio took the code and updated it many times without
-giving me back their updated source code. M-Audio have seemed to now abandoned the
-hardware and no longer support their version of the driver since 2009, as their newer
-devices do not use that driver. With the move by Apple to v10.14 (Mojave) and v10.15
-(Catalina) to no longer support 32 bit drivers, I have modified and updated my original
-code donated to M-Audio to now compile as 64 bit versions on these latest MacOS versions, so
-MIDISPORT owners can continue to support and operate their hardware.
+I originally wrote the first MacOS X version of the MIDISPORT device driver back in 2000
+and donated it to M-Audio, as part of a start-up project that needed a MIDI device driver
+running on what was then a pre-release version of MacOS X. M-Audio took the code and
+updated it many times without giving me back their updated source code. M-Audio now seem
+to have abandoned the hardware and no longer support their version of the driver
+since 2009, as their newer devices do not use that driver. With the move by Apple to
+v10.14 (Mojave) and v10.15 (Catalina) to no longer support 32 bit drivers, I have modified
+and updated my original code donated to M-Audio to now compile as 64 bit versions on these
+latest MacOS versions, so MIDISPORT owners can continue to support and operate their
+hardware.
 
 The project consists of three parts:
 
