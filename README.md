@@ -11,7 +11,8 @@ devices:
     + MIDISPORT 8x8/S
 
 Other devices which are compatible may also work, although presently, these are the only
-ones which have been tested.
+ones which have been tested. See the disclaimer below before testing this software on any
+device not listed above.
 
 I originally wrote the first MacOS X version of the MIDISPORT device driver back in 2000
 and donated it to M-Audio, as part of a start-up project that needed a MIDI device driver
@@ -23,6 +24,13 @@ v10.14 (Mojave) and v10.15 (Catalina) to no longer support 32 bit drivers, I hav
 and updated my original code donated to M-Audio to now compile as 64 bit versions on these
 latest MacOS versions, so MIDISPORT owners can continue to support and operate their
 hardware.
+
+Necessary Disclaimer: This project has no support from M-Audio, and M-Audio is in no way
+responsible for this code. In addition, any authors listed in this code are not
+responsible for the fitness and suitability of purpose, freedom from defects, or behaviour
+of this software. It is essential to understand that any software interacting with a piece
+of hardware can potentially damage it. You therefore use this software at your own risk,
+and are solely responsible for deciding it's fitness to your purpose.
 
 The project consists of three parts:
 
@@ -41,7 +49,7 @@ MacOS X CoreMIDI Device Driver
 
 The MacOS X CoreMIDI device driver is a modified version of Apple's publicly available
 (and now very old) CoreMIDI device driver example code. This was adapted for the
-MIDISPORT. All technical details of MIDISPORT within the driver are also publicly available from
+MIDISPORT. All technical details of the MIDISPORT devices within the driver are also publicly available from
 the (open source Linux version of the MIDISPORT driver)[https://www.alsa-project.org/wiki/Usb-midi-fw],
 together with (publicly available example code for downloading firmware)[https://github.com/esden/fxload],
 provided by EZUSB, the manufacturer of the microcontroller inside the MIDISPORT devices.
@@ -61,9 +69,10 @@ appropriate folder location for the firmware downloader to find them. However th
 installation script will perform this downloading as part of the installation of the
 driver.
 
-Not all firmware for every MIDISPORT device is distributed with the Linux driver. Support
-is currently missing for some of the later models which used different firmware.
-Those firmware files are distributed as part of the download for M-Audio's last 32 bit driver.
+Not all firmware for every MIDISPORT device M-Audio produced is distributed with the Linux
+driver. Support is currently missing for some of the later models which used different
+firmware. Those firmware files are distributed as part of the download for M-Audio's last
+32 bit driver.
 
 Installation instructions 
 -------------------------

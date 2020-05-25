@@ -8,7 +8,7 @@
 #
 
 packagename=MIDISPORT
-packagetitle="MIDIMan MIDISPORT USB MIDI Driver plugin"
+packagetitle="MIDISPORT USB MIDI Driver plugin"
 
 if [ x_$MIDISPORTICON = x_ ]; then
     echo "Environment variable MIDISPORTICON should be set to point to the .tiff file used for the $packagetitle icon. Assuming the current working directory."
@@ -46,8 +46,6 @@ buildToDir="${workingDir}/${packagename}.dst"
 # Where the plug-in would be installed with DSTROOT=/
 # For 10.1, we can put it in a local area
 installFileDir='/Library/Audio/MIDI Drivers'
-# but for 10.0.4 we had to put it in the system location.
-# installFileDir=/System/Library/Extensions
 
 # where the plugin to be packaged will reside
 packageFromDir="${buildToDir}/${installFileDir}"
