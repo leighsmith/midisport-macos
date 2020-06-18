@@ -37,9 +37,11 @@ The project consists of three parts:
     1. The MacOS X CoreMIDI device driver itself, consisting of a modified version of Apple's
        publicly available (and now very old) MIDI device driver example code.
 
-    2. A firmware downloader which downloads to the EZUSB 8051 compatible microcontroller
-       within the MIDISPORT devices, the firmware to transmit and receive to and from MIDI and USB
-       ports on the devices.
+    2. A firmware downloader running as a (launchd)[https://www.launchd.info/] daemon,
+       which downloads to the EZ-USB
+       (8051)[https://www.electronicshub.org/8051-microcontroller-architecture/]
+       compatible microcontroller within the MIDISPORT devices, the firmware to transmit
+       and receive to and from MIDI and USB ports on the devices.
 
     3. Some very simple, and now fairly obsolete, MacOS X CoreMIDI client code to test
        transmitting and receiving MIDI code.
@@ -51,11 +53,12 @@ The MacOS X CoreMIDI device driver is a modified version of Apple's publicly ava
 (and now very old) CoreMIDI device driver example code. This was adapted for the
 MIDISPORT. All technical details of the MIDISPORT devices within the driver are also publicly available from
 the (open source Linux version of the MIDISPORT driver)[https://www.alsa-project.org/wiki/Usb-midi-fw],
-together with (publicly available example code for downloading firmware)[https://github.com/esden/fxload],
-provided by EZUSB, the manufacturer of the microcontroller inside the MIDISPORT devices.
+together with publicly available (Linux)[https://github.com/esden/fxload] 
+and (MacOS)[https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105],
+example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
 Currently the code has only been tested on MacOS 10.14, but the goal is to eventually also
-support MacOS 10.15, which seems to have changed the USB Host API.
+support MacOS 10.15, which seems to have changed the (USB Host API)[https://developer.apple.com/documentation/iousbhost/iousbhostinterface?language=objc].
 
 MIDISPORT Firmware
 ------------------
@@ -101,4 +104,7 @@ pulsing.
 5. Open '/Applications/Utilities/Audio MIDI Setup.app' and select the MIDI Studio window
 of the app. You should see the MIDISPORT MIDI interface device appear, and you can then define MIDI
 devices and connect them to the MIDISPORT interface device in the standard operation of
-the utility application.
+the utility application. Note that if you have run the M-Audio driver in the past, the
+previous MIDI interfaces will still appear and any MIDI devices connected to them will
+remain. You will need to remove those connections and reconnect the MIDI devices to the
+new available MIDISPORT interface.

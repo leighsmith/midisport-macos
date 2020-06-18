@@ -1,11 +1,6 @@
 //
-//  HardwareConfiguration.h
-//  EZUSBFirmwareDownloader
-//
 //  Defines a class holding the HardwareConfiguration table, which is read from a text configuration file,
-//  associating device codes to Intel hex firmware files.
-//
-//  Created by Leigh Smith on 17/5/2020.
+//  associating device USB id codes to Intel hex firmware files.
 //
 
 #ifndef HardwareConfiguration_h

@@ -5,13 +5,12 @@
 // This is the MIDISPORT specific main function. The rest of the utility is applicable
 // to all EZUSB boxes.
 //
-// By Leigh Smith <leigh@leighsmith.com>
-//
+
 #include <iostream>
 #include "EZLoader.h"
 #include "HardwareConfiguration.h"
 
-#define midimanVendorID 0x0763
+#define mAudioVendorID 0x0763
 
 enum errorCodes {
     FIRMWARE_LOAD_SUCCESS = 0,
@@ -48,7 +47,7 @@ int main(int argc, const char * argv[])
     // enable the firmware product code to be found.
     for (DeviceList::iterator productIterator = hardwareConfig->deviceList.begin(); productIterator != hardwareConfig->deviceList.end(); ++productIterator) {
         struct DeviceFirmware device = productIterator->second;
-        if (ezusb.FindVendorsProduct(midimanVendorID, device.coldBootProductID, true)) {
+        if (ezusb.FindVendorsProduct(mAudioVendorID, device.coldBootProductID, true)) {
             std::cout << "Found " << device.modelName << " in cold booted state." << std::endl;
             if (device.firmwareFileName.length() != 0) {
                 bool foundMIDSPORT = false;
@@ -62,7 +61,7 @@ int main(int argc, const char * argv[])
                 if (ezusb.StartDevice(firmwareToDownload)) {
                     // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
                     for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
-                        foundMIDSPORT = ezusb.FindVendorsProduct(midimanVendorID, device.warmFirmwareProductID, false);
+                        foundMIDSPORT = ezusb.FindVendorsProduct(mAudioVendorID, device.warmFirmwareProductID, false);
                         std::cout << "Waiting before searching." << std::endl;
                         sleep(2);
                     }

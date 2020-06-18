@@ -46,7 +46,7 @@
 
 #if DEBUG
 	#include <stdio.h>
-	#define VERBOSE 0
+	#define VERBOSE 1
 #endif
 
 // _____________________________________________________________________________
@@ -65,8 +65,7 @@ USBDeviceManager::USBDeviceManager(CFRunLoopRef notifyRunLoop) :
     // Create a master port for communication with the I/O Kit.
 	// This gets the master device mach port through which all messages
 	// to the kernel go, and initiates communication with IOKit.
-    // TODO MACH_PORT_NULL instead of bootstrap_port?
-	__Require_noErr(IOMasterPort(bootstrap_port, &mMasterDevicePort), errexit);
+	__Require_noErr(IOMasterPort(MACH_PORT_NULL, &mMasterDevicePort), errexit);
 	
 	if (mRunLoop) {
         #if VERBOSE
@@ -222,7 +221,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
         // Don't need the device object after intermediate plug-in is created
         kr = IOObjectRelease(ioDeviceObj);
         __Require(kr == kIOReturnSuccess, nextDevice);
-        
+
         // Now create the device interface
 		kr = (*ioPlugin)->QueryInterface(ioPlugin,
                                          CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID),
@@ -252,7 +251,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 
 			// Found a device match
 			#if VERBOSE
-				printf ("scanning devices, matched device 0x%X: vendor 0x%x, product 0x%x\n", (int)ioDeviceObj, (int)devVendor, (int)devProduct);
+				printf("scanning devices, matched device 0x%X: vendor 0x%x, product 0x%x\n", (int)ioDeviceObj, (int)devVendor, (int)devProduct);
 			#endif
 
 			// Make sure it has at least one configuration
@@ -302,9 +301,9 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 					#endif
 					__Require_noErr((*interfaceIntf)->USBInterfaceOpen(interfaceIntf), nextInterface);
 					keepOpen = FoundInterface(ioDeviceObj, ioInterfaceObj, deviceIntf, interfaceIntf, devVendor, devProduct, desiredInterface, desiredAltSetting);
-                                        #if VERBOSE
-                                            printf("keeping it open = %d\n", keepOpen);
-                                        #endif
+#if VERBOSE
+                    printf("keeping it open = %d\n", keepOpen);
+#endif
 					if (!keepOpen)
 						__Verify_noErr((*interfaceIntf)->USBInterfaceClose(interfaceIntf));
 					break; // would never match more than one interface per device

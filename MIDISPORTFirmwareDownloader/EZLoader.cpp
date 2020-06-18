@@ -12,7 +12,7 @@
 #include <iostream>
 #include "EZLoader.h"
 
-#define VERBOSE (DEBUG && 0)
+#define VERBOSE (DEBUG && 1)
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0	
@@ -52,6 +52,7 @@ bool EZUSBLoader::MatchDevice(IOUSBDeviceInterface **device,
                              UInt16 devVendor,
                              UInt16 devProduct)
 {
+    // TODO revamp to check the vendor, then look for the devProduct in the hardware configuration .
     return devVendor == usbVendor && devProduct == usbProduct;
 }
 

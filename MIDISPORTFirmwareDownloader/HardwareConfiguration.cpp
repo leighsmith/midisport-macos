@@ -1,8 +1,5 @@
 //
 //  HardwareConfiguration.cpp
-//  EZUSBFirmwareDownloader
-//
-//  Created by Leigh Smith on 17/5/2020.
 //
 
 #include "HardwareConfiguration.h"
