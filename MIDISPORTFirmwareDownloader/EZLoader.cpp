@@ -8,9 +8,9 @@
 // By Leigh Smith <leigh@leighsmith.com>
 //
 
-#include <fstream>
-#include <iostream>
 #include "EZLoader.h"
+#include <iostream>
+#include <map>
 
 #define VERBOSE (DEBUG && 1)
 
@@ -39,8 +39,10 @@ bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
                                  UInt8 altSetting)
 {
     ezUSBDevice = device;
+    usbVendorFound = devVendor;
+    usbProductFound = devProduct;
 #if VERBOSE
-    std::cout << "yep found it, leaving open = " << usbLeaveOpenWhenFound << std::endl;
+    std::cout << "Found " << usbVendorFound << ", " << usbProductFound << ", leaving open = " << usbLeaveOpenWhenFound << std::endl;
 #endif
     return usbLeaveOpenWhenFound;
 }
@@ -52,8 +54,8 @@ bool EZUSBLoader::MatchDevice(IOUSBDeviceInterface **device,
                              UInt16 devVendor,
                              UInt16 devProduct)
 {
-    // TODO revamp to check the vendor, then look for the devProduct in the hardware configuration .
-    return devVendor == usbVendor && devProduct == usbProduct;
+    // check the vendor, then look for the devProduct in the hardware configuration.
+    return devVendor == usbVendorToSearchFor && deviceList.find(devProduct) != deviceList.end();
 }
 
 //
@@ -63,12 +65,12 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
                                      UInt16 productID,
                                      bool leaveOpenWhenFound)
 {
-    usbVendor   = vendorID;
-    usbProduct  = productID;
+    usbVendorToSearchFor = vendorID;
+    usbProductFound  = productID;
     usbLeaveOpenWhenFound = leaveOpenWhenFound;
     ezUSBDevice = NULL;  // Used to indicate we have found the device
 #if VERBOSE
-    std::cout << "Finding ezusb vendor = 0x" << std::hex << usbVendor << ", product = 0x" << usbProduct << std::endl;
+    std::cout << "Finding ezusb vendor = 0x" << std::hex << usbVendorToSearchFor << ", product = 0x" << usbProductFound << std::endl;
 #endif
     ScanDevices();  // Start the scanning of the devices.
 #if VERBOSE
@@ -77,16 +79,17 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
     return ezUSBDevice != NULL;
 }
 
-// constructor doing very little.
-EZUSBLoader::EZUSBLoader()
+EZUSBLoader::EZUSBLoader(UInt16 newUSBVendor, DeviceList newDeviceList)
 {
     // TODO do we need to construct the superclass, passing in CFRunLoopGetCurrent()?
-    usbVendor = 0xFFFF;
-    usbProduct = 0xFFFF;
+    deviceList = newDeviceList;
+    usbVendorToSearchFor = newUSBVendor;
+    usbVendorFound = 0xFFFF;
+    usbProductFound = 0xFFFF;
     ezUSBDevice = NULL;
 }
 
-// And a destructor doing even less.
+// TODO destructor to remove the deviceList.
 //EZUSBLoader::~EZUSBLoader()
 //{
 //}
@@ -235,63 +238,4 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
 void EZUSBLoader::SetApplicationLoader(std::vector<INTEL_HEX_RECORD> newLoader)
 {
     loader = newLoader;
-}
-
-//
-// Reads the Intel Hex File from fileName into the firmware memory structure,
-// suitable for downloading.
-// Returns true if able to load the file, false if there was format error.
-//
-bool EZUSBLoader::ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> &firmware)
-{
-    // Open the text file
-    std::ifstream hexFile(fileName);
-    std::string hexLine;
-    // Read each line of the file.
-    while (std::getline(hexFile, hexLine)) {
-        INTEL_HEX_RECORD hexRecord;
-        int calculatedChecksum = 0;
-
-        {   // Skip over comment lines.
-            int cursor = 0;
-            while (cursor < hexLine.length() && hexLine[cursor] == ' ')
-                cursor++;
-            if (hexLine[cursor] == '#')
-                continue;
-        }
-        // verify ':' is the first character.
-        if (hexLine[0] != ':') {
-            std::cerr << "Missing ':' as first character on line, not an Intel hex file?" << std::endl;
-            return false;
-        }
-        // read and convert the next two characters as Length
-        hexRecord.Length = stoi(hexLine.substr(1, 2), NULL, 16);
-        calculatedChecksum += hexRecord.Length;
-        hexRecord.Address = stoi(hexLine.substr(3, 4), NULL, 16);
-        calculatedChecksum += ((hexRecord.Address >> 8) & 0xff) + (hexRecord.Address & 0xff);
-        hexRecord.Type = stoi(hexLine.substr(7, 2), NULL, 16);
-        calculatedChecksum += hexRecord.Type;
-        if (hexRecord.Length <= MAX_INTEL_HEX_RECORD_LENGTH) {
-            int readLocation = 9;
-            int dataIndex = 0;
-            while (dataIndex < hexRecord.Length) {
-                hexRecord.Data[dataIndex] = stoi(hexLine.substr(readLocation + dataIndex * 2, 2), NULL, 16);
-                calculatedChecksum += hexRecord.Data[dataIndex++];
-            }
-            // Verify the checksum, calculated by summing the values of all hexadecimal digit pairs in the record,
-            // modulo 256 and taking the two's complement.
-            int checksum = stoi(hexLine.substr(9 + dataIndex * 2, 2), NULL, 16);
-            calculatedChecksum = (-calculatedChecksum) & 0xff;
-            if (checksum != calculatedChecksum) {
-                std::cerr << "Checksum 0x" << std::hex << checksum << " did not match calculated 0x" << calculatedChecksum << std::endl;
-                return false;
-            }
-        }
-        else {
-            std::cerr << "More bytes on line (" << int(hexRecord.Length) << ") than maximum record length (" << MAX_INTEL_HEX_RECORD_LENGTH << ")" << std::endl;
-            return false;
-        }
-        firmware.push_back(hexRecord);
-    }
-    return true;
 }

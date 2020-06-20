@@ -9,6 +9,7 @@
 #include <iostream>
 #include "EZLoader.h"
 #include "HardwareConfiguration.h"
+#include "IntelHexFile.h"
 
 #define mAudioVendorID 0x0763
 
@@ -23,7 +24,6 @@ enum errorCodes {
 int main(int argc, const char * argv[])
 {
     HardwareConfiguration *hardwareConfig;
-    EZUSBLoader ezusb;
     std::vector<INTEL_HEX_RECORD> hexLoader;
 
     // Load config file supplied on command line.
@@ -32,11 +32,13 @@ int main(int argc, const char * argv[])
         return MISSING_CONFIG_FILE;
     }
     hardwareConfig = new HardwareConfiguration(argv[1]);
-    
+
+    EZUSBLoader ezusb(mAudioVendorID, hardwareConfig->deviceList);
+
     // Retrieve the hex loader filename from the config file.
     std::string hexloaderFilePath = hardwareConfig->hexloaderFilePath();
     std::cout << "Reading MIDISPORT Firmware Intel hex file " << hexloaderFilePath << std::endl;
-    if (!ezusb.ReadFirmwareFromHexFile(hexloaderFilePath, hexLoader)) {
+    if (!IntelHexFile::ReadFirmwareFromHexFile(hexloaderFilePath, hexLoader)) {
         return HEX_LOADER_FILE_READ_FAIL;
     }
     ezusb.SetApplicationLoader(hexLoader);
@@ -54,7 +56,7 @@ int main(int argc, const char * argv[])
                 std::vector <INTEL_HEX_RECORD> firmwareToDownload;
 
                 std::cout << "Reading MIDISPORT Firmware Intel hex file " << device.firmwareFileName << std::endl;
-                if (!ezusb.ReadFirmwareFromHexFile(productIterator->second.firmwareFileName, firmwareToDownload)) {
+                if (!IntelHexFile::ReadFirmwareFromHexFile(productIterator->second.firmwareFileName, firmwareToDownload)) {
                     return FIRMWARE_FILE_READ_FAIL;
                 }
                 std::cout << "Downloading firmware." << std::endl;

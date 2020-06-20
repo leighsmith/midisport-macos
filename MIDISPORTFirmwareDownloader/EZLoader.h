@@ -11,16 +11,8 @@
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 #include "USBUtils.h"
-
-#ifndef _BYTE_DEFINED
-#define _BYTE_DEFINED
-typedef unsigned char BYTE;
-#endif // !_BYTE_DEFINED
-
-#ifndef _WORD_DEFINED
-#define _WORD_DEFINED
-typedef unsigned short WORD;
-#endif // !_WORD_DEFINED
+#include "HardwareConfiguration.h"
+#include "IntelHexFile.h"
 
 //
 // Vendor specific request code for Anchor Upload/Download
@@ -46,19 +38,10 @@ typedef unsigned short WORD;
 //
 #define CPUCS_REG    0x7F92
 
-#define MAX_INTEL_HEX_RECORD_LENGTH 16
-
-typedef struct _INTEL_HEX_RECORD
-{
-   BYTE  Length;
-   WORD  Address;
-   BYTE  Type;
-   BYTE  Data[MAX_INTEL_HEX_RECORD_LENGTH];
-} INTEL_HEX_RECORD;
-
 class EZUSBLoader : public USBDeviceManager {
 public:
-    EZUSBLoader();
+    EZUSBLoader(UInt16 newUSBVendor, DeviceList deviceList);
+
 //    ~EZUSBLoader();
     virtual bool MatchDevice(IOUSBDeviceInterface **device,
                                           UInt16 devVendor,
@@ -78,7 +61,6 @@ public:
     bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID, bool leaveOpenWhenFound);
     bool StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware);
     void SetApplicationLoader(std::vector<INTEL_HEX_RECORD> newLoader);
-    bool ReadFirmwareFromHexFile(std::string fileName, std::vector<INTEL_HEX_RECORD> &firmware);
 
 protected:
     IOReturn Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit);
@@ -89,7 +71,10 @@ protected:
     IOUSBDeviceInterface **ezUSBDevice;
     // These hex records that contain the application loader.
     std::vector<INTEL_HEX_RECORD> loader;
-    UInt16 usbVendor;
-    UInt16 usbProduct;
+    // The devices supported and their firmware paths.
+    DeviceList deviceList;
+    UInt16 usbVendorToSearchFor;
+    UInt16 usbVendorFound;
+    UInt16 usbProductFound;
     bool usbLeaveOpenWhenFound;
 };
