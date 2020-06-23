@@ -5,8 +5,6 @@
 // This is the code for downloading any firmware to pre-renumerated EZUSB devices.
 // This is a rewrite of EZLOADER.C which was supplied example code with the EZUSB device.
 //
-// By Leigh Smith <leigh@leighsmith.com>
-//
 
 #include "EZLoader.h"
 #include <iostream>
@@ -15,8 +13,9 @@
 #define VERBOSE (DEBUG && 1)
 
 // 0 is the standard USB interface which we need to download to/on.
-#define kTheInterfaceToUse	0	
+#define kTheInterfaceToUse	0
 
+// Overridden to set the interface.
 void EZUSBLoader::GetInterfaceToUse(IOUSBDeviceInterface **device, 
                                     UInt8 &outInterfaceNumber,
                                     UInt8 &outAltSetting)
@@ -26,7 +25,7 @@ void EZUSBLoader::GetInterfaceToUse(IOUSBDeviceInterface **device,
 }
 
 //
-// Once we have found the interface, we need to remember the device interface and
+// Once we have found the interface, we need to remember the device interface, do the callback, and
 // return true to have the interface kept open.
 //
 bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
@@ -42,8 +41,10 @@ bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
     usbVendorFound = devVendor;
     usbProductFound = devProduct;
 #if VERBOSE
-    std::cout << "Found " << usbVendorFound << ", " << usbProductFound << ", leaving open = " << usbLeaveOpenWhenFound << std::endl;
+    std::cout << "Found ezusb vendor = 0x" << std::hex << usbVendorFound << ", product = 0x" << usbProductFound << ", leaving open = " << usbLeaveOpenWhenFound << std::endl;
 #endif
+    // TODO could check the boolean return from this function if we should do something different when failing the callback.
+    (*foundDeviceCallback)(this, deviceList[devProduct]);
     return usbLeaveOpenWhenFound;
 }
 
@@ -79,9 +80,8 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
     return ezUSBDevice != NULL;
 }
 
-EZUSBLoader::EZUSBLoader(UInt16 newUSBVendor, DeviceList newDeviceList)
+EZUSBLoader::EZUSBLoader(UInt16 newUSBVendor, DeviceList newDeviceList) : USBDeviceManager(CFRunLoopGetCurrent())
 {
-    // TODO do we need to construct the superclass, passing in CFRunLoopGetCurrent()?
     deviceList = newDeviceList;
     usbVendorToSearchFor = newUSBVendor;
     usbVendorFound = 0xFFFF;
@@ -230,12 +230,4 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
 #endif
 
     return true;
-}
-
-//
-// Sets the application firmware to be downloaded next.
-//
-void EZUSBLoader::SetApplicationLoader(std::vector<INTEL_HEX_RECORD> newLoader)
-{
-    loader = newLoader;
 }

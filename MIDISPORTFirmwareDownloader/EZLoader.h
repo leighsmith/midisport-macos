@@ -4,8 +4,6 @@
 //
 // This code includes portions of EZLOADER.H which was supplied example code with the EZUSB device.
 //
-// Modifications By Leigh Smith <leigh@leighsmith.com>
-//
 
 #include <vector>
 #include <IOKit/IOKitLib.h>
@@ -39,6 +37,22 @@
 #define CPUCS_REG    0x7F92
 
 class EZUSBLoader : public USBDeviceManager {
+protected:
+    IOReturn Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit);
+    IOReturn DownloadFirmwareToRAM(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> firmware, bool internalRAM);
+    bool DownloadFirmware(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> hexRecord);
+
+    // instance variables
+    IOUSBDeviceInterface **ezUSBDevice;
+    // These hex records that contain the application loader.
+    std::vector<INTEL_HEX_RECORD> loader;
+    // The devices supported and their firmware paths.
+    DeviceList deviceList;
+    UInt16 usbVendorToSearchFor;
+    UInt16 usbVendorFound;
+    UInt16 usbProductFound;
+    bool usbLeaveOpenWhenFound;
+    bool (*foundDeviceCallback)(EZUSBLoader *instance, struct DeviceFirmware);
 public:
     EZUSBLoader(UInt16 newUSBVendor, DeviceList deviceList);
 
@@ -60,21 +74,15 @@ public:
                         UInt8 altSetting);
     bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID, bool leaveOpenWhenFound);
     bool StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware);
-    void SetApplicationLoader(std::vector<INTEL_HEX_RECORD> newLoader);
+    //
+    // Sets the application firmware to be downloaded next.
+    //
+    void SetApplicationLoader(std::vector<INTEL_HEX_RECORD> newLoader) { loader = newLoader; };
 
-protected:
-    IOReturn Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit);
-    IOReturn DownloadFirmwareToRAM(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> firmware, bool internalRAM);
-    bool DownloadFirmware(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> hexRecord);
-
-    // instance variables
-    IOUSBDeviceInterface **ezUSBDevice;
-    // These hex records that contain the application loader.
-    std::vector<INTEL_HEX_RECORD> loader;
-    // The devices supported and their firmware paths.
-    DeviceList deviceList;
-    UInt16 usbVendorToSearchFor;
-    UInt16 usbVendorFound;
-    UInt16 usbProductFound;
-    bool usbLeaveOpenWhenFound;
+    //
+    // Sets the notification callback for when a device is found.
+    //
+    void SetFoundDeviceNotification(bool (*newFoundDeviceCallback)(EZUSBLoader *instance, struct DeviceFirmware)) {
+        foundDeviceCallback = newFoundDeviceCallback;
+    };
 };

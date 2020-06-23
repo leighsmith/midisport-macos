@@ -15,31 +15,38 @@ ones which have been tested. See the disclaimer below before testing this softwa
 device not listed above.
 
 I originally wrote the first MacOS X version of the MIDISPORT device driver back in 2000
-and donated it to M-Audio, as part of a start-up project that needed a MIDI device driver
-running on what was then a pre-release version of MacOS X. M-Audio took the code and
-updated it many times without giving me back their updated source code. M-Audio now seem
-to have abandoned the hardware and no longer support their version of the driver
-since 2009, as their newer devices do not use that driver. With the move by Apple to
-v10.14 (Mojave) and v10.15 (Catalina) to no longer support 32 bit drivers, I have modified
-and updated my original code donated to M-Audio to now compile as 64 bit versions on these
-latest MacOS versions, so MIDISPORT owners can continue to support and operate their
-hardware.
+and donated it to M-Audio (then named MIDIMan), as part of a start-up project that needed
+a MIDI device driver running on what was then a pre-release version of MacOS X. M-Audio
+took the code and updated it many times without giving me back their updated source
+code. M-Audio now seem to have abandoned the hardware and no longer support their version
+of the driver since 2009, as their newer devices do not use that driver. With the move by
+Apple to v10.14 (Mojave) and v10.15 (Catalina) to no longer support 32 bit drivers, I have
+modified and updated my original code donated to M-Audio to now compile as 64 bit versions
+on these latest MacOS versions, so MIDISPORT owners can continue to support and operate
+their hardware.
 
-Necessary Disclaimer: This project has no support from M-Audio, and M-Audio is in no way
+Necessary Disclaimer:
+---------------------
+
+This project has no support from M-Audio, and M-Audio is in no way
 responsible for this code. In addition, any authors listed in this code are not
 responsible for the fitness and suitability of purpose, freedom from defects, or behaviour
-of this software. It is essential to understand that any software interacting with a piece
-of hardware can potentially damage it. You therefore use this software at your own risk,
-and are solely responsible for deciding it's fitness to your purpose.
+of this software. There is no warranty for this code. It is essential to understand that
+any software interacting with a piece of hardware can potentially damage it. You therefore
+use this software at your own risk, and are solely responsible for deciding it's fitness
+to your purpose.
+
+Project Structure
+-----------------
 
 The project consists of three parts:
 
     1. The MacOS X CoreMIDI device driver itself, consisting of a modified version of Apple's
        publicly available (and now very old) MIDI device driver example code.
 
-    2. A firmware downloader running as a (launchd)[https://www.launchd.info/] daemon,
+    2. A firmware downloader running as a [launchd](https://www.launchd.info/) daemon,
        which downloads to the EZ-USB
-       (8051)[https://www.electronicshub.org/8051-microcontroller-architecture/]
+       [8051](https://www.electronicshub.org/8051-microcontroller-architecture/)
        compatible microcontroller within the MIDISPORT devices, the firmware to transmit
        and receive to and from MIDI and USB ports on the devices.
 
@@ -52,13 +59,13 @@ MacOS X CoreMIDI Device Driver
 The MacOS X CoreMIDI device driver is a modified version of Apple's publicly available
 (and now very old) CoreMIDI device driver example code. This was adapted for the
 MIDISPORT. All technical details of the MIDISPORT devices within the driver are also publicly available from
-the (open source Linux version of the MIDISPORT driver)[https://www.alsa-project.org/wiki/Usb-midi-fw],
-together with publicly available (Linux)[https://github.com/esden/fxload] 
-and (MacOS)[https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105],
+the [open source Linux version of the MIDISPORT driver](https://www.alsa-project.org/wiki/Usb-midi-fw),
+together with publicly available [Linux](https://github.com/esden/fxload)
+and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105),
 example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
 Currently the code has only been tested on MacOS 10.14, but the goal is to eventually also
-support MacOS 10.15, which seems to have changed the (USB Host API)[https://developer.apple.com/documentation/iousbhost/iousbhostinterface?language=objc].
+support MacOS 10.15, which seems to have changed the [USB Host API](https://developer.apple.com/documentation/iousbhost/iousbhostinterface?language=objc).
 
 MIDISPORT Firmware
 ------------------
@@ -66,7 +73,7 @@ MIDISPORT Firmware
 In order to avoid distributing any M-Audio supplied code, or infringe on NDAs, none of the
 MIDISPORT firmware is distributed as part of this project. The firmware downloader code
 reads Intel Hex format versions of firmware files that were publicly distributed by
-M-Audio as part of their (Linux driver effort)[http://usb-midi-fw.sourceforge.net/]. Users
+M-Audio as part of their [Linux driver effort](http://usb-midi-fw.sourceforge.net/). Users
 will therefore need to download those files to their Mac and save them into the
 appropriate folder location for the firmware downloader to find them. However the driver
 installation script will perform this downloading as part of the installation of the

@@ -1,6 +1,6 @@
 //
-// MacOS X standalone firmware downloader for the EZUSB device, 
-// as found in MIDIMan MIDISPORT boxes.
+// MacOS X firmware downloader daemon for the EZUSB device,
+// as found in MIDIMan/M-Audio MIDISPORT boxes.
 //
 // This is the MIDISPORT specific main function. The rest of the utility is applicable
 // to all EZUSB boxes.
@@ -21,6 +21,42 @@ enum errorCodes {
     NO_LOADED_MIDISPORT_FOUND
 };
 
+bool downloadFirmwareToDevice(EZUSBLoader *ezusb, struct DeviceFirmware device)
+{
+    std::cout << "Found " << device.modelName << " in cold booted state." << std::endl;
+    if (device.firmwareFileName.length() != 0) {
+        bool foundMIDSPORT = false;
+        std::vector <INTEL_HEX_RECORD> firmwareToDownload;
+
+        std::cout << "Reading MIDISPORT Firmware Intel hex file " << device.firmwareFileName << std::endl;
+        if (!IntelHexFile::ReadFirmwareFromHexFile(device.firmwareFileName, firmwareToDownload)) {
+            std::cerr << "Unable to read MIDISPORT Firmware Intel hex file " << device.firmwareFileName << std::endl;
+            return false;
+        }
+        std::cout << "Downloading firmware." << std::endl;
+        if (ezusb->StartDevice(firmwareToDownload)) {
+#if 0
+            // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
+            for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
+                foundMIDSPORT = ezusb->FindVendorsProduct(mAudioVendorID, device.warmFirmwareProductID, false);
+                std::cout << "Waiting before searching." << std::endl;
+                sleep(2);
+            }
+#else
+            foundMIDSPORT = true;
+#endif
+            if (foundMIDSPORT) {
+                std::cout << "Booted MIDISPORT " << device.modelName << std::endl;
+            }
+            else {
+                std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 int main(int argc, const char * argv[])
 {
     HardwareConfiguration *hardwareConfig;
@@ -28,7 +64,7 @@ int main(int argc, const char * argv[])
 
     // Load config file supplied on command line.
     if (argc < 2) {
-        std::cout << "Missing hardware configuration file. Usage: " << argv[0] << " configfile.xml" << std::endl;
+        std::cerr << "Missing hardware configuration file. Usage: " << argv[0] << " configfile.xml" << std::endl;
         return MISSING_CONFIG_FILE;
     }
     hardwareConfig = new HardwareConfiguration(argv[1]);
@@ -37,47 +73,25 @@ int main(int argc, const char * argv[])
 
     // Retrieve the hex loader filename from the config file.
     std::string hexloaderFilePath = hardwareConfig->hexloaderFilePath();
-    std::cout << "Reading MIDISPORT Firmware Intel hex file " << hexloaderFilePath << std::endl;
+    std::cout << "Reading Hex loader firmware Intel hex file " << hexloaderFilePath << std::endl;
     if (!IntelHexFile::ReadFirmwareFromHexFile(hexloaderFilePath, hexLoader)) {
+        std::cerr << "Unable to read Hex loader firmware Intel hex file " << hexloaderFilePath << std::endl;
         return HEX_LOADER_FILE_READ_FAIL;
     }
     ezusb.SetApplicationLoader(hexLoader);
-    
-    std::cout << "Looking for uninitialised MIDISPORTs." << std::endl;
-    // Determine if the MIDISPORT is in firmware downloaded or unloaded state.
+    ezusb.SetFoundDeviceNotification(downloadFirmwareToDevice);
+
+    // Scan for MIDISPORT in firmware unloaded state.
     // If cold booted, we need to download the firmware and restart the device to
     // enable the firmware product code to be found.
-    for (DeviceList::iterator productIterator = hardwareConfig->deviceList.begin(); productIterator != hardwareConfig->deviceList.end(); ++productIterator) {
-        struct DeviceFirmware device = productIterator->second;
-        if (ezusb.FindVendorsProduct(mAudioVendorID, device.coldBootProductID, true)) {
-            std::cout << "Found " << device.modelName << " in cold booted state." << std::endl;
-            if (device.firmwareFileName.length() != 0) {
-                bool foundMIDSPORT = false;
-                std::vector <INTEL_HEX_RECORD> firmwareToDownload;
+    std::cout << "Looking for uninitialised MIDISPORTs with vendor = 0x" << std::hex << mAudioVendorID << std::endl;
+    ezusb.ScanDevices();  // Scan for the devices which are already registered to the USB registry.
+    std::cout << "Finished scanning for devices" << std::endl;
 
-                std::cout << "Reading MIDISPORT Firmware Intel hex file " << device.firmwareFileName << std::endl;
-                if (!IntelHexFile::ReadFirmwareFromHexFile(productIterator->second.firmwareFileName, firmwareToDownload)) {
-                    return FIRMWARE_FILE_READ_FAIL;
-                }
-                std::cout << "Downloading firmware." << std::endl;
-                if (ezusb.StartDevice(firmwareToDownload)) {
-                    // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
-                    for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
-                        foundMIDSPORT = ezusb.FindVendorsProduct(mAudioVendorID, device.warmFirmwareProductID, false);
-                        std::cout << "Waiting before searching." << std::endl;
-                        sleep(2);
-                    }
-                    if (foundMIDSPORT) {
-                        std::cout << "Booted MIDISPORT " << device.modelName << std::endl;
-                    }
-                    else {
-                        std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
-                        return NO_LOADED_MIDISPORT_FOUND;
-                    }
-                }
-            }
-        }
-    }
-    return FIRMWARE_LOAD_SUCCESS;
+    // Start the run loop so notifications will be received
+    CFRunLoopRun();
+
+    // Because the run loop will run forever until interrupted,
+    // the program should never reach this point.
+    return 0;
 }
-
