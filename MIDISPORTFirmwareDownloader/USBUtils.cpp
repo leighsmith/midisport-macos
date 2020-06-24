@@ -68,9 +68,9 @@ USBDeviceManager::USBDeviceManager(CFRunLoopRef notifyRunLoop) :
 	__Require_noErr(IOMasterPort(MACH_PORT_NULL, &mMasterDevicePort), errexit);
 	
 	if (mRunLoop) {
-        #if VERBOSE
-            printf("mRunLoop true\n");
-        #endif
+#if VERBOSE
+        printf("mRunLoop true\n");
+#endif
         // To set up asynchronous notifications, create a notification port and
         // add its run loop event source to the programÕs run loop
 		mNotifyPort = IONotificationPortCreate(mMasterDevicePort);
@@ -154,14 +154,14 @@ void	USBDeviceManager::ScanDevices()
 #if VERBOSE
         printf("mIteratorsNeedEmptying in USBDeviceManager::ScanDevices()\n");
 #endif
-		mIteratorsNeedEmptying = false;
-		DevicesAdded(mDeviceAddIterator);
-		DevicesRemoved(mDeviceRemoveIterator);
-		return;
+        mIteratorsNeedEmptying = false;
+        DevicesAdded(mDeviceAddIterator);
+        DevicesRemoved(mDeviceRemoveIterator);
+        return;
 	}
 
-	io_iterator_t	devIter 			= NULL;
-	CFDictionaryRef	matchingDict		= NULL;
+	io_iterator_t	devIter      = NULL;
+	CFDictionaryRef	matchingDict = NULL;
 
 	// Create a matching dictionary that specifies an IOService class match.
 	matchingDict = IOServiceMatching(kIOUSBDeviceClassName); 
@@ -207,17 +207,21 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 		UInt16					devProduct;
 		bool					keepOpen = false;
 
-		// Get self pointer to device.
+        // Get self pointer to device.
         kr = IOCreatePlugInInterfaceForService(ioDeviceObj,
                                                kIOUSBDeviceUserClientTypeID,
                                                kIOCFPlugInInterfaceID,
                                                &ioPlugin, &score);
-        // TODO seems to return kIOReturnNoResources
+        // There is at least one I/O service that matches the USBDeviceUserClient and plugin interface, that seems to return kIOReturnNoResources.
+        // This seems to be benign (but difficult to identify properly). We let it slide.
         if ((kr != kIOReturnSuccess) || !ioPlugin) {
+#if VERBOSE
             printf("Unable to create a plug-in (%08x)\n", kr);
+#endif
+            kr = IOObjectRelease(ioDeviceObj);
+            __Require(kr == kIOReturnSuccess, nextDevice);
             continue;
         }
-        // __Require_String(kr == kIOReturnSuccess, nextDevice, "Unable to create a plug-in");
         // Don't need the device object after intermediate plug-in is created
         kr = IOObjectRelease(ioDeviceObj);
         __Require(kr == kIOReturnSuccess, nextDevice);
@@ -245,14 +249,14 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 			io_service_t 				ioInterfaceObj = NULL;
 			IOUSBFindInterfaceRequest 	intfRequest;
 			UInt8						desiredInterface = 0, desiredAltSetting = 0;
-			#if VERBOSE
-				int interfaceIndex		= 0;
-			#endif
+#if VERBOSE
+            int interfaceIndex		= 0;
+#endif
 
 			// Found a device match
-			#if VERBOSE
-				printf("scanning devices, matched device 0x%X: vendor 0x%x, product 0x%x\n", (int)ioDeviceObj, (int)devVendor, (int)devProduct);
-			#endif
+#if VERBOSE
+			printf("scanning devices, matched device 0x%X: vendor 0x%x, product 0x%x\n", (int)ioDeviceObj, (int)devVendor, (int)devProduct);
+#endif
 
 			// Make sure it has at least one configuration
 			__Require_noErr((*deviceIntf)->GetNumberOfConfigurations(deviceIntf, &numConfigs), nextDevice);
@@ -260,6 +264,9 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 
 			// Get a pointer to the configuration descriptor for index 0
 			__Require_noErr((*deviceIntf)->GetConfigurationDescriptorPtr(deviceIntf, 0, &configDesc), nextDevice);
+#if VERBOSE
+            printf("Setting configuration %d\n", (int)configDesc->bConfigurationValue);
+#endif
 
 			// Open the device
 			__Require_noErr((*deviceIntf)->USBDeviceOpen(deviceIntf), nextDevice);
@@ -267,13 +274,10 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 
 			// Set the configuration
 			//require_noerr((*deviceIntf)->GetConfiguration(deviceIntf, &curConfig), closeDevice);
-			#if VERBOSE
-				printf("Setting configuration %d\n", (int)configDesc->bConfigurationValue);
-			#endif
 			__Require_noErr((*deviceIntf)->SetConfiguration(deviceIntf, configDesc->bConfigurationValue), closeDevice);
 			
 			GetInterfaceToUse(deviceIntf, desiredInterface, desiredAltSetting);
-				// Get the interface number for this device
+			// Get the interface number for this device
 
 			// Create the interface iterator
 			intfRequest.bInterfaceClass		= kIOUSBFindInterfaceDontCare;
@@ -284,9 +288,9 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 			__Require_noErr((*deviceIntf)->CreateInterfaceIterator(deviceIntf, &intfRequest, &intfIter), closeDevice);
 
 			while ((ioInterfaceObj = IOIteratorNext(intfIter)) != (io_iterator_t) NULL) {
-				#if VERBOSE
-					printf("interface index %d\n", interfaceIndex++);
-				#endif
+#if VERBOSE
+				printf("interface index %d\n", interfaceIndex++);
+#endif
 				__Require_noErr(IOCreatePlugInInterfaceForService(ioInterfaceObj, kIOUSBInterfaceUserClientTypeID, kIOCFPlugInInterfaceID, &ioPlugin, &score), nextInterface);
 
 				kr = (*ioPlugin)->QueryInterface(ioPlugin, CFUUIDGetUUIDBytes(kIOUSBInterfaceInterfaceID), (LPVOID *)&interfaceIntf);
@@ -296,9 +300,9 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 
 				__Require_noErr((*interfaceIntf)->GetInterfaceNumber(interfaceIntf, &intfNumber), nextInterface);
 				if (desiredInterface == intfNumber) {	// here's the one we want
-					#if VERBOSE
-						printf("found desired interface %d\n", intfNumber);
-					#endif
+#if VERBOSE
+					printf("found desired interface %d\n", intfNumber);
+#endif
 					__Require_noErr((*interfaceIntf)->USBInterfaceOpen(interfaceIntf), nextInterface);
 					keepOpen = FoundInterface(ioDeviceObj, ioInterfaceObj, deviceIntf, interfaceIntf, devVendor, devProduct, desiredInterface, desiredAltSetting);
 #if VERBOSE

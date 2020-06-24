@@ -10,7 +10,7 @@
 #include <iostream>
 #include <map>
 
-#define VERBOSE (DEBUG && 1)
+#define VERBOSE DEBUG
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0
@@ -80,7 +80,8 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
     return ezUSBDevice != NULL;
 }
 
-EZUSBLoader::EZUSBLoader(UInt16 newUSBVendor, DeviceList newDeviceList) : USBDeviceManager(CFRunLoopGetCurrent())
+EZUSBLoader::EZUSBLoader(UInt16 newUSBVendor, DeviceList newDeviceList) :
+    USBDeviceManager(CFRunLoopGetCurrent())
 {
     deviceList = newDeviceList;
     usbVendorToSearchFor = newUSBVendor;

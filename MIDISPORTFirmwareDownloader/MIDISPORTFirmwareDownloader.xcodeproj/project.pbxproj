@@ -31,7 +31,7 @@
 		0B182F62FF9CD44FCFED3B93 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		0B182F65FF9CD4C7CFED3B93 /* System.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = System.framework; path = /System/Library/Frameworks/System.framework; sourceTree = "<absolute>"; };
 		D800BC5424192AA90028A17B /* USBUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = USBUtils.h; sourceTree = "<group>"; };
-		D800BC5524192AA90028A17B /* USBUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = USBUtils.cpp; sourceTree = "<group>"; };
+		D800BC5524192AA90028A17B /* USBUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = USBUtils.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		D86BAAA62471F9B6001B8BBE /* HardwareConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HardwareConfiguration.h; sourceTree = "<group>"; };
 		D86BAAA72471F9B6001B8BBE /* HardwareConfiguration.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HardwareConfiguration.cpp; sourceTree = "<group>"; };
 		D86BAAAA24732C4F001B8BBE /* MIDISPORT_devices.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MIDISPORT_devices.xml; sourceTree = "<group>"; };
@@ -336,7 +336,6 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
-				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
 				HEADER_SEARCH_PATHS = "";
 				INSTALL_PATH = "$(HOME)/bin";
 				LIBRARY_SEARCH_PATHS = "";

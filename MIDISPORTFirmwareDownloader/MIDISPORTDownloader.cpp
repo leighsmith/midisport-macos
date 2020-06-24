@@ -46,7 +46,7 @@ bool downloadFirmwareToDevice(EZUSBLoader *ezusb, struct DeviceFirmware device)
             foundMIDSPORT = true;
 #endif
             if (foundMIDSPORT) {
-                std::cout << "Booted MIDISPORT " << device.modelName << std::endl;
+                std::cout << "Booted " << device.modelName << std::endl;
             }
             else {
                 std::cout << "Can't find re-enumerated MIDISPORT device, probable failure in downloading firmware." << std::endl;
@@ -86,7 +86,6 @@ int main(int argc, const char * argv[])
     // enable the firmware product code to be found.
     std::cout << "Looking for uninitialised MIDISPORTs with vendor = 0x" << std::hex << mAudioVendorID << std::endl;
     ezusb.ScanDevices();  // Scan for the devices which are already registered to the USB registry.
-    std::cout << "Finished scanning for devices" << std::endl;
 
     // Start the run loop so notifications will be received
     CFRunLoopRun();
