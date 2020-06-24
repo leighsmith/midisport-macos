@@ -54,7 +54,7 @@ protected:
     bool usbLeaveOpenWhenFound;
     bool (*foundDeviceCallback)(EZUSBLoader *instance, struct DeviceFirmware);
 public:
-    EZUSBLoader(UInt16 newUSBVendor, DeviceList deviceList);
+    EZUSBLoader(UInt16 newUSBVendor, DeviceList deviceList, bool leaveOpenWhenFound);
 
 //    ~EZUSBLoader();
     virtual bool MatchDevice(IOUSBDeviceInterface **device,

@@ -69,7 +69,7 @@ int main(int argc, const char * argv[])
     }
     hardwareConfig = new HardwareConfiguration(argv[1]);
 
-    EZUSBLoader ezusb(mAudioVendorID, hardwareConfig->deviceList);
+    EZUSBLoader ezusb(mAudioVendorID, hardwareConfig->deviceList, true);
 
     // Retrieve the hex loader filename from the config file.
     std::string hexloaderFilePath = hardwareConfig->hexloaderFilePath();

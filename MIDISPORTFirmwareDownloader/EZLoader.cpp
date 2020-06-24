@@ -80,11 +80,12 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
     return ezUSBDevice != NULL;
 }
 
-EZUSBLoader::EZUSBLoader(UInt16 newUSBVendor, DeviceList newDeviceList) :
+EZUSBLoader::EZUSBLoader(UInt16 newUSBVendor, DeviceList newDeviceList, bool leaveOpenWhenFound) :
     USBDeviceManager(CFRunLoopGetCurrent())
 {
     deviceList = newDeviceList;
     usbVendorToSearchFor = newUSBVendor;
+    usbLeaveOpenWhenFound = leaveOpenWhenFound;
     usbVendorFound = 0xFFFF;
     usbProductFound = 0xFFFF;
     ezUSBDevice = NULL;
