@@ -14,27 +14,33 @@ Other devices which are compatible may also work, although presently, these are 
 ones which have been tested. See the disclaimer below before testing this software on any
 device not listed above.
 
+History:
+--------
+
 I originally wrote the first MacOS X version of the MIDISPORT device driver back in 2000
-and donated it to M-Audio (then named MIDIMan), as part of a start-up project that needed
-a MIDI device driver running on what was then a pre-release version of MacOS X. M-Audio
-took the code and updated it many times without giving me back their updated source
-code. M-Audio now seem to have abandoned the hardware and no longer support their version
-of the driver since 2009, as their newer devices do not use that driver. With the move by
-Apple to v10.14 (Mojave) and v10.15 (Catalina) to no longer support 32 bit drivers, I have
-modified and updated my original code donated to M-Audio to now compile as 64 bit versions
-on these latest MacOS versions, so MIDISPORT owners can continue to support and operate
-their hardware.
+and donated it to M-Audio (then named MIDIMan), as part of a start-up project (tomandandy)
+that needed a MIDI device driver running on what was then a pre-release version of MacOS
+X. M-Audio took the code and updated it many times without giving me back their updated
+source code. M-Audio now seem to have abandoned the hardware and no longer support their
+version of the driver since 2009, as their newer devices do not use that driver. With the
+move by Apple to v10.14 (Mojave) and v10.15 (Catalina) to no longer support 32 bit
+drivers, I have modified and updated my original code that was donated, to now compile as
+64 bit versions on these latest MacOS versions, so MIDISPORT owners can continue to
+support and operate their hardware.
 
 Necessary Disclaimer:
 ---------------------
 
-This project has no support from M-Audio, and M-Audio is in no way
-responsible for this code. In addition, any authors listed in this code are not
-responsible for the fitness and suitability of purpose, freedom from defects, or behaviour
-of this software. There is no warranty for this code. It is essential to understand that
-any software interacting with a piece of hardware can potentially damage it. You therefore
-use this software at your own risk, and are solely responsible for deciding it's fitness
-to your purpose.
+This project has no support from M-Audio, and M-Audio is in no way responsible for this
+code. In addition, any authors listed in this code are not responsible for the fitness and
+suitability of purpose, freedom from defects, or behaviour of this software. There is no
+warranty for this code. It is essential to understand that any software interacting with a
+piece of hardware can potentially damage it. You therefore use this software at your own
+risk, and are solely responsible for deciding it's fitness to your purpose. See the
+LICENSE.txt file for license and warranty declarations.
+
+MIDISPORT is a trademark, and MIDIMAN is a registered trademark, of M-Audio and/or MIDIMAN
+companies.
 
 Project Structure
 -----------------
@@ -81,32 +87,25 @@ driver.
 
 Not all firmware for every MIDISPORT device M-Audio produced is distributed with the Linux
 driver. Support is currently missing for some of the later models which used different
-firmware. Those firmware files are distributed as part of the download for M-Audio's last
-32 bit driver.
+firmware. Those firmware files are distributed as part of the download for M-Audio's
+last 32 bit driver v3.5.3. 
 
 Installation instructions 
 -------------------------
-1. Decompress the tarball (MIDISPORT-2.1.2.b.MOX.pkg.tar) to create the package MIDISPORT.pkg and this file.
-
-Double-Click on the .tar file to create MIDISPORT.pkg and this file using StuffIt Expander
-or OpenUp.app (obtainable via www.stepwise.com) or open Terminal.app and run:
-
-	     tar xvf MIDISPORT-2.1.2.b.MOX.pkg.tar
-
-to extract MIDISPORT.pkg.
+1. Decompress the tarball to produce the package MIDISPORT.pkg.
 
 2. Double-Click the .pkg package, and follow the standard installation operation to
-install the plugin. When prompted for authorization to install the plugin, click on the
-lock icon in the lower left corner of the dialog and enter an adminstrator's password. The
-installer should place the plugin into /Library/Audio/MIDI Drivers/MIDISPORT.plugin.
+install the plugin. When prompted for authorization to install the plugin, enter an
+administrator's password. The installer should place the plugin into `/Library/Audio/MIDI Drivers/MIDISPORT.plugin` and
+the firmware downloader into `/Library/StartupItems/MIDISPORTFirmwareDownloader/`.
 
-3. You will need to reboot the operating system in order to run the
+3. You will need to reboot the operating system in order to launch the
 MIDISPORTFirmwareDownloader utility which will wait for MIDISPORT devices to be plugged
 into the USB bus.
 
-4. Connect the MIDISPORT device to the USB chain. If the device and the firmware files can be found, the firmware for the
-MIDISPORT will be downloaded which will be indicated by its LED labelled "USB"
-pulsing.
+4. Connect the MIDISPORT device to the USB chain. If the device and the firmware files can
+be found, the firmware for the MIDISPORT will be downloaded which will be indicated by its
+LED labelled "USB" pulsing.
 
 5. Open '/Applications/Utilities/Audio MIDI Setup.app' and select the MIDI Studio window
 of the app. You should see the MIDISPORT MIDI interface device appear, and you can then define MIDI
