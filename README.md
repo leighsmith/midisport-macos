@@ -1,14 +1,14 @@
-M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS 10.14 (Mojave)
-========================================================================
+M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave)
+==========================================================================
 
 This project provides an open source MacOS 10.14 compatible CoreMIDI device driver
 for M-Audio's MIDISPORT range of USB MIDI interfaces. This driver supports the following
 devices:
 
-    + MIDISPORT 1x1
-    + MIDISPORT 2x2
-    + MIDISPORT 4x4
-    + MIDISPORT 8x8/S
++ MIDISPORT 1x1
++ MIDISPORT 2x2
++ MIDISPORT 4x4
++ MIDISPORT 8x8/S
 
 Other devices which are compatible may also work, although presently, these are the only
 ones which have been tested. See the disclaimer below before testing this software on any
@@ -47,17 +47,17 @@ Project Structure
 
 The project consists of three parts:
 
-    1. The MacOS X CoreMIDI device driver itself, consisting of a modified version of Apple's
-       publicly available (and now very old) MIDI device driver example code.
+1. The MacOS X CoreMIDI device driver itself, consisting of a modified version of Apple's
+   publicly available (and now very old) MIDI device driver example code.
 
-    2. A firmware downloader running as a [launchd](https://www.launchd.info/) daemon,
-       which downloads to the EZ-USB
-       [8051](https://www.electronicshub.org/8051-microcontroller-architecture/)
-       compatible microcontroller within the MIDISPORT devices, the firmware to transmit
-       and receive to and from MIDI and USB ports on the devices.
+2. A firmware downloader running as a [launchd](https://www.launchd.info/) daemon,
+   which downloads to the EZ-USB
+   [8051](https://www.electronicshub.org/8051-microcontroller-architecture/)
+   compatible microcontroller within the MIDISPORT devices, the firmware to transmit
+   and receive to and from MIDI and USB ports on the devices.
 
-    3. Some very simple, and now fairly obsolete, MacOS X CoreMIDI client code to test
-       transmitting and receiving MIDI code.
+3. Some very simple, and now fairly obsolete, MacOS X CoreMIDI client code to test
+   transmitting and receiving MIDI code.
 
 MacOS X CoreMIDI Device Driver
 ------------------------------
