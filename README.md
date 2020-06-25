@@ -18,15 +18,15 @@ History:
 --------
 
 I originally wrote the first MacOS X version of the MIDISPORT device driver back in 2000
-and donated it to M-Audio (then named MIDIMan), as part of a start-up project (tomandandy)
-that needed a MIDI device driver running on what was then a pre-release version of MacOS
-X. M-Audio took the code and updated it many times without giving me back their updated
-source code. M-Audio now seem to have abandoned the hardware and no longer support their
-version of the driver since 2009, as their newer devices do not use that driver. With the
-move by Apple to v10.14 (Mojave) and v10.15 (Catalina) to no longer support 32 bit
-drivers, I have modified and updated my original code that was donated, to now compile as
-64 bit versions on these latest MacOS versions, so MIDISPORT owners can continue to
-support and operate their hardware.
+and donated it to M-Audio (then named MIDIMan), as part of a start-up project (tomandandy
+music inc.) that needed a MIDI device driver running on what was then a pre-release
+version of MacOS X. M-Audio took the code and updated it many times without giving me back
+their updated source code. M-Audio now seem to have abandoned the hardware and no longer
+support their version of the driver since 2009, as their newer devices do not use that
+driver. With the move by Apple to v10.14 (Mojave) and v10.15 (Catalina) to no longer
+support 32 bit drivers, I have modified and updated my original code that was donated, to
+now compile as 64 bit versions on these latest MacOS versions, so MIDISPORT owners can
+continue to support and operate their hardware.
 
 Necessary Disclaimer:
 ---------------------
@@ -37,9 +37,9 @@ suitability of purpose, freedom from defects, or behaviour of this software. The
 warranty for this code. It is essential to understand that any software interacting with a
 piece of hardware can potentially damage it. You therefore use this software at your own
 risk, and are solely responsible for deciding it's fitness to your purpose. See the
-LICENSE.txt file for license and warranty declarations.
+LICENSE.txt file for full license and warranty declarations.
 
-MIDISPORT is a trademark, and MIDIMAN is a registered trademark, of M-Audio and/or MIDIMAN
+MIDISPORT is a trademark, and MIDIMAN is a registered trademark, of the M-Audio and/or MIDIMAN
 companies.
 
 Project Structure
