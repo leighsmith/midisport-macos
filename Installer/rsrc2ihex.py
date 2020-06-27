@@ -8,6 +8,10 @@ firmwareStartRE = re.compile("""data 'FIRM' \([0-9]+, \"(.*)\",.*\)""")
 hexStringRE = re.compile('\s*\$\"([0-9A-F\s]+)\"')
 
 def interpretFirmwareFile(inputLineGenerator):
+    """
+    Reads lines of Apple DeRez input, and returns the data for that resource, together
+    with it's name.
+    """
     firmwareBytes = ''
     for inputLine in inputLineGenerator:
         inputLine = inputLine.rstrip()
@@ -26,14 +30,21 @@ def interpretFirmwareFile(inputLineGenerator):
             yield firmwareName, firmwareBytes
 
 def calculateChecksum(hexLine):
-    # Split the line into byte character pairs.
-    # sum all of them.
-    # Take twos complement,
-    # Mask with 0xff
-    a = -sum & 0xff
-    return "00"  # TODO calculate
-    
+    """
+    Returns a hex string of the checksum from a string of hex digits.
+    """
+    # Split the line into byte two character pairs, convert each from hex to integer.
+    bytesList = [int(hexLine[index:index+2], 16) for index in range(0, len(hexLine), 2)]
+    # Sum the integers, take twos complement, mask with 0xff.
+    checksum = -sum(bytesList) & 255
+    # Return checksum as a hex string.
+    return "%02X" % checksum
+
 def writeIntelHexFile(fileName, hexString):
+    """
+    Write out the the hex string as an Intel Hex format file, including calculating
+    checksums etc.
+    """
     with open(fileName, 'w') as fileHandle:
         # partition the hex string
         while len(hexString):
@@ -50,7 +61,7 @@ def writeIntelHexFile(fileName, hexString):
 if __name__ == '__main__':
     for firmwareName, byteString in interpretFirmwareFile(fileinput.input()):
         print(firmwareName)
-        # Strip off the first FFFF
+        # Strip off the first "FFFF"
         strippedByteString = byteString[4:]
         firmwareFilename = firmwareName + '.ihx'
         writeIntelHexFile(firmwareFilename, strippedByteString)
