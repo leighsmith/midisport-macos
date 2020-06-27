@@ -107,10 +107,10 @@ into the USB bus.
 be found, the firmware for the MIDISPORT will be downloaded which will be indicated by its
 LED labelled "USB" pulsing.
 
-5. Open '/Applications/Utilities/Audio MIDI Setup.app' and select the MIDI Studio window
-of the app. You should see the MIDISPORT MIDI interface device appear, and you can then define MIDI
-devices and connect them to the MIDISPORT interface device in the standard operation of
-the utility application. Note that if you have run the M-Audio driver in the past, the
-previous MIDI interfaces will still appear and any MIDI devices connected to them will
-remain. You will need to remove those connections and reconnect the MIDI devices to the
-new available MIDISPORT interface.
+5. Open `/Applications/Utilities/Audio MIDI Setup.app` and select the MIDI Studio window
+of the app. You should see the MIDISPORT MIDI interface device appear, and you can then
+define MIDI devices and connect them to the MIDISPORT interface device in the standard
+operation of the utility application. Note that if you have run the M-Audio driver in the
+past, the previous MIDI interfaces will still appear and any MIDI devices connected to
+them will remain. You will need to remove those connections and reconnect the MIDI devices
+to the new available MIDISPORT interface.
