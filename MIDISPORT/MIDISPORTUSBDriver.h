@@ -62,9 +62,10 @@ public:
     virtual void StartInterface(InterfaceState *intf);
     virtual void StopInterface(InterfaceState *intf);
     virtual void HandleInput( InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, ByteCount readBufSize);
-    virtual void PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
-                                 Byte *destBuf1, ByteCount *bufCount1,
-                                 Byte *destBuf2, ByteCount *bufCount2);
+    virtual ByteCount USBMIDIPrepareOutput(USBMIDIDevice *usbmDev,
+                                           WriteQueue &   writeQueue,
+                                           Byte *         destBuf,
+                                           ByteCount      bufSize);
 private:
     int connectedMIDISPORTIndex;
 };

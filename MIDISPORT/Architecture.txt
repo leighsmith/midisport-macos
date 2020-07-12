@@ -1,0 +1,41 @@
+Class hierarchies
+-----------------
+
+MIDIDriver
+	USBMIDIDriverBase
+		USBVendorMIDIDriver
+			CompanyA_USBMIDIDriver
+			CompanyB_USBMIDIDriver
+			etc.
+		USBMIDIClassDriver
+	SerialMIDIDriverBase *
+		StandardSerialMIDIDriver
+		CompanyC_SerialMIDIDriver
+		CompanyD_SerialMIDIDriver
+		etc.
+
+MIDIDriverDevice  (was: InterfaceState)
+	USBMIDIDevice
+	SerialMIDIDevice *
+
+IOServiceManager
+	USBDeviceManager
+		USBMIDIDeviceManager
+	USBInterfaceManager
+		USBMIDIClassInterfaceManager
+	SerialDeviceManager *
+
+* doesn't exist yet
+
+Vendor-specific drivers not supplied by Apple.
+
+
+
+Object ownership hierarchy
+--------------------------
+USBVendorMIDIDriver
+	USBMIDIDeviceManager
+		array of USBMIDIDevice
+
+with ALL vendor-specific overrides implemented in the driver class
+although the device may also be subclassed in special cases

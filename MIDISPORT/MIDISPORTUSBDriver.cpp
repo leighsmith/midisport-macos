@@ -400,6 +400,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
     }
 }
 
+
 // WriteQueue is an STL list of VLMIDIPacket's to be transmitted, presumably containing
 // at least one element.
 // Fill two USB buffers, destBuf1 and destBuf2, each with a size of kWriteBufSize, with outgoing data
@@ -407,37 +408,42 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
 // Return the number of bytes written.
 // From the 8x8 Spec:
 // "To ease the load on the MidiSport 8x8 processor, this limitation has been added: the host should send
-// no more than two packets per each MIDI OUT or SMPTE port in a given OUT transfer.  This limitation 
+// no more than two packets per each MIDI OUT or SMPTE port in a given OUT transfer.  This limitation
 // still allows MIDI data to be transferred at almost double bandwidth across the USB bus while reducing
 // the MidiSport’s internal buffer requirements."
 // Now that's going to be tricky to implement... :-(
-void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
-                              Byte *destBuf1, ByteCount *bufCount1,
-                              Byte *destBuf2, ByteCount *bufCount2)
+//
+// WriteQueue is an STL list of WriteQueueElem's to be transmitted, presumably containing
+// at least one element.
+// Fill one USB buffer, destBuf, with a size of bufSize, with outgoing data in USB-MIDI format.
+// Return the number of bytes written.
+ByteCount MIDISPORT::USBMIDIPrepareOutput(USBMIDIDevice *usbmDev,
+                                          WriteQueue &   writeQueue,
+                                          Byte *         destBuf,
+                                          ByteCount      bufSize)
 {
-    Byte *dest[2] = {destBuf1, destBuf2};
-    Byte *destEnd[2] = {dest[0] + productTable[connectedMIDISPORTIndex].writeBufSize,
-                        dest[1] + productTable[connectedMIDISPORTIndex].writeBufSize};
+    Byte *destEnd[2] = {destBuf + productTable[connectedMIDISPORTIndex].writeBufSize,
+                        destBuf + productTable[connectedMIDISPORTIndex].writeBufSize};
    
     while (true) {
         if (writeQueue.empty()) {
-            ByteCount buf1Length = dest[0] - destBuf1;
-            ByteCount buf2Length = dest[1] - destBuf2;
+            ByteCount buf1Length = destBuf - destBuf1;
+            ByteCount buf2Length = destBuf - destBuf2;
 #if DEBUG_OUTBUFFER
             printf("dest buffer = ");
-            for(int i = 0; i < dest[0] - destBuf1; i++)
+            for(int i = 0; i < destBuf - destBuf1; i++)
                 printf("%02X ", destBuf1[i]);
             printf("\n");
 #endif
 
             if(buf1Length > 0) {
-                memset(dest[0], 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
+                memset(destBuf, 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
                 *bufCount1 = buf1Length + MIDIPACKETLEN; // + MIDIPACKETLEN for null packet.
             }
             else
                 *bufCount1 = 0;
             if(buf2Length > 0) {
-                memset(dest[1], 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
+                memset(destBuf, 0, MIDIPACKETLEN);  // signal the conclusion with a single null packet
                 *bufCount2 = buf2Length + MIDIPACKETLEN; // + MIDIPACKETLEN for null packet.
             }
             else
@@ -552,8 +558,8 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
 
             if (dest[cableEndpoint] > destEnd[cableEndpoint] - 4) {
                 // one of the destBuf's are completely filled
-                *bufCount1 = dest[0] - destBuf1;
-                *bufCount2 = dest[1] - destBuf2;
+                *bufCount1 = destBuf - destBuf1;
+                *bufCount2 = destBuf - destBuf2;
                 return; 
             }
             // we didn't fill the output buffer, is there more source data in the write queue?
