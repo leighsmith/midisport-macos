@@ -264,7 +264,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					DEBUG,
+					"DEBUG=1",
 					"CoreAudio_UseSideFile=\\\"/tmp/MIDISPORT_debug_%d.log\\\"",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -298,10 +298,7 @@
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"",
 					"$(SDKROOT)/../MacOSX.sdk/System/Library/Frameworks",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					DEBUG,
-					"CoreAudio_UseSideFile=\\\"/tmp/MIDISPORT_debug_%d.log\\\"",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = .;
 				INFOPLIST_FILE = "Info-MIDISPORT.plist";
@@ -333,7 +330,7 @@
 					"$(SDKROOT)/../MacOSX.sdk/System/Library/Frameworks",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					DEBUG,
+					"DEBUG=1",
 					"CoreAudio_UseSideFile=\\\"/tmp/MIDISPORT_debug_%d.log\\\"",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;

@@ -77,12 +77,14 @@
 		#define	DebugPrintfFileComma
 	#else
 		#if	CoreAudio_UseSysLog
+                        #warning "Debugging output to syslog"
 			#include <sys/syslog.h>
 			#define	DebugPrintfRtn	syslog
 			#define	DebugPrintfFile	LOG_NOTICE
 			#define	DebugPrintfLineEnding	""
 			#define	DebugPrintfFileComma	DebugPrintfFile,
 		#elif defined(CoreAudio_UseSideFile)
+                        #warning "Debugging output to side file"
 			#include <stdio.h>
 			#if defined(__cplusplus)
 			extern "C"
@@ -94,6 +96,7 @@
 			#define	DebugPrintfLineEnding	"\n"
 			#define	DebugPrintfFileComma	DebugPrintfFile,
 		#else
+                        #warning "Debugging output to stderr"
 			#include <stdio.h>
 			#define	DebugPrintfRtn	fprintf
 			#define	DebugPrintfFile	stderr
@@ -104,7 +107,8 @@
 
 	#define	DebugPrintf(inFormat, ...)	DebugPrintfRtn(DebugPrintfFileComma inFormat DebugPrintfLineEnding, ## __VA_ARGS__)
 #else
-	#define	DebugPrintfRtn	
+        #warning "Disabled debugging"
+	#define	DebugPrintfRtn
 	#define	DebugPrintfFile	
 	#define	DebugPrintfLineEnding	
 	#define	DebugPrintfFileComma

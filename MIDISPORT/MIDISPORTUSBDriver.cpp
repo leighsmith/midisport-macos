@@ -107,6 +107,7 @@ struct HardwareConfigurationDescription {
 extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 {
 #if VERBOSE
+    OpenDebugPrintfSideFile();
     DebugPrintf("In NewMIDISPORTDriver\n");
 #endif
     // If correct type is being requested, allocate an
