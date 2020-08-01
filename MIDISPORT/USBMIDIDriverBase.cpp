@@ -94,7 +94,7 @@ public:
 	void	Dump()
 	{
 		for (int i = 0; i < mNumSamples; ++i)
-			DebugPrintf("%10ld\n", (long)mSamples[i]);
+			DebugPrintf("%10ld", (long)mSamples[i]);
 	}
 
 	UInt32		mSamples[kMaxSamples];
@@ -134,7 +134,7 @@ int		MIDIDataBytes(Byte status)
 		return 0;
 	}
 
-	DebugPrintf("MIDIEventLength: illegal status byte %02X\n", status);
+	DebugPrintf("MIDIEventLength: illegal status byte %02X", status);
 	return 0;   // the MIDI spec says we should ignore illegals.
 }
 
@@ -221,7 +221,7 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *			driver,
 	mWriteBuf2.Allocate(mInterfaceInfo.writeBufferSize);
 
 #if VERBOSE
-	DebugPrintf("mReadBuf=0x%lx, mWriteBuf1=0x%lx, mWriteBuf2=0x%lx\n", (long)mReadBuf.Buffer(), (long)mWriteBuf1.Buffer(), (long)mWriteBuf2.Buffer());
+	DebugPrintf("mReadBuf=0x%lx, mWriteBuf1=0x%lx, mWriteBuf2=0x%lx", (long)mReadBuf.Buffer(), (long)mWriteBuf1.Buffer(), (long)mWriteBuf2.Buffer());
 #endif
 
 	numEndpoints = 0;
@@ -231,7 +231,7 @@ InterfaceState::InterfaceState(	USBMIDIDriverBase *			driver,
 	for (pipeIndex = 1; pipeIndex <= numEndpoints; ++pipeIndex) { 
 		__Require_noErr((*mInterface)->GetPipeProperties(mInterface, pipeIndex, &direction, &pipeNum, &transferType, &maxPacketSize, &interval), nextPipe);
 		#if VERBOSE 
-			DebugPrintf("pipe index %d: dir=%d, num=%d, tt=%d, maxPacketSize=%d, interval=%d\n", pipeIndex,  direction, pipeNum, transferType, maxPacketSize, interval);
+			DebugPrintf("pipe index %d: dir=%d, num=%d, tt=%d, maxPacketSize=%d, interval=%d", pipeIndex,  direction, pipeNum, transferType, maxPacketSize, interval);
 		#endif
                 // MIDISPORT_SPECIFIC
                 // The MIDIMan MIDISPORT devices output different ports via different endPoints.
@@ -259,7 +259,7 @@ nextPipe: ;
 	__Require(mHaveOutPipe1 || mHaveOutPipe2 || mHaveInPipe, errexit);
 
 	#if VERBOSE
-		DebugPrintf("starting MIDI, mOutPipe1=0x%lX, mOutPipe2=0x%lX, mInPipe=0x%lX\n", (long)mOutPipe1, (long)mOutPipe2, (long)mInPipe);
+		DebugPrintf("starting MIDI, mOutPipe1=0x%lX, mOutPipe2=0x%lX, mInPipe=0x%lX", (long)mOutPipe1, (long)mOutPipe2, (long)mInPipe);
 	#endif
 	
 	// now set up all the sources and destinations
@@ -352,7 +352,7 @@ InterfaceState::~InterfaceState()
 	delete[] mSources;
 
 #if VERBOSE
-	DebugPrintf("driver stopped MIDI\n");
+	DebugPrintf("driver stopped MIDI");
 #endif
 }
 
@@ -360,7 +360,7 @@ InterfaceState::~InterfaceState()
 void	InterfaceState::HandleInput(ByteCount bytesReceived)
 {
 	UInt64 now = AudioGetCurrentHostTime();
-//	DebugPrintf("bytesReceived = %ld\n", bytesReceived);
+//	DebugPrintf("bytesReceived = %ld", bytesReceived);
 //	DebugPrintf("mReadBuf[0-23]: ");
 //	for (int i = 0; i < 24; i++)
 //		DebugPrintf("%02X ", mReadBuf[i]);
@@ -406,7 +406,7 @@ void	InterfaceState::ReadCallback(void *refcon, IOReturn asyncReadResult, void *
 	{
 		InterfaceState *self = (InterfaceState *)refcon;
 		ByteCount bytesReceived = (ByteCount)arg0;
-		//DebugPrintf("ReadCallback: arg0 is %ld\n", (long)bytesReceived);
+		//DebugPrintf("ReadCallback: arg0 is %ld", (long)bytesReceived);
 		self->HandleInput(bytesReceived);
 		// chain another async read
 		self->DoRead();
@@ -435,7 +435,7 @@ void	InterfaceState::DoWrite()
 				}
 				DebugPrintf("\n");
                 pipeStatus = (*mInterface)->GetPipeStatus(mInterface, mOutPipe1);
-                DebugPrintf("mInterface = 0x%x, pipeStatus = 0x%x\n", (unsigned int) mInterface, pipeStatus);
+                DebugPrintf("mInterface = 0x%x, pipeStatus = 0x%x", (unsigned int) mInterface, pipeStatus);
 #endif
 				mWritePending = true;
 				__Verify_noErr((*mInterface)->WritePipeAsync(mInterface, mOutPipe1, mWriteBuf1, (UInt32) msglen1, WriteCallback, this));
@@ -509,7 +509,7 @@ public:
 										UInt8						altSetting )
 	{
 #if VERBOSE
-        DebugPrintf("InterfaceLocator::FoundInterface\n");
+        DebugPrintf("InterfaceLocator::FoundInterface");
 #endif
 		MIDIDeviceRef dev = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
 		if (dev != (MIDIDeviceRef) NULL)
@@ -585,7 +585,7 @@ public:
 		MIDIDeviceRef midiDevice = NULL;
 
 		#if VERBOSE
-			DebugPrintf("InterfaceRunner::FoundInterface, ioDevice 0x%X, driver version %d\n", (int)ioDevice, mDriver->mVersion);
+			DebugPrintf("InterfaceRunner::FoundInterface, ioDevice 0x%X, driver version %d", (int)ioDevice, mDriver->mVersion);
 		#endif
 
 #if V2_MIDI_DRIVER_SUPPORT
@@ -603,7 +603,7 @@ public:
 			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
 			nDevs = MIDIDeviceListGetNumberOfDevices(curDevices);
 #if VERBOSE
-            DebugPrintf("nDevs = %lu, locationID = 0x%x\n", nDevs, (unsigned int) locationID);
+            DebugPrintf("nDevs = %lu, locationID = 0x%x", nDevs, (unsigned int) locationID);
 #endif
 			for (int i = 0; i < nDevs; ++i) {
 				SInt32 prevDevLocation, prevVendorProduct;
@@ -619,9 +619,9 @@ public:
 			}
 			MIDIDeviceListDispose(curDevices);
 			if (!deviceInSetup) {
-				#if VERBOSE
-					DebugPrintf("creating new device\n");
-				#endif
+#if VERBOSE
+				DebugPrintf("creating new device");
+#endif
 				midiDevice = mDriver->CreateDevice(ioDevice, ioInterface, device, interface, devVendor, devProduct, interfaceNumber, altSetting);
 				__Require(midiDevice != (MIDIDeviceRef) NULL, errexit);
 				MIDIObjectSetIntegerProperty(midiDevice, kUSBLocationProperty, locationID);
@@ -629,15 +629,15 @@ public:
 
 				__Require_noErr(MIDISetupAddDevice(midiDevice), errexit);
 			} else {
-				#if VERBOSE
-					DebugPrintf("old device found\n");
-				#endif
+#if VERBOSE
+				DebugPrintf("old device found");
+#endif
 			}
 			InterfaceState *ifs = new InterfaceState(mDriver, midiDevice, ioDevice, device, interface);
 			mInterfaceStateList.push_back(ifs);
-                        #if VERBOSE
-                            DebugPrintf("marking midiDevice online\n");
-                        #endif
+#if VERBOSE
+            DebugPrintf("marking midiDevice online");
+#endif
 			MIDIObjectSetIntegerProperty(midiDevice, kMIDIPropertyOffline, false);
 		}
 #endif // V2_MIDI_DRIVER_SUPPORT
@@ -674,7 +674,7 @@ errexit:
 			InterfaceState *rs = *it;
 			if (rs->mIODevice == removedDevice) {
 				#if VERBOSE
-					DebugPrintf("shutting down removed device 0x%X\n", (int)removedDevice);
+					DebugPrintf("shutting down removed device 0x%X", (int)removedDevice);
 				#endif
 				MIDIObjectSetIntegerProperty(rs->mMidiDevice, kMIDIPropertyOffline, true);
 				delete rs;
@@ -717,7 +717,7 @@ OSStatus	USBMIDIDriverBase::FindDevices(MIDIDeviceListRef devices)
 OSStatus	USBMIDIDriverBase::Start(MIDIDeviceListRef devices)
 {
 #if VERBOSE
-    DebugPrintf("creating new interface runner in USBMIDIDriverBase::Start\n");
+    DebugPrintf("creating new interface runner in USBMIDIDriverBase::Start");
 #endif
 	mInterfaceRunner = new InterfaceRunner(this, devices);
 
