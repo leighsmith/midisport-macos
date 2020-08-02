@@ -359,7 +359,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
 #endif
                 pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
                 numCompleted = 0;
-                DebugPrintf("shipped");
+                DebugPrintf("shipped packet");
             }
             if (preservedMsgCount != 0) {
                 remainingBytesInMsg[inputPort] = preservedMsgCount;
@@ -367,10 +367,9 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         }
     }
     if (pktlist->numPackets > 0 && prevInputPort != -1) {
-        // DebugPrintf("source %d receiving %d packets", prevInputPort, pktlist->numPackets);
-        // DebugPrintf("number of entities %d", (unsigned int) intf->mNumEntities);
+        DebugPrintf("source %d receiving %d packets", prevInputPort, pktlist->numPackets);
+        DebugPrintf("number of entities %d", (unsigned int) intf->mNumEntities);
         MIDIReceived(intf->mSources[prevInputPort], pktlist);
-        // DebugPrintf("\n");
     }
 }
 
@@ -398,7 +397,7 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
             ByteCount buf1Length = dest[0] - destBuf1;
             ByteCount buf2Length = dest[1] - destBuf2;
 #if DEBUG_OUTBUFFER
-            DebugPrintf("dest buffer = ");
+            DebugPrintf("MIDISPORT::PrepareOutput dest buffer = ");
             for(int i = 0; i < dest[0] - destBuf1; i++)
                 DebugPrintf("%02X ", destBuf1[i]);
             DebugPrintf("");
@@ -427,7 +426,7 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
         Byte *src = pkt->data + wqe->bytesSent;
         Byte *srcend = &pkt->data[pkt->length];
 
-        DebugPrintf("cableNibble = 0x%x, portNum = %d", cableNibble, wqe->portNum);
+        DebugPrintf("cableNibble = 0x%x, cableEndpoint = %d, portNum = %d", cableNibble, cableEndpoint, wqe->portNum);
         while (src < srcend && dest[cableEndpoint] < destEnd[cableEndpoint]) {
             long outPacketLen;
             long numToBeSent;

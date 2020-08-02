@@ -254,19 +254,20 @@ nextPipe: ;
 	}
 	// don't go any further if we don't have a valid pipe
 	__Require(mHaveOutPipe1 || mHaveOutPipe2 || mHaveInPipe, errexit);
-
     DebugPrintf("starting MIDI, mOutPipe1=0x%lX, mOutPipe2=0x%lX, mInPipe=0x%lX", (long)mOutPipe1, (long)mOutPipe2, (long)mInPipe);
-	
-	// now set up all the sources and destinations
+
+    // now set up all the sources and destinations
 	// !!! this may be too specific; it assumes that every entity has 1 source and 1 destination
 	// if this assumption is false, more specific code is needed
 	// !!! could factor this into a virtual method with a default implementation.
 	mNumEntities = MIDIDeviceGetNumberOfEntities(midiDevice);
 	mSources = new MIDIEndpointRef[mNumEntities];
+    DebugPrintf("number of entities for MIDI device %ld", (unsigned long) mNumEntities);
 
 	for (ItemCount ient = 0; ient < (ItemCount)mNumEntities; ++ient) {
 		MIDIEntityRef ent = MIDIDeviceGetEntity(midiDevice, ient);
 
+        DebugPrintf("number of destinations %ld, number of sources %ld", MIDIEntityGetNumberOfDestinations(ent), MIDIEntityGetNumberOfSources(ent));
 		// destination refCons: output pipe, cable number (0-based)
 		if (ient < MIDIEntityGetNumberOfDestinations(ent)) {
             MIDIEndpointRef dest = MIDIEntityGetDestination(ent, 0);
@@ -353,7 +354,7 @@ InterfaceState::~InterfaceState()
 void	InterfaceState::HandleInput(ByteCount bytesReceived)
 {
 	UInt64 now = AudioGetCurrentHostTime();
-//	DebugPrintf("bytesReceived = %ld", bytesReceived);
+//	DebugPrintf("InterfaceState::HandleInput bytesReceived = %ld", bytesReceived);
 //	DebugPrintf("mReadBuf[0-23]: ");
 //	for (int i = 0; i < 24; i++)
 //		DebugPrintf("%02X ", mReadBuf[i]);
@@ -366,6 +367,7 @@ void	InterfaceState::Send(const MIDIPacketList *pktlist, UInt64 portNumber)
 {
 	bool shouldUnlock = mWriteQueueMutex.Lock();
 	const MIDIPacket *srcpkt = pktlist->packet;
+    DebugPrintf("InterfaceState::Send %d packets to port %lu", pktlist->numPackets, (unsigned long) portNumber);
 	for (int i = pktlist->numPackets; --i >= 0; ) {
 		WriteQueueElem wqe;
 		
