@@ -108,21 +108,17 @@ extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 {
 #if VERBOSE
     OpenDebugPrintfSideFile();
-    DebugPrintf("In NewMIDISPORTDriver");
 #endif
+    DebugPrintf("In NewMIDISPORTDriver");
     // If correct type is being requested, allocate an
     // instance of TestType and return the IUnknown interface.
     if (CFEqual(typeID, kMIDIDriverTypeID)) {
-#if VERBOSE
         DebugPrintf("NewMIDISPORTDriver typedId matched kMIDIDriverTypeID");
-#endif
         MIDISPORT *result = new MIDISPORT;
         return result->Self();
     }
     else {
-#if VERBOSE
         DebugPrintf("NewMIDISPORTDriver typedId did not match kMIDIDriverTypeID");
-#endif
         // If the requested type is incorrect, return NULL.
         return NULL;
     }
@@ -132,18 +128,14 @@ extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 
 MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
 {
-#if VERBOSE
     DebugPrintf("MIDISPORTUSBDriver init");
-#endif
     // if (CFEqual(typeID, kMIDIDriverInterfaceID))
     connectedMIDISPORTIndex = -1;   // error condition
 }
 
 MIDISPORT::~MIDISPORT()
 {
-#if VERBOSE
     DebugPrintf("~MIDISPORTUSBDriver");
-#endif
 }
 
 // __________________________________________________________________________________________________
@@ -155,14 +147,10 @@ bool MIDISPORT::MatchDevice(IOUSBDeviceInterface **device,
     unsigned int i;
     
     if(devVendor == midimanVendorID) {
-#if VERBOSE
         DebugPrintf("looking for MIDISPORT device 0x%x", devProduct);
-#endif
         for(i = 0; i < PRODUCT_TOTAL; i++) {
             if(productTable[i].warmFirmwareProductID == devProduct) {
-#if VERBOSE
                 DebugPrintf("found it");
-#endif
                 connectedMIDISPORTIndex = i;
                 return true;
             }
@@ -172,32 +160,28 @@ bool MIDISPORT::MatchDevice(IOUSBDeviceInterface **device,
 }
 
 void MIDISPORT::GetInterfaceToUse(IOUSBDeviceInterface **device, 
-                                     UInt8 &outInterfaceNumber,
-                                     UInt8 &outAltSetting)
+                                  UInt8 &outInterfaceNumber,
+                                  UInt8 &outAltSetting)
 {
-#if VERBOSE
     DebugPrintf("MIDISPORT::GetInterfaceToUse outInterfaceNumber = %d", outInterfaceNumber);
-#endif
     outInterfaceNumber = kTheInterfaceToUse;
     outAltSetting = 0;
 }
 
 MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
-                             io_service_t ioInterface,
-                             IOUSBDeviceInterface **device,
-                             IOUSBInterfaceInterface **interface,
-                             UInt16 devVendor,
-                             UInt16 devProduct,
-                             UInt8 interfaceNumber,
-                             UInt8 altSetting)
+                                      io_service_t ioInterface,
+                                      IOUSBDeviceInterface **device,
+                                      IOUSBInterfaceInterface **interface,
+                                      UInt16 devVendor,
+                                      UInt16 devProduct,
+                                      UInt8 interfaceNumber,
+                                      UInt8 altSetting)
 {
     MIDIDeviceRef dev;
     MIDIEntityRef ent;
     unsigned int productIndex;
 
-#if VERBOSE
     DebugPrintf("MIDISPORT::CreateDevice");
-#endif
     for(productIndex = 0; productIndex < PRODUCT_TOTAL; productIndex++) {
         if(productTable[productIndex].warmFirmwareProductID == devProduct) {
             connectedMIDISPORTIndex = productIndex;
@@ -245,17 +229,13 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
 // note that we're using bulk endpoint for output; interrupt for input...
 void MIDISPORT::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
 {
-#if VERBOSE
     DebugPrintf("MIDISPORT::GetInterfaceInfo");
-#endif
     info.inEndpointType = kUSBInterrupt;    // this differs from the SampleUSB and is correct.
     info.outEndpointType = kUSBBulk;
     if(connectedMIDISPORTIndex != -1) {
         info.readBufferSize  = productTable[connectedMIDISPORTIndex].readBufSize;
         info.writeBufferSize = productTable[connectedMIDISPORTIndex].writeBufSize;
-#if VERBOSE
         DebugPrintf("setting readBufferSize = %d, writeBufferSize = %d", (unsigned int) info.readBufferSize, (unsigned int) info.writeBufferSize);
-#endif
     }
     else
         DebugPrintf("Assertion failed: connectedMIDISPORTIndex == -1");
@@ -263,16 +243,12 @@ void MIDISPORT::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
 
 void MIDISPORT::StartInterface(InterfaceState *intf)
 {
-#if VERBOSE
-    DebugPrintf("StartInterface");
-#endif
+    DebugPrintf("MIDISPORT::StartInterface");
 }
 
 void MIDISPORT::StopInterface(InterfaceState *intf)
 {
-#if VERBOSE
-    DebugPrintf("StopInterface");
-#endif
+    DebugPrintf("MIDISPORT::StopInterface");
 }
 
 // The MIDI bytes are transmitted from the MIDISPORT in little-endian dword (4 byte) "packets",
@@ -310,9 +286,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
         if (bytesInPacket == 0)	      // Indicates the end of the buffer, early out.
             break;		
 
-#if VERBOSE
-        DebugPrintf("%c %d: %02X %02X %02X %02X  \n", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
-#endif
+        DebugPrintf("MIDISPORT::HandleInput %c %d: %02X %02X %02X %02X  \n", inputPort + 'A', bytesInPacket, src[0], src[1], src[2], src[3]);
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
@@ -321,10 +295,10 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
             pkt = MIDIPacketListInit(pktlist);
             inSysex[inputPort] = false;
         }
-        prevInputPort = inputPort;        
+        prevInputPort = inputPort;
 
-        for(int byteIndex = 0; byteIndex < bytesInPacket; byteIndex++) {
-            if(src[byteIndex] & 0x80) {   // status was present
+        for (int byteIndex = 0; byteIndex < bytesInPacket; byteIndex++) {
+            if (src[byteIndex] & 0x80) {   // status was present
                 int dataInMessage;
                 Byte status = src[byteIndex];
                 // running status applies to channel (voice and mode) messages only
@@ -335,7 +309,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                 // if the message is a single real-time message, save the previous remainingBytesInMsg
                 // (since a real-time message can occur within another message) until we have shipped 
                 // the real-time packet.
-                if(remainingBytesInMsg[inputPort] > 0 && dataInMessage == 0) {
+                if (remainingBytesInMsg[inputPort] > 0 && dataInMessage == 0) {
                     preservedMsgCount = remainingBytesInMsg[inputPort];
                 }
                 else {
@@ -343,10 +317,10 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                 }
                 remainingBytesInMsg[inputPort] = dataInMessage;
 
-                if(status == 0xF0) {
+                if (status == 0xF0) {
                     inSysex[inputPort] = true;
                 }
-                if(status == 0xF7) {
+                if (status == 0xF7) {
                     if(numCompleted > 0)
                         pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
                     inSysex[inputPort] = false;
@@ -357,13 +331,13 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                 completeMessage[0] = status;
                 // DebugPrintf("new status %02X, remainingBytesInMsg = %d", status, remainingBytesInMsg[inputPort]);
             }
-            else if(remainingBytesInMsg[inputPort] > 0) {   // still within a message
+            else if (remainingBytesInMsg[inputPort] > 0) {   // still within a message
                 remainingBytesInMsg[inputPort]--;
                 // store ready for packetting.
                 completeMessage[numCompleted++] = src[byteIndex];
                 // DebugPrintf("in message remainingBytesInMsg = %d", remainingBytesInMsg[inputPort]);
             }
-            else if(inSysex[inputPort]) {          // fill the packet with sysex bytes
+            else if (inSysex[inputPort]) {          // fill the packet with sysex bytes
                 // DebugPrintf("in sysex numCompleted = %d", numCompleted);
                 completeMessage[numCompleted++] = src[byteIndex];
             }
@@ -377,19 +351,17 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                 // assert(remainingBytesInMsg[inputPort] > 0); // since System messages are prevented from being running status.
             }
 
-            if(remainingBytesInMsg[inputPort] == 0 || numCompleted >= (MIDIPACKETLEN - 1)) { // completed
+            if (remainingBytesInMsg[inputPort] == 0 || numCompleted >= (MIDIPACKETLEN - 1)) { // completed
 #if VERBOSE
-               DebugPrintf("Shipping a packet: ");
+                DebugPrintf("Shipping a packet: ");
                 for(int i = 0; i < numCompleted; i++)
                     DebugPrintf("%02X ", completeMessage[i]);
 #endif
                 pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
                 numCompleted = 0;
-#if VERBOSE
-               DebugPrintf("shipped");
-#endif
+                DebugPrintf("shipped");
             }
-            if(preservedMsgCount != 0) {
+            if (preservedMsgCount != 0) {
                 remainingBytesInMsg[inputPort] = preservedMsgCount;
             }
         }
@@ -429,7 +401,7 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
             DebugPrintf("dest buffer = ");
             for(int i = 0; i < dest[0] - destBuf1; i++)
                 DebugPrintf("%02X ", destBuf1[i]);
-            DebugPrintf("\n");
+            DebugPrintf("");
 #endif
 
             if(buf1Length > 0) {
@@ -455,7 +427,7 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
         Byte *src = pkt->data + wqe->bytesSent;
         Byte *srcend = &pkt->data[pkt->length];
 
-        // DebugPrintf("cableNibble = 0x%x, portNum = %d", cableNibble, wqe->portNum);
+        DebugPrintf("cableNibble = 0x%x, portNum = %d", cableNibble, wqe->portNum);
         while (src < srcend && dest[cableEndpoint] < destEnd[cableEndpoint]) {
             long outPacketLen;
             long numToBeSent;
