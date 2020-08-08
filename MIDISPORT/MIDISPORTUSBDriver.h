@@ -40,32 +40,68 @@ public:
 /*	virtual OSStatus	EnableSource(MIDIEndpointRef src, Boolean enabled);*/
 
     // USBMIDIDriverBase overrides
-    virtual bool MatchDevice(IOUSBDeviceInterface **device,
-                                          UInt16 devVendor,
-                                          UInt16 devProduct);
+    virtual bool MatchDevice(USBDevice *inUSBDevice);
 
     virtual void GetInterfaceToUse(IOUSBDeviceInterface **device, 
                                    UInt8 &outInterfaceNumber,
                                    UInt8 &outAltSetting);
 
-    virtual MIDIDeviceRef CreateDevice(io_service_t	ioDevice,
-                                       io_service_t	ioInterface,
-                                       IOUSBDeviceInterface **device,
-                                       IOUSBInterfaceInterface **interface,
-                                       UInt16 devVendor,
-                                       UInt16 devProduct,
-                                       UInt8 interfaceNumber,
-                                       UInt8 altSetting);
+
+    virtual MIDIDeviceRef CreateDevice(USBDevice *inUSBDevice,
+                                       USBInterface *inUSBInterface);
 
     virtual void GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info);
 
-    virtual void StartInterface(InterfaceState *intf);
-    virtual void StopInterface(InterfaceState *intf);
-    virtual void HandleInput( InterfaceState *intf, MIDITimeStamp when, Byte *readBuf, ByteCount readBufSize);
-    virtual ByteCount USBMIDIPrepareOutput(USBMIDIDevice *usbmDev,
-                                           WriteQueue &   writeQueue,
-                                           Byte *         destBuf,
-                                           ByteCount      bufSize);
+    // pipes are opened, do any extra initialization (send config msgs etc)
+    virtual void StartInterface(USBMIDIDevice *usbmDev);
+
+    // pipes are about to be closed, do any preliminary cleanup
+    virtual void StopInterface(USBMIDIDevice *usbmDev);
+
+    // a USB message arrived, parse it into a MIDIPacketList and call MIDIReceived
+    virtual void HandleInput(USBMIDIDevice *usbmDev,
+                             MIDITimeStamp when,
+                             Byte *readBuf,
+                             ByteCount readBufSize);
+
+    static ByteCount USBMIDIPrepareOutput(USBMIDIDevice *usbmDev,
+                                          WriteQueue &writeQueue,
+                                          Byte * destBuf,
+                                          ByteCount bufSize);
+
+
+    // overrides of MIDIDriver methods
+    virtual OSStatus        Send(                    const MIDIPacketList *pktlist,
+                                 void *            endptRef1,
+                                 void *            endptRef2);
+
+    // our abstract methods - required overrides
+
+
+    virtual void            PreExistingDeviceFound(    MIDIDeviceRef    inMIDIDevice,
+                                                   USBDevice *        inUSBDevice,
+                                                   USBInterface *    inUSBInterface) { }
+
+    virtual USBInterface *    CreateInterface(        USBMIDIDevice *    inDevice) = 0;
+
+
+    virtual ByteCount        PrepareOutput(            USBMIDIDevice *    usbmDev,
+                                           WriteQueue &    writeQueue,
+                                           Byte *            destBuf) = 0;
+    // dequeue from WriteQueue into a single USB message, return
+    // length of the message.  Called with the queue mutex locked.
+
+    virtual USBMIDIDevice *    CreateUSBMIDIDevice(    USBDevice *        inUSBDevice,
+                                                   USBInterface *    inUSBInterface,
+                                                   MIDIDeviceRef    inMIDIDevice);
+    // may override to create a subclass
+
+    // Utilities to implement the USB MIDI class spec methods of encoding MIDI in USB packets
+    static void                USBMIDIHandleInput(        USBMIDIDevice *    usbmDev,
+                                                  MIDITimeStamp    when,
+                                                  Byte *            readBuf,
+                                                  ByteCount        bufSize);
+
 private:
     int connectedMIDISPORTIndex;
 };

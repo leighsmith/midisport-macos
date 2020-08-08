@@ -57,7 +57,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include "MIDISPORTUSBDriver.h"
-#include "USBUtils.h"
+//#include "USBUtils.h"
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
