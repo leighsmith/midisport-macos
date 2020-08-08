@@ -81,8 +81,6 @@
 #define CMDINDEX	        (MIDIPACKETLEN - 1)  // which byte in the packet has the length and port number.
 
 #define DEBUG_OUTBUFFER		1		// 1 to printout whenever a msg is to be sent.
-//#define VERBOSE             (DEBUG || 1)
-#define VERBOSE             1
 
 struct HardwareConfigurationDescription {
     WarmFirmwareProductIDs warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
@@ -106,7 +104,7 @@ struct HardwareConfigurationDescription {
 // Implementation of the factory function for this type.
 extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 {
-#if VERBOSE
+#if DEBUG
     OpenDebugPrintfSideFile();
 #endif
     DebugPrintf("In NewMIDISPORTDriver");
@@ -352,7 +350,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
             }
 
             if (remainingBytesInMsg[inputPort] == 0 || numCompleted >= (MIDIPACKETLEN - 1)) { // completed
-#if VERBOSE
+#if DEBUG
                 DebugPrintf("Shipping a packet: ");
                 for(int i = 0; i < numCompleted; i++)
                     DebugPrintf("%02X ", completeMessage[i]);
