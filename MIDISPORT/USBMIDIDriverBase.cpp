@@ -269,14 +269,12 @@ nextPipe: ;
 
         DebugPrintf("number of destinations %ld, number of sources %ld", MIDIEntityGetNumberOfDestinations(ent), MIDIEntityGetNumberOfSources(ent));
 		// destination refCons: output pipe, cable number (0-based)
-		if (ient < MIDIEntityGetNumberOfDestinations(ent)) {
-            MIDIEndpointRef dest = MIDIEntityGetDestination(ent, 0);
+        for (int destIndex = 0; destIndex < MIDIEntityGetNumberOfDestinations(ent); destIndex++) {
+            MIDIEndpointRef dest = MIDIEntityGetDestination(ent, destIndex);
             MIDIEndpointSetRefCons(dest, this, (void *)ient);
 		}
-		if (ient < MIDIEntityGetNumberOfSources(ent))
-            mSources[ient] = MIDIEntityGetSource(ent, 0);
-		else
-			mSources[ient] = NULL;
+        for (int sourceIndex = 0; sourceIndex < MIDIEntityGetNumberOfSources(ent); sourceIndex++)
+            mSources[ient] = MIDIEntityGetSource(ent, sourceIndex);
 	}
 	mWriteCable = 0xFF;
 	mReadCable = 0;
