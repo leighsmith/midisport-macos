@@ -564,6 +564,10 @@ public:
 		mDriver->GetInterfaceToUse(device, outInterfaceNumber, outAltSetting);
 	}
 
+    // Called after a device has been matched, configured, and opened.  We update the
+    // current MIDISetup if necessary. This is adapted from the 2007 era Apple MIDI Driver example,
+    // But in this case, the MIDISPORTs don't have serial numbers, so we skip the check, simplifying to two
+    // passes to looking for location, and in order of those previously installed.
 	virtual bool	FoundInterface(		io_service_t				ioDevice,
 										io_service_t				ioInterface,
 										IOUSBDeviceInterface **		device,
@@ -591,18 +595,34 @@ public:
 			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
 			nDevs = MIDIDeviceListGetNumberOfDevices(curDevices);
             DebugPrintf("nDevs = %lu, locationID = 0x%x", nDevs, (unsigned int) locationID);
-			for (int i = 0; i < nDevs; ++i) {
-				SInt32 prevDevLocation, prevVendorProduct;
-				midiDevice = MIDIDeviceListGetDevice(curDevices, i);
-				err = MIDIObjectGetIntegerProperty(midiDevice, kUSBLocationProperty, &prevDevLocation);
-				if (!err && (UInt32)prevDevLocation == locationID) {
-					err = MIDIObjectGetIntegerProperty(midiDevice, kUSBVendorProductProperty, &prevVendorProduct);
-					if (!err && (UInt32)prevVendorProduct == vendorProduct) {
-						deviceInSetup = true;
-						break;
-					}
-				}
-			}
+            // pass 1: match by locationID
+            // pass 2: match by order found
+            for (int pass = 1; pass <= 2 && !deviceInSetup; ++pass) {
+                for (int i = 0; i < nDevs; ++i) {
+                    SInt32 prevDevLocation, prevVendorProduct;
+                    midiDevice = MIDIDeviceListGetDevice(curDevices, i);
+                    err = MIDIObjectGetIntegerProperty(midiDevice, kUSBVendorProductProperty, &prevVendorProduct);
+
+                    if (!err && (UInt32)prevVendorProduct == vendorProduct) { // We have found an instance of our device.
+                        if (pass == 1) {
+                            err = MIDIObjectGetIntegerProperty(midiDevice, kUSBLocationProperty, &prevDevLocation);
+                            if (!err && (UInt32)prevDevLocation == locationID)
+                                deviceInSetup = true;
+                            break;
+                        }
+                        else {
+                            SInt32 isOffline;
+
+                            err = MIDIObjectGetIntegerProperty(midiDevice, kMIDIPropertyOffline, &isOffline);
+                            if (!err && isOffline)
+                                deviceInSetup = true;
+                            break;
+                        }
+                    }
+                    if (deviceInSetup)
+                        break;
+                }
+            }
 			MIDIDeviceListDispose(curDevices);
 			if (!deviceInSetup) {
 				DebugPrintf("creating new device");
