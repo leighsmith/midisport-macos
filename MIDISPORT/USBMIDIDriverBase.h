@@ -55,7 +55,7 @@ class InterfaceRunner;
 class WriteQueueElem {
 public:
 	VLMIDIPacket *		packet;
-	UInt64				portNum;
+	UInt8				portNum;
 	ByteCount			bytesSent;	// this much of the packet has been sent
 };
 
