@@ -45,7 +45,7 @@ companies.
 Project Structure
 -----------------
 
-The project consists of three parts:
+The project consists of two parts:
 
 1. The MacOS X CoreMIDI device driver itself, consisting of a modified version of Apple's
    publicly available (and now very old) MIDI device driver example code.
@@ -55,9 +55,6 @@ The project consists of three parts:
    [8051](https://www.electronicshub.org/8051-microcontroller-architecture/)
    compatible microcontroller within the MIDISPORT devices, the firmware to transmit
    and receive to and from MIDI and USB ports on the devices.
-
-3. Some very simple, and now fairly obsolete, MacOS X CoreMIDI client code to test
-   transmitting and receiving MIDI code.
 
 MacOS X CoreMIDI Device Driver
 ------------------------------
@@ -97,7 +94,8 @@ Installation instructions
 2. Double-Click the .pkg package, and follow the standard installation operation to
 install the plugin. When prompted for authorization to install the plugin, enter an
 administrator's password. The installer should place the plugin into `/Library/Audio/MIDI Drivers/MIDISPORT.plugin` and
-the firmware downloader into `/Library/StartupItems/MIDISPORTFirmwareDownloader/`.
+the firmware downloader into `/usr/local/libexec/MIDISPORTFirmwareDownloader`, and a
+[launchd](https://www.launchd.info/) configuration file into `/Library/LaunchDaemons/`.
 
 3. You will need to reboot the operating system in order to launch the
 MIDISPORTFirmwareDownloader utility which will wait for MIDISPORT devices to be plugged
