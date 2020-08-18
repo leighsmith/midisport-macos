@@ -243,7 +243,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 			bool						deviceOpen = false;
 			UInt8						numConfigs;
 			IOUSBConfigurationDescriptorPtr configDesc;	
-			IOUSBInterfaceInterface		**interfaceIntf;
+			IOUSBInterfaceInterface		**interfaceIntf = NULL;
 			io_iterator_t				intfIter = 0;
 			UInt8 						intfNumber = 0;
 			io_service_t 				ioInterfaceObj = NULL;
