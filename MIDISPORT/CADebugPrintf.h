@@ -107,7 +107,7 @@
 
 	#define	DebugPrintf(inFormat, ...)	DebugPrintfRtn(DebugPrintfFileComma inFormat DebugPrintfLineEnding, ## __VA_ARGS__)
 #else
-        #warning "Disabled debugging"
+        // #warning "Disabled debugging"
 	#define	DebugPrintfRtn
 	#define	DebugPrintfFile	
 	#define	DebugPrintfLineEnding	

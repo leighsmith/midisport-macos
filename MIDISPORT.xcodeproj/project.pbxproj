@@ -6,6 +6,22 @@
 	objectVersion = 51;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		D835416624EB7D5C00E4D42E /* Package */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = D835416A24EB7D5C00E4D42E /* Build configuration list for PBXAggregateTarget "Package" */;
+			buildPhases = (
+				D835416F24EB7DBF00E4D42E /* ShellScript */,
+			);
+			dependencies = (
+				D835416C24EB7D6D00E4D42E /* PBXTargetDependency */,
+				D835416E24EB7D6D00E4D42E /* PBXTargetDependency */,
+			);
+			name = Package;
+			productName = Package;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		D8127F8924D3C716005947C2 /* CADebugPrintf.h in Headers */ = {isa = PBXBuildFile; fileRef = D8127F8524D3C715005947C2 /* CADebugPrintf.h */; };
 		D8127F8A24D3C716005947C2 /* CADebugMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D8127F8624D3C715005947C2 /* CADebugMacros.h */; };
@@ -37,6 +53,23 @@
 		D8A20C1B243150DD00BAFBF4 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A20C142431416100BAFBF4 /* CoreMIDI.framework */; };
 		D8A20C1F2431510D00BAFBF4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A20C1E2431510D00BAFBF4 /* CoreAudio.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D835416B24EB7D6D00E4D42E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D89D8102183D7B2200446B12;
+			remoteInfo = MIDISPORT;
+		};
+		D835416D24EB7D6D00E4D42E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D80C763924EA145A00625E93;
+			remoteInfo = MIDISPORTFirmwareDownloader;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		D80C763824EA145A00625E93 /* CopyFiles */ = {
@@ -310,7 +343,6 @@
 				D89D810B183D7B2200446B12 /* Resources */,
 				D89D810D183D7B2200446B12 /* Sources */,
 				D89D8119183D7B2200446B12 /* Frameworks */,
-				D89D811E183D7B2200446B12 /* Rez */,
 			);
 			buildRules = (
 			);
@@ -333,6 +365,9 @@
 					D80C763924EA145A00625E93 = {
 						CreatedOnToolsVersion = 10.3;
 					};
+					D835416624EB7D5C00E4D42E = {
+						CreatedOnToolsVersion = 10.3;
+					};
 				};
 			};
 			buildConfigurationList = D8EA9071183D17D200F595A8 /* Build configuration list for PBXProject "MIDISPORT" */;
@@ -348,6 +383,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				D835416624EB7D5C00E4D42E /* Package */,
 				D89D8102183D7B2200446B12 /* MIDISPORT */,
 				D80C763924EA145A00625E93 /* MIDISPORTFirmwareDownloader */,
 			);
@@ -365,15 +401,25 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXRezBuildPhase section */
-		D89D811E183D7B2200446B12 /* Rez */ = {
-			isa = PBXRezBuildPhase;
-			buildActionMask = 2147483647;
+/* Begin PBXShellScriptBuildPhase section */
+		D835416F24EB7DBF00E4D42E /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
 		};
-/* End PBXRezBuildPhase section */
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D80C763624EA145A00625E93 /* Sources */ = {
@@ -403,6 +449,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D835416C24EB7D6D00E4D42E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D89D8102183D7B2200446B12 /* MIDISPORT */;
+			targetProxy = D835416B24EB7D6D00E4D42E /* PBXContainerItemProxy */;
+		};
+		D835416E24EB7D6D00E4D42E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D80C763924EA145A00625E93 /* MIDISPORTFirmwareDownloader */;
+			targetProxy = D835416D24EB7D6D00E4D42E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C167DFE841241C02AAC07 /* InfoPlist.strings */ = {
@@ -583,6 +642,30 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+			};
+			name = Default;
+		};
+		D835416724EB7D5C00E4D42E /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Development;
+		};
+		D835416824EB7D5C00E4D42E /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Deployment;
+		};
+		D835416924EB7D5C00E4D42E /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Default;
 		};
@@ -802,6 +885,16 @@
 				D80C763F24EA145A00625E93 /* Development */,
 				D80C764024EA145A00625E93 /* Deployment */,
 				D80C764124EA145A00625E93 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		D835416A24EB7D5C00E4D42E /* Build configuration list for PBXAggregateTarget "Package" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D835416724EB7D5C00E4D42E /* Development */,
+				D835416824EB7D5C00E4D42E /* Deployment */,
+				D835416924EB7D5C00E4D42E /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
