@@ -52,6 +52,7 @@
 		D8A20C1A243142CA00BAFBF4 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A20C19243142CA00BAFBF4 /* IOKit.framework */; };
 		D8A20C1B243150DD00BAFBF4 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A20C142431416100BAFBF4 /* CoreMIDI.framework */; };
 		D8A20C1F2431510D00BAFBF4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A20C1E2431510D00BAFBF4 /* CoreAudio.framework */; };
+		D8BA863D24EC53ED0093A9B4 /* MIDISPORT_devices.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = D88A9E5E24EA306900DD10FC /* MIDISPORT_devices.xml */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,9 +76,10 @@
 		D80C763824EA145A00625E93 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			dstPath = /usr/local/etc/midisport_firmware;
 			dstSubfolderSpec = 0;
 			files = (
+				D8BA863D24EC53ED0093A9B4 /* MIDISPORT_devices.xml in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -528,6 +530,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = /usr/local/bin;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -583,6 +586,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = /usr/local/libexec;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -637,6 +641,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = /usr/local/libexec;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -648,6 +653,7 @@
 		D835416724EB7D5C00E4D42E /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -656,6 +662,7 @@
 		D835416824EB7D5C00E4D42E /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -664,6 +671,7 @@
 		D835416924EB7D5C00E4D42E /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
