@@ -82,8 +82,17 @@
 
 #define DEBUG_OUTBUFFER		1		// 1 to printout whenever a msg is to be sent.
 
+// TODO This product table should be read from the XML file.
+enum WarmFirmwareProductIDs {
+    MIDISPORT1x1 = 0x1011,
+    MIDISPORT2x2 = 0x1002,
+    MIDISPORT4x4 = 0x1021,
+    MIDISPORT8x8 = 0x1031,
+    Oxygen8 = 0x1015
+};
+
 struct HardwareConfigurationDescription {
-    WarmFirmwareProductIDs warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
+    int warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
     int numberOfPorts;
     int readBufSize;
     int writeBufSize;
@@ -92,7 +101,8 @@ struct HardwareConfigurationDescription {
     { MIDISPORT1x1, 1, 32, 32, "MIDISPORT 1x1" },
     { MIDISPORT2x2, 2, 32, 32, "MIDISPORT 2x2" },
     { MIDISPORT4x4, 4, 64, 64, "MIDISPORT 4x4" },
-    // Strictly speaking, the endPoint 2 can sustain 40 bytes output on the 8x8. 
+    { Oxygen8, 1, 32, 32, "Oxygen 8" },
+    // Strictly speaking, the endPoint 2 can sustain 40 bytes output on the 8x8.
     // There are 9 ports including the SMPTE control.
     { MIDISPORT8x8, 9, 64, 32, "MIDISPORT 8x8/S" }
 };

@@ -47,6 +47,16 @@
             <key>FilePath</key>
             <string></string>
         </dict>
+        <dict>
+            <key>DeviceName</key>
+            <string>Oxygen 8</string>
+             <key>WarmFirmwareProductID</key>
+             <integer>0x1015</integer>
+             <key>ColdBootProductID</key>
+             <integer>0x1014</integer>
+            <key>FilePath</key>
+            <string>/usr/local/etc/midisport_firmware/1410.cypress.ihx</string>
+        </dict>
     </array>
 </dict>
 </plist>

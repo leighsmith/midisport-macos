@@ -24,13 +24,6 @@
 
 #include "USBMIDIDriverBase.h"
 
-enum WarmFirmwareProductIDs {
-    MIDISPORT1x1 = 0x1011,
-    MIDISPORT2x2 = 0x1002,
-    MIDISPORT4x4 = 0x1021,
-    MIDISPORT8x8 = 0x1031
-};
-
 class MIDISPORT : public USBMIDIDriverBase {
 public:
     MIDISPORT();
