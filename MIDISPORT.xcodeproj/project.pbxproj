@@ -53,6 +53,7 @@
 		D8A20C1B243150DD00BAFBF4 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A20C142431416100BAFBF4 /* CoreMIDI.framework */; };
 		D8A20C1F2431510D00BAFBF4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8A20C1E2431510D00BAFBF4 /* CoreAudio.framework */; };
 		D8BA863D24EC53ED0093A9B4 /* MIDISPORT_devices.xml in CopyFiles */ = {isa = PBXBuildFile; fileRef = D88A9E5E24EA306900DD10FC /* MIDISPORT_devices.xml */; };
+		D8E227D125A42D3000EF945B /* com.leighsmith.midisportfirmwaredownloader.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8E227C825A42CEE00EF945B /* com.leighsmith.midisportfirmwaredownloader.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +81,16 @@
 			dstSubfolderSpec = 0;
 			files = (
 				D8BA863D24EC53ED0093A9B4 /* MIDISPORT_devices.xml in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		D8E227D025A42D1800EF945B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = /Library/LaunchDaemons;
+			dstSubfolderSpec = 0;
+			files = (
+				D8E227D125A42D3000EF945B /* com.leighsmith.midisportfirmwaredownloader.plist in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -123,6 +134,7 @@
 		D8A20C19243142CA00BAFBF4 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		D8A20C1E2431510D00BAFBF4 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		D8BBDC7522ECE3F500F783B4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D8E227C825A42CEE00EF945B /* com.leighsmith.midisportfirmwaredownloader.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = com.leighsmith.midisportfirmwaredownloader.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,7 +268,7 @@
 				D88A9E5924EA301400DD10FC /* Apple Code */,
 			);
 			name = Source;
-			path = "MIDISPORT Firmware Downloader/Source";
+			path = MIDISPORTFirmwareDownloader;
 			sourceTree = SOURCE_ROOT;
 		};
 		D88A9E5924EA301400DD10FC /* Apple Code */ = {
@@ -271,6 +283,7 @@
 		D88A9E5D24EA304500DD10FC /* Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				D8E227C825A42CEE00EF945B /* com.leighsmith.midisportfirmwaredownloader.plist */,
 				D88A9E5E24EA306900DD10FC /* MIDISPORT_devices.xml */,
 			);
 			name = Configuration;
@@ -327,6 +340,7 @@
 				D80C763624EA145A00625E93 /* Sources */,
 				D80C763724EA145A00625E93 /* Frameworks */,
 				D80C763824EA145A00625E93 /* CopyFiles */,
+				D8E227D025A42D1800EF945B /* CopyFiles */,
 			);
 			buildRules = (
 			);
