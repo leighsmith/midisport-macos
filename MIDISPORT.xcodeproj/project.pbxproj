@@ -433,7 +433,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "# Create a Package file\nproductbuild --root ${INSTALL_DIR} --scripts Installer MIDISPORT.pkg \n";
+			shellScript = "# Create a Package file\nproductbuild --root ${INSTALL_DIR} --scripts Installer --identifier com.leighsmith.MIDISPORTDriver MIDISPORT.pkg \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

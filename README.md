@@ -89,7 +89,7 @@ last 32 bit driver v3.5.3.
 
 Installation instructions 
 -------------------------
-1. Decompress the tarball to produce the package MIDISPORT.pkg.
+1. Download the package MIDISPORT.pkg.
 
 2. Double-Click the .pkg package, and follow the standard installation operation to
 install the plugin. When prompted for authorization to install the plugin, enter an
@@ -112,3 +112,12 @@ the utility application. Note that if you have run the M-Audio driver in the pas
 previous MIDI interfaces will still appear and any MIDI devices connected to them will
 remain. You will need to remove those connections and reconnect the MIDI devices to the
 new available MIDISPORT interface.
+
+Building from Source
+--------------------
+The entire package is compiled and built by running:
+
+    xcodebuild -project MIDISPORT.xcodeproj -target Package install
+
+from the Terminal.app command line. This will compile both the firmware downloader and the
+MIDI driver plugin, and produce the installable package.
