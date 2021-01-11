@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 # Download and install all Intel Hex firmware files from the Linux distribution to /usr/local/etc/midisport_firmware
 echo "Downloading MIDISPORT Firmware archive"
 curl --location --output /tmp/midisport_firmware.tar.gz https://downloads.sourceforge.net/project/usb-midi-fw/midisport-firmware/1.2/midisport-firmware-1.2.tar.gz
