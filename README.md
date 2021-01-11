@@ -87,15 +87,19 @@ driver. Support is currently missing for some of the later models which used dif
 firmware. Those firmware files are distributed as part of the download for M-Audio's
 last 32 bit driver v3.5.3. 
 
-Installation instructions 
+Installation instructions
 -------------------------
-1. Download the package MIDISPORT.pkg.
+
+1. Download the package [MIDISPORT.pkg]().
 
 2. Double-Click the .pkg package, and follow the standard installation operation to
 install the plugin. When prompted for authorization to install the plugin, enter an
-administrator's password. The installer should place the plugin into `/Library/Audio/MIDI Drivers/MIDISPORT.plugin` and
-the firmware downloader into `/usr/local/libexec/MIDISPORTFirmwareDownloader`, and a
-[launchd](https://www.launchd.info/) configuration file into `/Library/LaunchDaemons/`.
+administrator's password. The installer should place:
+
+* The plugin into `/Library/Audio/MIDI Drivers/MIDISPORT.plugin`
+* The firmware downloader into `/usr/local/libexec/MIDISPORTFirmwareDownloader`
+* A [launchd](https://www.launchd.info/) configuration file into `/Library/LaunchDaemons/`
+* The firmware files into `/usr/local/etc/midisport_firmware/`
 
 3. You will need to reboot the operating system in order to launch the
 MIDISPORTFirmwareDownloader utility which will wait for MIDISPORT devices to be plugged
@@ -115,6 +119,7 @@ new available MIDISPORT interface.
 
 Building from Source
 --------------------
+
 The entire package is compiled and built by running:
 
     xcodebuild -project MIDISPORT.xcodeproj -target Package install
