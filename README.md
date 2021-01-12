@@ -67,8 +67,8 @@ together with publicly available [Linux](https://github.com/esden/fxload)
 and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105),
 example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
-Currently the code has only been tested on MacOS 10.14, but the goal is to eventually also
-support MacOS 10.15, which seems to have changed the [USB Host API](https://developer.apple.com/documentation/iousbhost/iousbhostinterface?language=objc).
+Currently the code has only been tested on MacOS 10.14, and 10.15, but the goal is to eventually also
+support MacOS 11, which seems to have changed the [USB Host API](https://developer.apple.com/documentation/iousbhost/iousbhostinterface?language=objc).
 
 MIDISPORT Firmware
 ------------------
@@ -90,7 +90,7 @@ last 32 bit driver v3.5.3.
 Installation instructions
 -------------------------
 
-1. Download the package [MIDISPORT.pkg]().
+1. Download the package [MIDISPORT.pkg](https://sourceforge.net/projects/midisport-macos/files/).
 
 2. Double-Click the .pkg package, and follow the standard installation operation to
 install the plugin. When prompted for authorization to install the plugin, enter an

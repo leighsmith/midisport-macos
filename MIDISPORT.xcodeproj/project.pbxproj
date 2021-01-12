@@ -433,7 +433,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "# Create a Package file\npkgbuild --root ${INSTALL_DIR} --scripts Installer/scripts --identifier com.leighsmith.MIDISPORTDriver /tmp/MIDISPORT.pkg \n# Then create the application installer product package, with the distribution file specifying the license file etc.\nproductbuild --distribution Installer/Distribution.xml --package-path /tmp --resources Installer/resources MIDISPORTDriver.pkg\nrm /tmp/MIDISPORT.pkg\n";
+			shellScript = "# Create a Package file\npkgbuild --root ${INSTALL_DIR} --scripts Installer/scripts --version ${CURRENT_PROJECT_VERSION} --identifier com.leighsmith.MIDISPORTDriver /tmp/MIDISPORT.pkg \n# Then create the application installer product package, with the distribution file specifying the license file etc.\nproductbuild --distribution Installer/Distribution.xml --package-path /tmp --resources Installer/resources MIDISPORTDriver-v${CURRENT_PROJECT_VERSION}.pkg\nrm /tmp/MIDISPORT.pkg\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -669,6 +669,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0.0;
 				INSTALL_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -679,6 +680,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0.0;
 				INSTALL_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -689,6 +691,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0.0;
 				INSTALL_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
