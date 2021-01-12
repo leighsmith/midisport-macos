@@ -8,3 +8,5 @@ sudo mkdir -p /usr/local/etc/midisport_firmware/
 sudo cp /tmp/midisport-firmware-1.2/*.ihx /usr/local/etc/midisport_firmware/
 echo "Installed firmware files"
 
+exit 0
+

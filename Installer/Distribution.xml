@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>MIDISPORT USB MIDI Driver</title>
+    <allowed-os-versions>
+        <os-version min="10.14"/>
+    </allowed-os-versions>
+    <license file="LICENSE.rtf"/>
+    <pkg-ref id="com.leighsmith.MIDISPORTDriver"/>
+    <options customize="never" require-scripts="false"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.leighsmith.MIDISPORTDriver"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="com.leighsmith.MIDISPORTDriver" visible="false">
+        <pkg-ref id="com.leighsmith.MIDISPORTDriver"/>
+    </choice>
+    <pkg-ref id="com.leighsmith.MIDISPORTDriver" version="0" onConclusion="RequireRestart">MIDISPORT.pkg</pkg-ref>
+</installer-gui-script>
