@@ -4,6 +4,7 @@
     <allowed-os-versions>
         <os-version min="10.14"/>
     </allowed-os-versions>
+    <readme file="README.rtf"/>
     <license file="LICENSE.rtf"/>
     <pkg-ref id="com.leighsmith.MIDISPORTDriver"/>
     <options customize="never" require-scripts="false"/>
