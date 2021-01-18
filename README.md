@@ -94,7 +94,8 @@ Installation instructions
 
 2. Double-Click the .pkg package, and follow the standard installation operation to
 install the plugin. When prompted for authorization to install the plugin, enter an
-administrator's password. The installer should place:
+administrator's password. Note that installer will attempt to download the firmware files,
+so you need to be connected to the Internet. The installer should place:
 
 * The plugin into `/Library/Audio/MIDI Drivers/MIDISPORT.plugin`
 * The firmware downloader into `/usr/local/libexec/MIDISPORTFirmwareDownloader`
@@ -109,7 +110,7 @@ into the USB bus.
 be found, the firmware for the MIDISPORT will be downloaded which will be indicated by its
 LED labelled "USB" pulsing.
 
-5. Open '/Applications/Utilities/Audio MIDI Setup.app' and select the MIDI Studio window
+5. Open `/Applications/Utilities/Audio MIDI Setup.app` and select the MIDI Studio window
 of the app. You should see the MIDISPORT MIDI interface device appear, and you can then define MIDI
 devices and connect them to the MIDISPORT interface device in the standard operation of
 the utility application. Note that if you have run the M-Audio driver in the past, the

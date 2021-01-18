@@ -669,7 +669,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.0.0;
+				CURRENT_PROJECT_VERSION = 1.0.1;
 				INSTALL_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -680,7 +680,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.0.0;
+				CURRENT_PROJECT_VERSION = 1.0.1;
 				INSTALL_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -691,7 +691,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.0.0;
+				CURRENT_PROJECT_VERSION = 1.0.1;
 				INSTALL_PATH = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -745,7 +745,7 @@
 					"\"$(SYSTEM_LIBRARY_DIR)/Frameworks\"",
 					"$(SDKROOT)/../MacOSX.sdk/System/Library/Frameworks",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=0";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = .;
 				INFOPLIST_FILE = "$(SRCROOT)/MIDISPORT/Info-MIDISPORT.plist";
@@ -777,7 +777,7 @@
 					"$(SDKROOT)/../MacOSX.sdk/System/Library/Frameworks",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
+					"DEBUG=0",
 					"CoreAudio_UseSideFile=\\\"/tmp/MIDISPORT_debug_%d.log\\\"",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
