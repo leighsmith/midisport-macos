@@ -2,8 +2,10 @@
 DMGFILE=~/Downloads/MIDI_USB_OSX_3.5.3.dmg
 # Download MIDI_USB_OSX_3.5.3.dmg
 # https://mac.softpedia.com/get/Drivers/M-Audio-MIDISport-Series.shtml#download
+# The URL provided changes on each request, so we assume the user manually downloads and
+# places the file into their Downloads folder.
 # curl --output $DMGFILE https://us.softpedia-secure-download.com/dl/c05c654f4d8f1c1d214be8f5e881923e/6004d9a1/400050371/mac/Drivers/MIDI_USB_OSX_3.5.3.dmg
-# TODO check the file downloaded ok.
+# Check the file downloaded ok.
 if [ -f $DMGFILE ]; then
     echo "Found the M-Audio driver, now extracting the firmware files."
     # Mount the DMG file
@@ -15,7 +17,7 @@ if [ -f $DMGFILE ]; then
     # Decode the resource file.
     /usr/bin/DeRez "./Library/StartupItems/M-Audio Firmware Loader/MA Firmware Loader.rsrc" -useDF > MA_Firmware_Loader.rsrc.decoded
     python rsrc2ihex.py < MA_Firmware_Loader.rsrc.decoded
-    # TODO copy a subset of the generated .ihx files
+    # Move all of the generated .ihx files into the expected location
     sudo mv *.ihx /usr/local/etc/midisport_firmware/
     # Now unmount the disk image.
     rm -r ./Library

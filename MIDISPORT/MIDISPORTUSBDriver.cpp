@@ -72,7 +72,6 @@
 #define midimanVendorID		0x0763		// MIDIMAN/M-Audio
 
 // and these
-#define kMyBoxName	        "MIDISPORT" // Device name. Not actually used.
 #define kMyManufacturerName	"M-Audio"
 
 #define kNumMaxPorts		9
@@ -82,32 +81,10 @@
 
 #define DEBUG_OUTBUFFER		1		// 1 to printout whenever a msg is to be sent.
 
-// TODO This product table should be read from the XML file.
-enum WarmFirmwareProductIDs {
-    MIDISPORT1x1 = 0x1011,
-    MIDISPORT2x2 = 0x1002,
-    MIDISPORT4x4 = 0x1021,
-    MIDISPORT8x8 = 0x1031,
-    Oxygen8 = 0x1015
-};
+// The MIDISPORT 8x8/S labels it's ports numerically, so we need to check for it.
+#define MIDISPORT8x8        0x1031
 
-struct HardwareConfigurationDescription {
-    int warmFirmwareProductID;   // product ID indicating the firmware has been loaded and is working.
-    int numberOfPorts;
-    int readBufSize;
-    int writeBufSize;
-    const char *modelName;                          // This includes the device name, as it can change on some models.
-} productTable[] = {
-    { MIDISPORT1x1, 1, 32, 32, "MIDISPORT 1x1" },
-    { MIDISPORT2x2, 2, 32, 32, "MIDISPORT 2x2" },
-    { MIDISPORT4x4, 4, 64, 64, "MIDISPORT 4x4" },
-    { Oxygen8, 1, 32, 32, "Oxygen 8" },
-    // Strictly speaking, the endPoint 2 can sustain 40 bytes output on the 8x8.
-    // There are 9 ports including the SMPTE control.
-    { MIDISPORT8x8, 9, 64, 32, "MIDISPORT 8x8/S" }
-};
-
-#define PRODUCT_TOTAL (sizeof(productTable) / sizeof(struct HardwareConfigurationDescription))
+#define CONFIG_FILE_PATH    "/usr/local/etc/midisport_firmware/MIDISPORT_devices.xml"
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -122,7 +99,7 @@ extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
     // instance of TestType and return the IUnknown interface.
     if (CFEqual(typeID, kMIDIDriverTypeID)) {
         DebugPrintf("NewMIDISPORTDriver typedId matched kMIDIDriverTypeID");
-        MIDISPORT *result = new MIDISPORT;
+        MIDISPORT *result = new MIDISPORT(CONFIG_FILE_PATH);
         return result->Self();
     }
     else {
@@ -134,11 +111,10 @@ extern "C" void *NewMIDISPORTDriver(CFAllocatorRef allocator, CFUUIDRef typeID)
 
 // __________________________________________________________________________________________________
 
-MIDISPORT::MIDISPORT() : USBMIDIDriverBase(kFactoryUUID)
+MIDISPORT::MIDISPORT(const char *configurationFilePath) : USBMIDIDriverBase(kFactoryUUID)
 {
     DebugPrintf("MIDISPORTUSBDriver init");
-    // if (CFEqual(typeID, kMIDIDriverInterfaceID))
-    connectedMIDISPORTIndex = -1;   // error condition
+    hardwareConfig = new HardwareConfiguration(configurationFilePath);
 }
 
 MIDISPORT::~MIDISPORT()
@@ -152,16 +128,15 @@ bool MIDISPORT::MatchDevice(IOUSBDeviceInterface **device,
                              UInt16 devVendor,
                              UInt16 devProduct)
 {
-    unsigned int i;
-    
     if(devVendor == midimanVendorID) {
         DebugPrintf("looking for MIDISPORT device 0x%x", devProduct);
-        for(i = 0; i < PRODUCT_TOTAL; i++) {
-            if(productTable[i].warmFirmwareProductID == devProduct) {
-                DebugPrintf("found it");
-                connectedMIDISPORTIndex = i;
-                return true;
-            }
+        try {
+            connectedMIDISPORT = hardwareConfig->deviceFirmwareForWarmBootId(devProduct);
+            DebugPrintf("found it");
+            return true;
+        }
+        catch (std::out_of_range e) {
+            return false;
         }
     }
     return false;
@@ -187,21 +162,18 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
 {
     MIDIDeviceRef dev;
     MIDIEntityRef ent;
-    unsigned int productIndex;
 
     DebugPrintf("MIDISPORT::CreateDevice");
-    for(productIndex = 0; productIndex < PRODUCT_TOTAL; productIndex++) {
-        if(productTable[productIndex].warmFirmwareProductID == devProduct) {
-            connectedMIDISPORTIndex = productIndex;
-            break;
-        }
+    try {
+        connectedMIDISPORT = hardwareConfig->deviceFirmwareForWarmBootId(devProduct);
+        DebugPrintf("found device 0x%x", devProduct);
     }
-    if(productIndex == PRODUCT_TOTAL) {
+    catch (std::out_of_range e) {
         DebugPrintf("Unable to recognize MIDISPORT device %x", devProduct);
-        return NULL;  // TODO this needs to be checked if this is legitimate to return in case of error.
+        return NULL;  // TODO this needs to be checked if this is legitimate to return in case of error?
     }
     
-    CFStringRef modelName = CFStringCreateWithCString(NULL, productTable[productIndex].modelName, 0);
+    CFStringRef modelName = CFStringCreateWithCString(NULL, connectedMIDISPORT.modelName.c_str(), 0);
     MIDIDeviceCreate(Self(),            // This driver creating the device.
             modelName,                  // The name of the new device.
             CFSTR(kMyManufacturerName), // The name of the device's manufacturer.
@@ -210,21 +182,17 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
     CFRelease(modelName);
 
     // make numberOfPorts entities with 1 source, 1 destination
-    for (int port = 0; port < productTable[productIndex].numberOfPorts; port++) {
+    for (int port = 0; port < connectedMIDISPORT.numberOfPorts; port++) {
         char portname[64];
-        switch(productTable[productIndex].warmFirmwareProductID) {
-        case MIDISPORT1x1:
-        case MIDISPORT2x2:
-        case MIDISPORT4x4:
-            sprintf(portname, "Port %c", port + 'A');
-            break;
-        case MIDISPORT8x8:
-        default:
+
+        if (connectedMIDISPORT.warmFirmwareProductID == MIDISPORT8x8) {
             if (port == 8) // be descriptive in naming the SMPTE channel
                 sprintf(portname, "SMPTE Port");
             else
                 sprintf(portname, "Port %d", port + 1);
-            break;
+        }
+        else {
+            sprintf(portname, "Port %c", port + 'A');
         }
         CFStringRef str = CFStringCreateWithCString(NULL, portname, 0);
         MIDIDeviceAddEntity(dev, str, false, 1, 1, &ent);
@@ -240,13 +208,13 @@ void MIDISPORT::GetInterfaceInfo(InterfaceState *intf, InterfaceInfo &info)
     DebugPrintf("MIDISPORT::GetInterfaceInfo");
     info.inEndpointType = kUSBInterrupt;    // this differs from the SampleUSB and is correct.
     info.outEndpointType = kUSBBulk;
-    if(connectedMIDISPORTIndex != -1) {
-        info.readBufferSize  = productTable[connectedMIDISPORTIndex].readBufSize;
-        info.writeBufferSize = productTable[connectedMIDISPORTIndex].writeBufSize;
+    if (connectedMIDISPORT.coldBootProductID) {
+        info.readBufferSize  = connectedMIDISPORT.readBufSize;
+        info.writeBufferSize = connectedMIDISPORT.writeBufSize;
         DebugPrintf("setting readBufferSize = %d, writeBufferSize = %d", (unsigned int) info.readBufferSize, (unsigned int) info.writeBufferSize);
     }
     else
-        DebugPrintf("Assertion failed: connectedMIDISPORTIndex == -1");
+        DebugPrintf("Assertion failed: connectedMIDISPORT == nul");
 }
 
 void MIDISPORT::StartInterface(InterfaceState *intf)
@@ -397,8 +365,8 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
                               Byte *destBuf2, ByteCount *bufCount2)
 {
     Byte *dest[2] = {destBuf1, destBuf2};
-    Byte *destEnd[2] = {dest[0] + productTable[connectedMIDISPORTIndex].writeBufSize,
-                        dest[1] + productTable[connectedMIDISPORTIndex].writeBufSize};
+    Byte *destEnd[2] = {dest[0] + connectedMIDISPORT.writeBufSize,
+                        dest[1] + connectedMIDISPORT.writeBufSize};
    
     while (true) {
         if (writeQueue.empty()) {

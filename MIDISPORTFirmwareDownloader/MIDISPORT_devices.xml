@@ -10,50 +10,80 @@
         <dict>
             <key>DeviceName</key>
             <string>MIDISPORT 1x1</string>
-             <key>WarmFirmwareProductID</key>
-             <integer>0x1011</integer>
-             <key>ColdBootProductID</key>
-             <integer>0x1010</integer>
+            <key>WarmFirmwareProductID</key>
+            <integer>0x1011</integer>
+            <key>ColdBootProductID</key>
+            <integer>0x1010</integer>
+            <key>NumberOfPorts</key>
+            <integer>1</integer>
+            <key>ReadBufferSize</key>
+            <integer>32</integer>
+            <key>WriteBufferSize</key>
+            <integer>32</integer>
             <key>FilePath</key>
             <string>/usr/local/etc/midisport_firmware/MidiSport1x1.ihx</string>
         </dict>
         <dict>
             <key>DeviceName</key>
             <string>MIDISPORT 2x2</string>
-             <key>WarmFirmwareProductID</key>
-             <integer>0x1002</integer>
-             <key>ColdBootProductID</key>
-             <integer>0x1001</integer>
+            <key>WarmFirmwareProductID</key>
+            <integer>0x1002</integer>
+            <key>ColdBootProductID</key>
+            <integer>0x1001</integer>
+            <key>NumberOfPorts</key>
+            <integer>2</integer>
+            <key>ReadBufferSize</key>
+            <integer>32</integer>
+            <key>WriteBufferSize</key>
+            <integer>32</integer>
             <key>FilePath</key>
             <string>/usr/local/etc/midisport_firmware/MidiSport2x2.ihx</string>
         </dict>
         <dict>
             <key>DeviceName</key>
             <string>MIDISPORT 4x4</string>
-             <key>WarmFirmwareProductID</key>
-             <integer>0x1021</integer>
-             <key>ColdBootProductID</key>
-             <integer>0x1020</integer>
+            <key>WarmFirmwareProductID</key>
+            <integer>0x1021</integer>
+            <key>ColdBootProductID</key>
+            <integer>0x1020</integer>
+            <key>NumberOfPorts</key>
+            <integer>4</integer>
+            <key>ReadBufferSize</key>
+            <integer>64</integer>
+            <key>WriteBufferSize</key>
+            <integer>64</integer>
             <key>FilePath</key>
             <string>/usr/local/etc/midisport_firmware/MidiSport4x4.ihx</string>
         </dict>
         <dict>
             <key>DeviceName</key>
             <string>MIDISPORT 8x8/S</string>
-             <key>WarmFirmwareProductID</key>
-             <integer>0x1031</integer>
-             <key>ColdBootProductID</key>
-             <integer>0x1030</integer>
+            <key>WarmFirmwareProductID</key>
+            <integer>0x1031</integer>
+            <key>ColdBootProductID</key>
+            <integer>0x1030</integer>
+            <key>NumberOfPorts</key>
+            <integer>9</integer>
+            <key>ReadBufferSize</key>
+            <integer>64</integer>
+            <key>WriteBufferSize</key>
+            <integer>32</integer>
             <key>FilePath</key>
             <string></string>
         </dict>
         <dict>
             <key>DeviceName</key>
             <string>Oxygen 8</string>
-             <key>WarmFirmwareProductID</key>
-             <integer>0x1015</integer>
-             <key>ColdBootProductID</key>
-             <integer>0x1014</integer>
+            <key>WarmFirmwareProductID</key>
+            <integer>0x1015</integer>
+            <key>ColdBootProductID</key>
+            <integer>0x1014</integer>
+            <key>NumberOfPorts</key>
+            <integer>1</integer>
+            <key>ReadBufferSize</key>
+            <integer>32</integer>
+            <key>WriteBufferSize</key>
+            <integer>32</integer>
             <key>FilePath</key>
             <string>/usr/local/etc/midisport_firmware/1410.cypress.ihx</string>
         </dict>

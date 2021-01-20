@@ -26,7 +26,21 @@ HardwareConfiguration::~HardwareConfiguration()
 struct DeviceFirmware HardwareConfiguration::deviceFirmwareForBootId(unsigned int coldBootDeviceId)
 {
     // Search for coldBootDeviceId
-    return deviceList[coldBootDeviceId];
+    // Use at() to catch the cold boot device id not being found and throw as an std::out_of_range exception.
+    return deviceList.at(coldBootDeviceId);
+}
+
+// Retrieve the DeviceFirmware structure for the given warm boot device id.
+struct DeviceFirmware HardwareConfiguration::deviceFirmwareForWarmBootId(unsigned int warmBootDeviceId)
+{
+    // Search for warmBootDeviceId, which is not the key in the map.
+    for(DeviceList::iterator deviceIterator = deviceList.begin(); deviceIterator != deviceList.end(); deviceIterator++) {
+        if(deviceIterator->second.warmFirmwareProductID == warmBootDeviceId) {
+            return deviceIterator->second;
+        }
+    }
+    // Throw an exception when the warm boot id is not found?
+    throw std::out_of_range("Could not find warm boot device id");
 }
 
 // Converts the parameters of a single MIDISPORT model, in a property list CFDictionary, into the C++ DeviceFirmware structure.
@@ -61,17 +75,38 @@ bool HardwareConfiguration::deviceListFromDictionary(CFDictionaryRef deviceConfi
             return false;
         }
     }
-    // Name of cold boot product id.
+    // The cold boot product id.
     CFTypeRef coldBootProductId = CFDictionaryGetValue((CFDictionaryRef) deviceConfig, CFSTR("ColdBootProductID"));
     if (CFGetTypeID(coldBootProductId) == CFNumberGetTypeID()) {
         if (!CFNumberGetValue((CFNumberRef) coldBootProductId, kCFNumberIntType, &deviceFirmware.coldBootProductID)) {
             return false;
         }
     }
-    // Name of warm firmware product id.
+    // The warm firmware product id.
     CFTypeRef warmFirmwareProductId = CFDictionaryGetValue((CFDictionaryRef) deviceConfig, CFSTR("WarmFirmwareProductID"));
     if (CFGetTypeID(warmFirmwareProductId) == CFNumberGetTypeID()) {
         if (!CFNumberGetValue((CFNumberRef) warmFirmwareProductId, kCFNumberIntType, &deviceFirmware.warmFirmwareProductID)) {
+            return false;
+        }
+    }
+    // The number of MIDI ports.
+    CFTypeRef numberOfPorts = CFDictionaryGetValue((CFDictionaryRef) deviceConfig, CFSTR("NumberOfPorts"));
+    if (CFGetTypeID(numberOfPorts) == CFNumberGetTypeID()) {
+        if (!CFNumberGetValue((CFNumberRef) numberOfPorts, kCFNumberIntType, &deviceFirmware.numberOfPorts)) {
+            return false;
+        }
+    }
+    // The read buffer size.
+    CFTypeRef readBufSize = CFDictionaryGetValue((CFDictionaryRef) deviceConfig, CFSTR("ReadBufferSize"));
+    if (CFGetTypeID(readBufSize) == CFNumberGetTypeID()) {
+        if (!CFNumberGetValue((CFNumberRef) readBufSize, kCFNumberIntType, &deviceFirmware.readBufSize)) {
+            return false;
+        }
+    }
+    // The write buffer size.
+    CFTypeRef writeBufSize = CFDictionaryGetValue((CFDictionaryRef) deviceConfig, CFSTR("WriteBufferSize"));
+    if (CFGetTypeID(writeBufSize) == CFNumberGetTypeID()) {
+        if (!CFNumberGetValue((CFNumberRef) writeBufSize, kCFNumberIntType, &deviceFirmware.writeBufSize)) {
             return false;
         }
     }

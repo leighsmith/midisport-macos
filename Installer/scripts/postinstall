@@ -3,10 +3,12 @@
 echo "Downloading MIDISPORT Firmware archive"
 curl --location --output /tmp/midisport_firmware.tar.gz https://downloads.sourceforge.net/project/usb-midi-fw/midisport-firmware/1.2/midisport-firmware-1.2.tar.gz
 tar -C /tmp/ -x -z -f /tmp/midisport_firmware.tar.gz
-echo "Installing firmware files"
+echo "Installing MIDISPORT firmware files"
 sudo mkdir -p /usr/local/etc/midisport_firmware/
 sudo cp /tmp/midisport-firmware-1.2/*.ihx /usr/local/etc/midisport_firmware/
-echo "Installed firmware files"
+echo "Installed MIDISPORT firmware files"
+
+extractMAudioFirmware.sh
 
 exit 0
 

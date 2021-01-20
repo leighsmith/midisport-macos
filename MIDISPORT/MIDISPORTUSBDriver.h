@@ -23,10 +23,11 @@
 #define __MIDISPORTUSBDriver_h__
 
 #include "USBMIDIDriverBase.h"
+#include "HardwareConfiguration.h"
 
 class MIDISPORT : public USBMIDIDriverBase {
 public:
-    MIDISPORT();
+    MIDISPORT(const char *configurationFilePath);
     ~MIDISPORT();
     
     // MIDIDriver overrides
@@ -59,7 +60,8 @@ public:
                                  Byte *destBuf1, ByteCount *bufCount1,
                                  Byte *destBuf2, ByteCount *bufCount2);
 private:
-    int connectedMIDISPORTIndex;
+    HardwareConfiguration *hardwareConfig;
+    struct DeviceFirmware connectedMIDISPORT;
 };
 
 #endif // __MIDISPORTUSBDriver_h__

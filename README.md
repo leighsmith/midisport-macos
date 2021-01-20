@@ -92,7 +92,13 @@ Installation instructions
 
 1. Download the package [MIDISPORT.pkg](https://sourceforge.net/projects/midisport-macos/files/).
 
-2. Double-Click the .pkg package, and follow the standard installation operation to
+2. If you need to install firmware for devices other than the original MIDISPORTs listed
+above (for example, anniversay editions, Oxygen 8 and similar devices), download the
+M-Audio v3.5.3 DMG file now archived at
+[Softpedia.com](https://mac.softpedia.com/get/Drivers/M-Audio-MIDISport-Series.shtml#download),
+and place into your `~/Downloads` folder. The installer will look for the DMG file there.
+
+3. Double-Click the .pkg package, and follow the standard installation operation to
 install the plugin. When prompted for authorization to install the plugin, enter an
 administrator's password. Note that installer will attempt to download the firmware files,
 so you need to be connected to the Internet. The installer should place:
@@ -102,15 +108,15 @@ so you need to be connected to the Internet. The installer should place:
 * A [launchd](https://www.launchd.info/) configuration file into `/Library/LaunchDaemons/`
 * The firmware files into `/usr/local/etc/midisport_firmware/`
 
-3. You will need to reboot the operating system in order to launch the
+4. You will need to reboot the operating system in order to launch the
 MIDISPORTFirmwareDownloader utility which will wait for MIDISPORT devices to be plugged
 into the USB bus.
 
-4. Connect the MIDISPORT device to the USB chain. If the device and the firmware files can
+5. Connect the MIDISPORT device to the USB chain. If the device and the firmware files can
 be found, the firmware for the MIDISPORT will be downloaded which will be indicated by its
 LED labelled "USB" pulsing.
 
-5. Open `/Applications/Utilities/Audio MIDI Setup.app` and select the MIDI Studio window
+6. Open `/Applications/Utilities/Audio MIDI Setup.app` and select the MIDI Studio window
 of the app. You should see the MIDISPORT MIDI interface device appear, and you can then define MIDI
 devices and connect them to the MIDISPORT interface device in the standard operation of
 the utility application. Note that if you have run the M-Audio driver in the past, the

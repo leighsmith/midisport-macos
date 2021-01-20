@@ -27,6 +27,7 @@
 		D8127F8A24D3C716005947C2 /* CADebugMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = D8127F8624D3C715005947C2 /* CADebugMacros.h */; };
 		D8127F8B24D3C716005947C2 /* CADebugPrintf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8127F8724D3C716005947C2 /* CADebugPrintf.cpp */; };
 		D8127F8C24D3C716005947C2 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8127F8824D3C716005947C2 /* CADebugMacros.cpp */; };
+		D86DDCC725B8741C00D8E6DC /* HardwareConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E5224EA2FE000DD10FC /* HardwareConfiguration.cpp */; };
 		D88A9E4A24EA185A00DD10FC /* MIDISPORTDownloader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E4924EA185A00DD10FC /* MIDISPORTDownloader.cpp */; };
 		D88A9E5624EA2FE100DD10FC /* HardwareConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E5224EA2FE000DD10FC /* HardwareConfiguration.cpp */; };
 		D88A9E5724EA2FE100DD10FC /* EZLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E5324EA2FE100DD10FC /* EZLoader.cpp */; };
@@ -461,6 +462,7 @@
 				D89D8111183D7B2200446B12 /* VLMIDIPacket.cpp in Sources */,
 				D8127F8C24D3C716005947C2 /* CADebugMacros.cpp in Sources */,
 				D89D8112183D7B2200446B12 /* MIDISPORTUSBDriver.cpp in Sources */,
+				D86DDCC725B8741C00D8E6DC /* HardwareConfiguration.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
