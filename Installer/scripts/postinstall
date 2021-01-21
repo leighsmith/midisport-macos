@@ -8,7 +8,9 @@ sudo mkdir -p /usr/local/etc/midisport_firmware/
 sudo cp /tmp/midisport-firmware-1.2/*.ihx /usr/local/etc/midisport_firmware/
 echo "Installed MIDISPORT firmware files"
 
-extractMAudioFirmware.sh
+# This script could be launched from anywhere, so we need to find the firmware extraction script,
+# which will be in the same directory as this one.
+$(dirname $0)/extractMAudioFirmware.sh
 
 exit 0
 

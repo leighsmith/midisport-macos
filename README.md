@@ -93,7 +93,7 @@ Installation instructions
 1. Download the package [MIDISPORT.pkg](https://sourceforge.net/projects/midisport-macos/files/).
 
 2. If you need to install firmware for devices other than the original MIDISPORTs listed
-above (for example, anniversay editions, Oxygen 8 and similar devices), download the
+above (for example, anniversary editions, Oxygen 8 and similar devices), download the
 M-Audio v3.5.3 DMG file now archived at
 [Softpedia.com](https://mac.softpedia.com/get/Drivers/M-Audio-MIDISport-Series.shtml#download),
 and place into your `~/Downloads` folder. The installer will look for the DMG file there.
@@ -127,7 +127,8 @@ new available MIDISPORT interface.
 Building from Source
 --------------------
 
-The entire package is compiled and built by running:
+The package .pkg file above will fulfill musicians requirements. If however, you want to develop
+the code, the entire package is compiled and built by running:
 
     xcodebuild -project MIDISPORT.xcodeproj -target Package install
 

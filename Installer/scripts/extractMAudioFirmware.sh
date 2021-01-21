@@ -16,7 +16,7 @@ if [ -f $DMGFILE ]; then
     rm -r com.m-audio.usbmidisupport.macos.installer_0.pkg
     # Decode the resource file.
     /usr/bin/DeRez "./Library/StartupItems/M-Audio Firmware Loader/MA Firmware Loader.rsrc" -useDF > MA_Firmware_Loader.rsrc.decoded
-    python rsrc2ihex.py < MA_Firmware_Loader.rsrc.decoded
+    python $(dirname $0)/rsrc2ihex.py < MA_Firmware_Loader.rsrc.decoded
     # Move all of the generated .ihx files into the expected location
     sudo mv *.ihx /usr/local/etc/midisport_firmware/
     # Now unmount the disk image.
