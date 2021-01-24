@@ -87,6 +87,38 @@
             <key>FilePath</key>
             <string>/usr/local/etc/midisport_firmware/1410.cypress.ihx</string>
         </dict>
+        <dict>
+            <key>DeviceName</key>
+            <string>MIDISPORT 2x2 Anniversary</string>
+            <key>WarmFirmwareProductID</key>
+            <integer>0x1051</integer>
+            <key>ColdBootProductID</key>
+            <integer>0x1050</integer>
+            <key>NumberOfPorts</key>
+            <integer>2</integer>
+            <key>ReadBufferSize</key>
+            <integer>32</integer>
+            <key>WriteBufferSize</key>
+            <integer>32</integer>
+            <key>FilePath</key>
+            <string>/usr/local/etc/midisport_firmware/5010.cypress.ihx</string>
+        </dict>
+        <dict>
+            <key>DeviceName</key>
+            <string>MIDISPORT 4x4 Anniversary</string>
+            <key>WarmFirmwareProductID</key>
+            <integer>0x1061</integer>
+            <key>ColdBootProductID</key>
+            <integer>0x1060</integer>
+            <key>NumberOfPorts</key>
+            <integer>4</integer>
+            <key>ReadBufferSize</key>
+            <integer>64</integer>
+            <key>WriteBufferSize</key>
+            <integer>64</integer>
+            <key>FilePath</key>
+            <string>/usr/local/etc/midisport_firmware/6010.cypress.ihx</string>
+        </dict>
     </array>
 </dict>
 </plist>
