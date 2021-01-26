@@ -28,7 +28,7 @@ bool downloadFirmwareToDevice(EZUSBLoader *ezusb, struct DeviceFirmware device)
         bool foundMIDSPORT = false;
         std::vector <INTEL_HEX_RECORD> firmwareToDownload;
 
-        std::cout << "Reading MIDISPORT Firmware Intel hex file " << device.firmwareFileName << std::endl;
+        std::cout << "Reading MIDISPORT Firmware Intel hex file: " << device.firmwareFileName << std::endl;
         if (!IntelHexFile::ReadFirmwareFromHexFile(device.firmwareFileName, firmwareToDownload)) {
             std::cerr << "Unable to read MIDISPORT Firmware Intel hex file " << device.firmwareFileName << std::endl;
             return false;
@@ -67,13 +67,19 @@ int main(int argc, const char * argv[])
         std::cerr << "Missing hardware configuration file. Usage: " << argv[0] << " configfile.xml" << std::endl;
         return MISSING_CONFIG_FILE;
     }
-    hardwareConfig = new HardwareConfiguration(argv[1]);
+    try {
+        hardwareConfig = new HardwareConfiguration(argv[1]);
+    }
+    catch (std::runtime_error e) {
+        std::cerr << "Unable to read hardware configuration file: " << argv[1] << std::endl;
+        return MISSING_CONFIG_FILE;
+    }
 
     EZUSBLoader ezusb(mAudioVendorID, hardwareConfig->deviceList, true);
 
     // Retrieve the hex loader filename from the config file.
     std::string hexloaderFilePath = hardwareConfig->hexloaderFilePath();
-    std::cout << "Reading Hex loader firmware Intel hex file " << hexloaderFilePath << std::endl;
+    std::cout << "Reading Hex loader firmware Intel hex file: " << hexloaderFilePath << std::endl;
     if (!IntelHexFile::ReadFirmwareFromHexFile(hexloaderFilePath, hexLoader)) {
         std::cerr << "Unable to read Hex loader firmware Intel hex file " << hexloaderFilePath << std::endl;
         return HEX_LOADER_FILE_READ_FAIL;

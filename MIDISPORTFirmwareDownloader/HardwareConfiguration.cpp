@@ -11,7 +11,8 @@ HardwareConfiguration::HardwareConfiguration(const char *configFilePath)
     CFURLRef configFileURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, filePath, kCFURLPOSIXPathStyle, false);
     if (configFileURL) {
         if (!this->readConfigFile(configFileURL)) {
-            // TODO Either raise an exception or some other signalling?
+            // Throw an exception if the file can't be found.
+            throw std::runtime_error("Unable to read MIDISPORT device config file.");
         }
         CFRelease(configFileURL);
     }
@@ -120,7 +121,11 @@ bool HardwareConfiguration::readConfigFile(CFURLRef configFileURL)
     
     if (stream == NULL)
         return false;
-    if (CFReadStreamOpen(stream)) {
+    if (!CFReadStreamOpen(stream)) {
+        CFRelease(stream);
+        return false;
+    }
+    else {
         // Reconstitute the dictionary using the XML data
         CFErrorRef errorCode;
         CFPropertyListFormat propertyListFormat;
