@@ -274,7 +274,9 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 			// Set the configuration
 			//require_noerr((*deviceIntf)->GetConfiguration(deviceIntf, &curConfig), closeDevice);
 			__Require_noErr((*deviceIntf)->SetConfiguration(deviceIntf, configDesc->bConfigurationValue), closeDevice);
-			
+#if DEBUG
+            printf("Correctly set the configuration %d\n", (int)configDesc->bConfigurationValue);
+#endif
 			GetInterfaceToUse(deviceIntf, desiredInterface, desiredAltSetting);
 			// Get the interface number for this device
 
@@ -317,6 +319,9 @@ nextInterface:	IOObjectRelease(ioInterfaceObj);
 			} // end interface loop
 
 closeDevice:
+#if DEBUG
+            printf("closing device, was open = %d, keep open = %d, deviceIntf = 0x%p\n", deviceOpen, keepOpen, deviceIntf);
+#endif
 			if (intfIter != (io_iterator_t) NULL)
 				IOObjectRelease(intfIter);
 			if (deviceOpen && !keepOpen)
