@@ -277,8 +277,10 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 #if DEBUG
             printf("Correctly set the configuration %d\n", (int)configDesc->bConfigurationValue);
 #endif
+            // Get the interface number for this device
 			GetInterfaceToUse(deviceIntf, desiredInterface, desiredAltSetting);
-			// Get the interface number for this device
+            // Delay 1 second, as it seems sometimes the interface iterator can find no interfaces, possibly from a race condition.
+            sleep(1);
 
 			// Create the interface iterator
 			intfRequest.bInterfaceClass		= kIOUSBFindInterfaceDontCare;
@@ -287,6 +289,9 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 			intfRequest.bAlternateSetting	= desiredAltSetting;
 			
 			__Require_noErr((*deviceIntf)->CreateInterfaceIterator(deviceIntf, &intfRequest, &intfIter), closeDevice);
+#if DEBUG
+            printf("Correctly created the interface iterator\n");
+#endif
 
 			while ((ioInterfaceObj = IOIteratorNext(intfIter)) != (io_iterator_t) NULL) {
 #if DEBUG
