@@ -28,6 +28,8 @@
 		D8127F8B24D3C716005947C2 /* CADebugPrintf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8127F8724D3C716005947C2 /* CADebugPrintf.cpp */; };
 		D8127F8C24D3C716005947C2 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8127F8824D3C716005947C2 /* CADebugMacros.cpp */; };
 		D86DDCC725B8741C00D8E6DC /* HardwareConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E5224EA2FE000DD10FC /* HardwareConfiguration.cpp */; };
+		D886A94325C111EA007DB1BC /* USBUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E5A24EA302600DD10FC /* USBUtils.cpp */; };
+		D886A94A25C11202007DB1BC /* USBUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D88A9E5B24EA302600DD10FC /* USBUtils.h */; };
 		D88A9E4A24EA185A00DD10FC /* MIDISPORTDownloader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E4924EA185A00DD10FC /* MIDISPORTDownloader.cpp */; };
 		D88A9E5624EA2FE100DD10FC /* HardwareConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E5224EA2FE000DD10FC /* HardwareConfiguration.cpp */; };
 		D88A9E5724EA2FE100DD10FC /* EZLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D88A9E5324EA2FE100DD10FC /* EZLoader.cpp */; };
@@ -39,12 +41,10 @@
 		D88A9E6824EA30B600DD10FC /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D88A9E6324EA30B600DD10FC /* IOKit.framework */; };
 		D88A9E6924EA30B600DD10FC /* System.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D88A9E6424EA30B600DD10FC /* System.framework */; };
 		D89D8104183D7B2200446B12 /* MIDISPORTUSBDriver.h in Headers */ = {isa = PBXBuildFile; fileRef = 010D0AFEFEE5F5BB0A090812 /* MIDISPORTUSBDriver.h */; };
-		D89D8106183D7B2200446B12 /* USBUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 00C5C68EFEC350680A090812 /* USBUtils.h */; };
 		D89D8107183D7B2200446B12 /* USBMIDIDriverBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E21D07CFED9A4DC0A090812 /* USBMIDIDriverBase.h */; };
 		D89D8108183D7B2200446B12 /* VLMIDIPacket.h in Headers */ = {isa = PBXBuildFile; fileRef = 00D01140FEDB397F0A090812 /* VLMIDIPacket.h */; };
 		D89D8109183D7B2200446B12 /* MIDIDriverClass.h in Headers */ = {isa = PBXBuildFile; fileRef = 028D229E016913B4CFED3B96 /* MIDIDriverClass.h */; };
 		D89D810C183D7B2200446B12 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
-		D89D810E183D7B2200446B12 /* USBUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C5C68DFEC350680A090812 /* USBUtils.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D810F183D7B2200446B12 /* MIDIDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C5C690FEC354650A090812 /* MIDIDriver.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D8110183D7B2200446B12 /* USBMIDIDriverBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1E21D07BFED9A4DC0A090812 /* USBMIDIDriverBase.cpp */; settings = {ATTRIBUTES = (); }; };
 		D89D8111183D7B2200446B12 /* VLMIDIPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00D0113FFEDB397F0A090812 /* VLMIDIPacket.cpp */; settings = {ATTRIBUTES = (); }; };
@@ -98,8 +98,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		00C5C68DFEC350680A090812 /* USBUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = USBUtils.cpp; path = MIDISPORT/USBUtils.cpp; sourceTree = "<group>"; tabWidth = 4; };
-		00C5C68EFEC350680A090812 /* USBUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = USBUtils.h; path = MIDISPORT/USBUtils.h; sourceTree = "<group>"; tabWidth = 4; };
 		00C5C690FEC354650A090812 /* MIDIDriver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MIDIDriver.cpp; path = MIDISPORT/MIDIDriver.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		00D0113FFEDB397F0A090812 /* VLMIDIPacket.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VLMIDIPacket.cpp; path = MIDISPORT/VLMIDIPacket.cpp; sourceTree = "<group>"; tabWidth = 4; };
 		00D01140FEDB397F0A090812 /* VLMIDIPacket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VLMIDIPacket.h; path = MIDISPORT/VLMIDIPacket.h; sourceTree = "<group>"; tabWidth = 4; };
@@ -172,8 +170,6 @@
 				D8127F8624D3C715005947C2 /* CADebugMacros.h */,
 				D8127F8724D3C716005947C2 /* CADebugPrintf.cpp */,
 				D8127F8524D3C715005947C2 /* CADebugPrintf.h */,
-				00C5C68DFEC350680A090812 /* USBUtils.cpp */,
-				00C5C68EFEC350680A090812 /* USBUtils.h */,
 				00C5C690FEC354650A090812 /* MIDIDriver.cpp */,
 				028D229E016913B4CFED3B96 /* MIDIDriverClass.h */,
 				00D0113FFEDB397F0A090812 /* VLMIDIPacket.cpp */,
@@ -322,12 +318,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8127F8A24D3C716005947C2 /* CADebugMacros.h in Headers */,
+				D8127F8924D3C716005947C2 /* CADebugPrintf.h in Headers */,
 				D89D8104183D7B2200446B12 /* MIDISPORTUSBDriver.h in Headers */,
-				D89D8106183D7B2200446B12 /* USBUtils.h in Headers */,
 				D89D8107183D7B2200446B12 /* USBMIDIDriverBase.h in Headers */,
 				D89D8108183D7B2200446B12 /* VLMIDIPacket.h in Headers */,
 				D89D8109183D7B2200446B12 /* MIDIDriverClass.h in Headers */,
-				D8127F8924D3C716005947C2 /* CADebugPrintf.h in Headers */,
+				D886A94A25C11202007DB1BC /* USBUtils.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,14 +451,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8127F8B24D3C716005947C2 /* CADebugPrintf.cpp in Sources */,
-				D89D810E183D7B2200446B12 /* USBUtils.cpp in Sources */,
-				D89D810F183D7B2200446B12 /* MIDIDriver.cpp in Sources */,
-				D89D8110183D7B2200446B12 /* USBMIDIDriverBase.cpp in Sources */,
-				D89D8111183D7B2200446B12 /* VLMIDIPacket.cpp in Sources */,
-				D8127F8C24D3C716005947C2 /* CADebugMacros.cpp in Sources */,
 				D89D8112183D7B2200446B12 /* MIDISPORTUSBDriver.cpp in Sources */,
 				D86DDCC725B8741C00D8E6DC /* HardwareConfiguration.cpp in Sources */,
+				D89D8110183D7B2200446B12 /* USBMIDIDriverBase.cpp in Sources */,
+				D8127F8B24D3C716005947C2 /* CADebugPrintf.cpp in Sources */,
+				D8127F8C24D3C716005947C2 /* CADebugMacros.cpp in Sources */,
+				D89D810F183D7B2200446B12 /* MIDIDriver.cpp in Sources */,
+				D89D8111183D7B2200446B12 /* VLMIDIPacket.cpp in Sources */,
+				D886A94325C111EA007DB1BC /* USBUtils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

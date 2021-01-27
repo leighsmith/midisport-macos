@@ -10,8 +10,6 @@
 #include <iostream>
 #include <map>
 
-#define VERBOSE DEBUG
-
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0
 
@@ -40,7 +38,7 @@ bool EZUSBLoader::FoundInterface(io_service_t ioDevice,
     ezUSBDevice = device;
     usbVendorFound = devVendor;
     usbProductFound = devProduct;
-#if VERBOSE
+#if DEBUG
     std::cout << "Found ezusb vendor = 0x" << std::hex << usbVendorFound << ", product = 0x" << usbProductFound << ", leaving open = " << usbLeaveOpenWhenFound << std::endl;
 #endif
     // TODO could check the boolean return from this function if we should do something different when failing the callback.
@@ -70,11 +68,11 @@ bool EZUSBLoader::FindVendorsProduct(UInt16 vendorID,
     usbProductFound  = productID;
     usbLeaveOpenWhenFound = leaveOpenWhenFound;
     ezUSBDevice = NULL;  // Used to indicate we have found the device
-#if VERBOSE
+#if DEBUG
     std::cout << "Finding ezusb vendor = 0x" << std::hex << usbVendorToSearchFor << ", product = 0x" << usbProductFound << std::endl;
 #endif
     ScanDevices();  // Start the scanning of the devices.
-#if VERBOSE
+#if DEBUG
     std::cout << "Finished scanning device" << std::endl;
 #endif    
     return ezUSBDevice != NULL;
@@ -112,7 +110,7 @@ IOReturn EZUSBLoader::Reset8051(IOUSBDeviceInterface **device, unsigned char res
     IOReturn status;
     IOUSBDevRequest resetRequest;
     
-#if VERBOSE
+#if DEBUG
     std::cout << "Setting 8051 reset bit to " << int(resetBit) << std::endl;
 #endif
     resetRequest.bmRequestType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
@@ -136,7 +134,7 @@ IOReturn EZUSBLoader::DownloadFirmwareToRAM(IOUSBDeviceInterface **device,
         if ((internalRAM && INTERNAL_RAM_ADDRESS(hexRecord->Address)) || (!internalRAM && !INTERNAL_RAM_ADDRESS(hexRecord->Address))) {
             IOUSBDevRequest loadRequest;
             
-#if VERBOSE
+#if DEBUG
             std::string RAMname = internalRAM ? "internal" : "external";
             std::cout << "Downloading " << std::dec << int(hexRecord->Length) <<
                          " bytes to " << RAMname << " 0x" << std::hex << hexRecord->Address << std::endl;
@@ -194,7 +192,7 @@ bool EZUSBLoader::DownloadFirmware(IOUSBDeviceInterface **device, std::vector<IN
 //
 bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
 {
-#if VERBOSE
+#if DEBUG
     std::cout << "enter EZUSBLoader::StartDevice" << std::endl;
 #endif
 
@@ -202,7 +200,7 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
     //		implements a vendor-specific command that will allow us 
     //		to anchor load to external RAM.
     //
-#if VERBOSE
+#if DEBUG
     std::cout << "Downloading bootstrap loader." << std::endl;
 #endif
     if (Reset8051(ezUSBDevice, 1) != kIOReturnSuccess)
@@ -216,7 +214,7 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
         return false;
     
     //-----	Now download the device firmware.  //
-#if VERBOSE
+#if DEBUG
     std::cout << "Downloading application firmware." << std::endl;
 #endif
     if (!DownloadFirmware(ezUSBDevice, applicationFirmware)) {
@@ -227,7 +225,7 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
         return false;
     if (Reset8051(ezUSBDevice, 0) != kIOReturnSuccess)
         return false;
-#if VERBOSE
+#if DEBUG
     std::cout << "Exit EZUSBLoader::StartDevice." << std::endl;
 #endif
 

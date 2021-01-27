@@ -109,7 +109,6 @@ and place into your `~/Downloads` folder. The installer will look for the DMG fi
 3. Download the package [MIDISPORT.pkg](https://sourceforge.net/projects/midisport-macos/files/).
 
 4. Double-Click the .pkg package, and follow the standard installation operation to
-
 install the plugin. When prompted for authorization to install the plugin, enter an
 administrator's password. Note that installer will attempt to download the firmware files,
 so you need to be connected to the Internet. The installer should place:
