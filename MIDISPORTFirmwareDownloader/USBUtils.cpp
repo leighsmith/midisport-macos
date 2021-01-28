@@ -279,8 +279,10 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 #endif
             // Get the interface number for this device
 			GetInterfaceToUse(deviceIntf, desiredInterface, desiredAltSetting);
-            // Delay 1 second, as it seems sometimes the interface iterator can find no interfaces, possibly from a race condition.
-            sleep(1);
+            // Delay 5mS, as it seems sometimes the interface iterator can find no interfaces, possibly from a race condition.
+            mach_timespec_t delay;
+            delay.tv_nsec = 5000000;
+            IOKitWaitQuiet(mMasterDevicePort, &delay);
 
 			// Create the interface iterator
 			intfRequest.bInterfaceClass		= kIOUSBFindInterfaceDontCare;
@@ -322,6 +324,14 @@ nextInterface:	IOObjectRelease(ioInterfaceObj);
 				if (interfaceIntf != NULL && !keepOpen)
 					(*interfaceIntf)->Release(interfaceIntf);
 			} // end interface loop
+#if DEBUG
+            // Some iterators will be made invalid if changes are made to the structure they are iterating over. This checks the
+            // iterator is still valid and should be called when IOIteratorNext returns zero. An invalid iterator can be reset and the
+            // iteration restarted. However, in race conditions, the iterator will return NULL, but be described as valid. So the solution is
+            // to add some small delay.
+            printf("iterator is valid %d\n", IOIteratorIsValid(intfIter));
+            // IOIteratorReset(intfIter);
+#endif
 
 closeDevice:
 #if DEBUG
