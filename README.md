@@ -140,7 +140,7 @@ Building from Source
 The package .pkg file above will fulfill musicians requirements. If however, you want to develop
 the code, the entire package is compiled and built by running:
 
-    xcodebuild -project MIDISPORT.xcodeproj -target Package install
+    xcodebuild -project MIDISPORT.xcodeproj -target Package -configuration Deployment install
 
 from the Terminal.app command line. This will compile both the firmware downloader and the
 MIDI driver plugin, and produce the installable package.
