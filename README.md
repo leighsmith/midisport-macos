@@ -1,7 +1,7 @@
 M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave/Catalina)
 ===================================================================================
 
-![MIDISPORT 2x2](https://github.com/leighsmith/midisport-macos/blob/main/MyMIDISPORT.jpg)
+![MIDISPORT 2x2](https://raw.githubusercontent.com/leighsmith/midisport-macos/main/MyMIDISPORT.jpeg)
 
 This project provides an open source MacOS 10.14 (Mojave) and 10.15 (Catalina) compatible
 CoreMIDI device driver for M-Audio's MIDISPORT range of USB MIDI interfaces. This driver
