@@ -90,11 +90,52 @@ bool HardwareConfiguration::deviceListFromDictionary(CFDictionaryRef deviceConfi
             return false;
         }
     }
-    // The number of MIDI ports.
-    CFTypeRef numberOfPorts = CFDictionaryGetValue((CFDictionaryRef) deviceConfig, CFSTR("NumberOfPorts"));
-    if (CFGetTypeID(numberOfPorts) == CFNumberGetTypeID()) {
-        if (!CFNumberGetValue((CFNumberRef) numberOfPorts, kCFNumberIntType, &deviceFirmware.numberOfPorts)) {
-            return false;
+    // Whether the MIDI ports should be named numerically or alphabetically.
+    CFTypeRef numericPortNaming;
+    if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("NumericPortNaming"), &numericPortNaming)) {
+        if (CFGetTypeID(numericPortNaming) == CFBooleanGetTypeID()) {
+            deviceFirmware.numericPortNaming = CFBooleanGetValue((CFBooleanRef) numericPortNaming);
+        }
+        else {
+            deviceFirmware.numericPortNaming = false;
+        }
+    }
+    // The number of MIDI ports. Legacy parameter, nowadays we specify input and output ports individually.
+    CFTypeRef numberOfPorts;
+    if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("NumberOfPorts"), &numberOfPorts)) {
+        if (CFGetTypeID(numberOfPorts) == CFNumberGetTypeID()) {
+            if (!CFNumberGetValue((CFNumberRef) numberOfPorts, kCFNumberIntType, &deviceFirmware.numberOfInputPorts)) {
+                return false;
+            }
+            // Make output == input ports.
+            deviceFirmware.numberOfOutputPorts = deviceFirmware.numberOfInputPorts;
+        }
+    }
+    // The number of MIDI input ports.
+    CFTypeRef numberOfInputPorts;
+    if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("NumberOfInputPorts"), &numberOfInputPorts)) {
+        if (CFGetTypeID(numberOfInputPorts) == CFNumberGetTypeID()) {
+            if (!CFNumberGetValue((CFNumberRef) numberOfInputPorts, kCFNumberIntType, &deviceFirmware.numberOfInputPorts)) {
+                return false;
+            }
+        }
+    }
+    // The number of MIDI output ports.
+    CFTypeRef numberOfOutputPorts;
+    if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("NumberOfOutputPorts"), &numberOfOutputPorts)) {
+        if (CFGetTypeID(numberOfOutputPorts) == CFNumberGetTypeID()) {
+            if (!CFNumberGetValue((CFNumberRef) numberOfOutputPorts, kCFNumberIntType, &deviceFirmware.numberOfOutputPorts)) {
+                return false;
+            }
+        }
+    }
+    // The port that receives SMPTE code, so it can be labelled as such.
+    CFTypeRef SMPTEport;
+    if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("SMPTEport"), &SMPTEport)) {
+        if (CFGetTypeID(SMPTEport) == CFNumberGetTypeID()) {
+            if (!CFNumberGetValue((CFNumberRef) SMPTEport, kCFNumberIntType, &deviceFirmware.SMPTEport)) {
+                return false;
+            }
         }
     }
     // The read buffer size.

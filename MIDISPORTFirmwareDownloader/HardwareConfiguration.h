@@ -16,7 +16,10 @@ struct DeviceFirmware {
     std::string modelName;
     unsigned int warmFirmwareProductID;     // Product ID indicating the firmware has been loaded and is working.
     unsigned int coldBootProductID;         // Product ID indicating the firmware has not been loaded.
-    int numberOfPorts;                      // The number of input and output MIDI ports (identical: I=O).
+    bool numericPortNaming;                 // Indicates the ports are labelled numerically on the device, false means they are labelled alphabetically.
+    int SMPTEport;                          // The numeric index of the port providing SMPTE, to label it as such.
+    int numberOfInputPorts;                 // The number of input MIDI ports.
+    int numberOfOutputPorts;                // The number of output MIDI ports.
     int readBufSize;                        // The number of bytes in the device read buffer.
     int writeBufSize;                       // The number of bytes in the device write buffer.
     std::string firmwareFileName;           // Path to the Intel hex file of the firmware. NULL indicates no firmware needs to be downloaded.
