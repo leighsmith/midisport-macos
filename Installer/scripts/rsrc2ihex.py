@@ -13,6 +13,7 @@ def interpretFirmwareFile(inputLineGenerator):
     with it's name.
     """
     firmwareBytes = ''
+    inFirmware = False
     for inputLine in inputLineGenerator:
         inputLine = inputLine.rstrip()
         firmRecordMatch = firmwareStartRE.match(inputLine)
@@ -21,12 +22,14 @@ def interpretFirmwareFile(inputLineGenerator):
             # Catch the firmware starting record
             firmwareName = firmRecordMatch.group(1)
             firmwareBytes = ''
-        elif bytesLineMatch:
+            inFirmware = True
+        elif bytesLineMatch and inFirmware:
             # Strip out hex text between $"", removing spaces.
             bytesInHex = bytesLineMatch.group(1).replace(" ", "")
             firmwareBytes += bytesInHex
-        elif inputLine == '};':
+        elif inputLine == '};' and inFirmware:
             # Neither the starting firmware record, nor the bytes lines, so it's the end, so yield the combination.
+            inFirmware = False
             yield firmwareName, firmwareBytes
 
 def calculateChecksum(hexLine):
