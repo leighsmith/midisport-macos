@@ -93,6 +93,26 @@
         </dict>
         <dict>
             <key>DeviceName</key>
+            <string>MIDISPORT 2x4</string>
+            <key>WarmFirmwareProductID</key>
+            <integer>0x1041</integer>
+            <key>ColdBootProductID</key>
+            <integer>0x1040</integer>
+            <key>NumberOfInputPorts</key>
+            <integer>2</integer>
+            <key>NumberOfOutputPorts</key>
+            <integer>4</integer>
+            <key>NumericPortNaming</key>
+            <true/>
+            <key>ReadBufferSize</key>
+            <integer>64</integer>
+            <key>WriteBufferSize</key>
+            <integer>64</integer>
+            <key>FilePath</key>
+            <string></string>
+        </dict>
+        <dict>
+            <key>DeviceName</key>
             <string>MIDISPORT 2x2 Anniversary</string>
             <key>WarmFirmwareProductID</key>
             <integer>0x1051</integer>
