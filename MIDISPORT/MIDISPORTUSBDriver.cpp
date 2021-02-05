@@ -81,9 +81,6 @@
 
 #define DEBUG_OUTBUFFER		1		// 1 to printout whenever a msg is to be sent.
 
-// The MIDISPORT 8x8/S labels it's ports numerically, so we need to check for it.
-#define MIDISPORT8x8        0x1031
-
 #define CONFIG_FILE_PATH    "/usr/local/etc/midisport_firmware/MIDISPORT_devices.xml"
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -182,20 +179,18 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
     CFRelease(modelName);
 
     // make numberOfPorts entities with 1 source, 1 destination
-    for (int port = 0; port < connectedMIDISPORT.numberOfPorts; port++) {
+    int maxPortCount = std::max(connectedMIDISPORT.numberOfInputPorts, connectedMIDISPORT.numberOfOutputPorts);
+    for (int port = 0; port < maxPortCount; port++) {
         char portname[64];
 
-        if (connectedMIDISPORT.warmFirmwareProductID == MIDISPORT8x8) {
-            if (port == 8) // be descriptive in naming the SMPTE channel
-                sprintf(portname, "SMPTE Port");
-            else
-                sprintf(portname, "Port %d", port + 1);
-        }
-        else {
-            sprintf(portname, "Port %c", port + 'A');
-        }
+        if (port == connectedMIDISPORT.SMPTEport)      // be descriptive in naming the SMPTE channel.
+            sprintf(portname, "SMPTE Port");
+        else if (connectedMIDISPORT.numericPortNaming) // If the device is labelled with numbered MIDI ports.
+            sprintf(portname, "Port %d", port + 1);
+        else
+            sprintf(portname, "Port %c", port + 'A');  // Most MIDISPORTs have alphabetic MIDI port naming.
         CFStringRef str = CFStringCreateWithCString(NULL, portname, 0);
-        MIDIDeviceAddEntity(dev, str, false, 1, 1, &ent);
+        MIDIDeviceAddEntity(dev, str, false, port < connectedMIDISPORT.numberOfInputPorts, port < connectedMIDISPORT.numberOfOutputPorts, &ent);
         CFRelease(str);
     }
 
@@ -466,7 +461,7 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
                     *dest[cableEndpoint]++ = c;
                     *dest[cableEndpoint]++ = 0;
                     *dest[cableEndpoint]++ = 0;
-                    *dest[cableEndpoint]++ = cableNibble | 0x01;       // 1-byte system realtime or system common
+                    *dest[cableEndpoint]++ = cableNibble | 0x01;    // 1-byte system realtime or system common
                     break;
                 case 0xF1:	// MTC (1)
                 case 0xF3:	// song select (1)

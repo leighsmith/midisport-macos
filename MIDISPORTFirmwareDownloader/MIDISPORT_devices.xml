@@ -64,6 +64,10 @@
             <integer>0x1030</integer>
             <key>NumberOfPorts</key>
             <integer>9</integer>
+            <key>NumericPortNaming</key>
+            <true/>
+            <key>SMPTEPort</key>
+            <integer>8</integer>
             <key>ReadBufferSize</key>
             <integer>64</integer>
             <key>WriteBufferSize</key>

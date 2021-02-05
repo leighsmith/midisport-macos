@@ -91,13 +91,11 @@ bool HardwareConfiguration::deviceListFromDictionary(CFDictionaryRef deviceConfi
         }
     }
     // Whether the MIDI ports should be named numerically or alphabetically.
+    deviceFirmware.numericPortNaming = false;
     CFTypeRef numericPortNaming;
     if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("NumericPortNaming"), &numericPortNaming)) {
         if (CFGetTypeID(numericPortNaming) == CFBooleanGetTypeID()) {
             deviceFirmware.numericPortNaming = CFBooleanGetValue((CFBooleanRef) numericPortNaming);
-        }
-        else {
-            deviceFirmware.numericPortNaming = false;
         }
     }
     // The number of MIDI ports. Legacy parameter, nowadays we specify input and output ports individually.
@@ -130,8 +128,9 @@ bool HardwareConfiguration::deviceListFromDictionary(CFDictionaryRef deviceConfi
         }
     }
     // The port that receives SMPTE code, so it can be labelled as such.
+    deviceFirmware.SMPTEport = -1; // default to negative indicating there's no SMPTE port.
     CFTypeRef SMPTEport;
-    if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("SMPTEport"), &SMPTEport)) {
+    if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("SMPTEPort"), &SMPTEport)) {
         if (CFGetTypeID(SMPTEport) == CFNumberGetTypeID()) {
             if (!CFNumberGetValue((CFNumberRef) SMPTEport, kCFNumberIntType, &deviceFirmware.SMPTEport)) {
                 return false;
