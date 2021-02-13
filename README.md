@@ -1,11 +1,11 @@
-M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave/Catalina)
-===================================================================================
+M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave/Catalina/Big Sur)
+===========================================================================================
 
 ![MIDISPORT 2x2](https://raw.githubusercontent.com/leighsmith/midisport-macos/main/MyMIDISPORT.jpeg)
 
-This project provides an open source MacOS 10.14 (Mojave) and 10.15 (Catalina) compatible
-CoreMIDI device driver for M-Audio's MIDISPORT range of USB MIDI interfaces. This driver
-supports the following devices:
+This project provides an open source MacOS v10.14, v10.15, v11.2 (Mojave, Catalina, Big Sur) compatible
+CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range of USB MIDI interfaces.
+This driver supports the following devices:
 
 + MIDISPORT 1x1
 + MIDISPORT 2x2
@@ -96,7 +96,7 @@ Installation instructions
 
 1. Make sure you first remove the old M-Audio MIDI device driver from your system before
 installing this driver. Ideally use their `M-Audio USB MIDI Uninstaller.app` which is part
-of their DMG file for their installer. However, that won't run on Catalina as it's a 32
+of their DMG file for their installer. However, that won't run on Catalina/Big Sur as it's a 32
 bit app. In that case, you will need to manually remove:
 
 * Their driver from `/Library/Audio/MIDI Drivers/M-Audio USB Support.plugin`
