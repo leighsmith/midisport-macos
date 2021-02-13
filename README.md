@@ -26,7 +26,7 @@ music inc.) that needed a MIDI device driver running on what was then a pre-rele
 version of MacOS X. M-Audio took the code and updated it many times without giving me back
 their updated source code. M-Audio now seem to have abandoned the hardware and no longer
 support their version of the driver since 2009, as their newer devices do not use that
-driver. With the move by Apple to v10.14 and v10.15 to no longer support 32 bit drivers, I
+driver. With the move by Apple to v10.14, v10.15 and v11 to no longer support 32 bit drivers, I
 have modified and updated my original code that was donated, to now compile as 64 bit
 versions on these latest MacOS versions, so MIDISPORT owners can continue to support and
 operate their hardware.
@@ -70,8 +70,7 @@ together with publicly available [Linux](https://github.com/esden/fxload)
 and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105),
 example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
-Currently the code has only been tested on MacOS 10.14, and 10.15, but the goal is to eventually also
-support MacOS 11, which seems to have changed the [USB Host API](https://developer.apple.com/documentation/iousbhost/iousbhostinterface?language=objc).
+Currently the code has been tested on MacOS 10.14, 10.15, and v11.2.1.
 
 MIDISPORT Firmware
 ------------------
