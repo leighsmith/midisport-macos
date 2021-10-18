@@ -399,8 +399,7 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
 
         DebugPrintf("cableNibble = 0x%x, cableEndpoint = %d, portNum = %d", cableNibble, cableEndpoint, wqe->portNum);
         while (src < srcend && dest[cableEndpoint] < destEnd[cableEndpoint]) {
-            long outPacketLen;
-            long numToBeSent;
+            long sysexDataLen;
             Byte c = *src++;
             
             // DebugPrintf("byte %02X", c);
@@ -410,17 +409,11 @@ void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
                 // DebugPrintf("sysex databyte %02X", c);
                 // data byte, presumably a sysex continuation
                 *dest[cableEndpoint]++ = c;
-                numToBeSent = srcend - src;
-                // sysex ends with 2 preceding data bytes or sysex continues, such that the 
-                // sysex end message begins the packet as the cmd.
-                outPacketLen = (numToBeSent >= 3) ? 2 : numToBeSent - 1;	
-                
-                // DebugPrintf("outPacketLen = %d, numToBeSent = %d", outPacketLen, numToBeSent);
-                memcpy(dest[cableEndpoint], src, outPacketLen);
-                memset(dest[cableEndpoint] + outPacketLen, 0, 2 - outPacketLen);
-                dest[cableEndpoint][2] = cableNibble | (outPacketLen + 1); // mark length and cable
-                dest[cableEndpoint] += (MIDIPACKETLEN - 1);   // we advance by one packet length (4 bytes)
-                src += outPacketLen;
+                // write up to 2 more sysex data bytes, if present in the packet
+                sysexDataLen = 1 + std::min(srcend - src, 2L);
+                *dest[cableEndpoint]++ = (src < srcend) ? *src++ : 0;
+                *dest[cableEndpoint]++ = (src < srcend) ? *src++ : 0;
+                *dest[cableEndpoint]++ = cableNibble | sysexDataLen; // mark length and cable
                 break;
             case 0x8:	// note-on
             case 0x9:	// note-off
