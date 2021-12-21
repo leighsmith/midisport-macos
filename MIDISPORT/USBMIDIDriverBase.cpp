@@ -352,11 +352,13 @@ InterfaceState::~InterfaceState()
 void	InterfaceState::HandleInput(ByteCount bytesReceived)
 {
 	UInt64 now = AudioGetCurrentHostTime();
-//	DebugPrintf("InterfaceState::HandleInput bytesReceived = %ld", bytesReceived);
-//	DebugPrintf("mReadBuf[0-23]: ");
-//	for (int i = 0; i < 24; i++)
-//		DebugPrintf("%02X ", mReadBuf[i]);
-//	   DebugPrintf("\n");
+#if 0
+	DebugPrintf("InterfaceState::HandleInput bytesReceived = %ld", bytesReceived);
+	DebugPrintf("mReadBuf[0-23]: ");
+	for (int i = 0; i < 24; i++)
+		DebugPrintf("%02X ", mReadBuf[i]);
+	   DebugPrintf("");
+#endif
 	mDriver->HandleInput(this, now, mReadBuf, bytesReceived);
 }
 
@@ -594,7 +596,7 @@ public:
 			// see if it's already in the setup, matching by locationID and productID
 			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
 			nDevs = MIDIDeviceListGetNumberOfDevices(curDevices);
-            DebugPrintf("nDevs = %lu, locationID = 0x%x", nDevs, (unsigned int) locationID);
+            DebugPrintf("nDevs = %lu, locationID = 0x%x, vendorProduct = 0x%x", nDevs, (unsigned int) locationID, vendorProduct);
             // pass 1: match by locationID
             // pass 2: match by order found
             for (int pass = 1; pass <= 2 && !deviceInSetup; ++pass) {
@@ -846,7 +848,7 @@ void	USBMIDIDriverBase::USBMIDIHandleInput(	InterfaceState *intf,
 	if (pktlist->numPackets > 0 && prevCable != -1) {
 		MIDIReceived(intf->mSources[prevCable], pktlist);
 #if DUMP_INPUT
-		DebugPrintf("\n");
+		DebugPrintf("");
 #endif
 	}
 }
