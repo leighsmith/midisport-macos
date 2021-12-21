@@ -190,6 +190,7 @@ void	USBDeviceManager::DevicesRemoved(io_iterator_t devIter)
 		printf("removed device 0x%X\n", (int)ioDeviceObj);
 #endif
 		DeviceRemoved(ioDeviceObj);
+		IOObjectRelease(ioDeviceObj);
 	}
 }
 
@@ -222,9 +223,6 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
             __Require(kr == kIOReturnSuccess, nextDevice);
             continue;
         }
-        // Don't need the device object after intermediate plug-in is created
-        kr = IOObjectRelease(ioDeviceObj);
-        __Require(kr == kIOReturnSuccess, nextDevice);
 
         // Now create the device interface
 		kr = (*ioPlugin)->QueryInterface(ioPlugin,
