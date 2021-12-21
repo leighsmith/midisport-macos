@@ -204,6 +204,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 		SInt32 					score;
 		UInt16					devVendor;
 		UInt16					devProduct;
+        UInt16                  devReleaseNumber;
 		bool					keepOpen = false;
 
         // Get self pointer to device.
@@ -237,6 +238,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 		// Get device info
 		__Require_noErr((*deviceIntf)->GetDeviceVendor(deviceIntf, &devVendor), nextDevice);
 		__Require_noErr((*deviceIntf)->GetDeviceProduct(deviceIntf, &devProduct), nextDevice);
+        __Require_noErr((*deviceIntf)->GetDeviceReleaseNumber(deviceIntf, &devReleaseNumber), nextDevice);
 		
 		if (MatchDevice(deviceIntf, devVendor, devProduct)) {
 			bool						deviceOpen = false;
@@ -254,7 +256,7 @@ void	USBDeviceManager::DevicesAdded(io_iterator_t devIter)
 
 			// Found a device match
 #if DEBUG
-			printf("scanning devices, matched device 0x%X: vendor 0x%x, product 0x%x\n", (int)ioDeviceObj, (int)devVendor, (int)devProduct);
+			printf("scanning devices, matched device 0x%X: vendor 0x%x, product 0x%x, release %d\n", (int)ioDeviceObj, (int)devVendor, (int)devProduct, (int)devReleaseNumber);
 #endif
 
 			// Make sure it has at least one configuration

@@ -67,7 +67,7 @@ The MacOS X CoreMIDI device driver is a modified version of Apple's publicly ava
 MIDISPORT. All technical details of the MIDISPORT devices within the driver are also publicly available from
 the [open source Linux version of the MIDISPORT driver](https://www.alsa-project.org/wiki/Usb-midi-fw),
 together with publicly available [Linux](https://github.com/esden/fxload)
-and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105),
+and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105)
 example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
 Currently the code has been tested on MacOS 10.14, 10.15, and v11.2.1.
