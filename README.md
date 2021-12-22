@@ -3,7 +3,7 @@ M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave/Catali
 
 ![MIDISPORT 2x2](https://raw.githubusercontent.com/leighsmith/midisport-macos/main/MyMIDISPORT.jpeg)
 
-This project provides an open source MacOS v10.14, v10.15, v11.2 (Mojave, Catalina, Big Sur) compatible
+This project provides an open source MacOS v10.14, v10.15, v11.6 (Mojave, Catalina, Big Sur) compatible
 CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range of USB MIDI interfaces.
 This driver supports the following devices:
 
@@ -70,7 +70,7 @@ together with publicly available [Linux](https://github.com/esden/fxload)
 and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105)
 example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
-Currently the code has been tested on MacOS 10.14, 10.15, and v11.2.1.
+Currently the code has been tested on MacOS 10.14, 10.15, and v11.6.2.
 
 MIDISPORT Firmware
 ------------------
