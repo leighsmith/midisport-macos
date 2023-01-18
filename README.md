@@ -3,9 +3,9 @@ M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave/Catali
 
 ![MIDISPORT 2x2](https://raw.githubusercontent.com/leighsmith/midisport-macos/main/MyMIDISPORT.jpeg)
 
-This project provides an open source MacOS v10.14, v10.15, v11.6 (Mojave, Catalina, Big Sur) compatible
-CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range of USB MIDI interfaces.
-This driver supports the following devices:
+This project provides an open source MacOS v10.14, v10.15, v11.6, v12.6 (Mojave, Catalina,
+Big Sur, Monterey) compatible CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range
+of USB MIDI interfaces. This driver supports the following devices:
 
 + MIDISPORT 1x1
 + MIDISPORT 2x2
@@ -70,7 +70,7 @@ together with publicly available [Linux](https://github.com/esden/fxload)
 and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105)
 example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
-Currently the code has been tested on MacOS 10.14, 10.15, and v11.6.2.
+Currently the code has been tested on MacOS 10.14, 10.15, and v11.6.2, v12.6.2.
 
 MIDISPORT Firmware
 ------------------
@@ -146,4 +146,9 @@ the code, the entire package is compiled and built by running:
     xcodebuild -project MIDISPORT.xcodeproj -target Package -configuration Deployment install
 
 from the Terminal.app command line. This will compile both the firmware downloader and the
-MIDI driver plugin, and produce the installable package.
+MIDI driver plugin, and produce the installable package. The package name will include the
+version number. To increment that version number, the following files need to be changed:
+
+* The `CURRENT_PROJECT_VERSION` value for the `Package` target in the `MIDISPORT.xcodeproj/project.pbxproj` XCode project file.
+* The value of `CFBundleShortVersionString` in `MIDISPORT/Info-MIDISPORT.plist`.
+* Localised (English only, currently) entries in `MIDISPORT/en.lproj/InfoPlist.strings`.
