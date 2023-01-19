@@ -3,15 +3,15 @@ M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave/Catali
 
 ![MIDISPORT 2x2](https://raw.githubusercontent.com/leighsmith/midisport-macos/main/MyMIDISPORT.jpeg)
 
-This project provides an open source MacOS v10.14, v10.15, v11.6, v12.6 (Mojave, Catalina,
-Big Sur, Monterey) compatible CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range
-of USB MIDI interfaces. This driver supports the following devices:
+This project provides an open source MacOS v10.14 - v12.6 (Mojave to Monterey) compatible
+CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range of USB MIDI interfaces. This
+driver supports the following devices:
 
 + MIDISPORT 1x1
 + MIDISPORT 2x2
 + MIDISPORT 4x4
 + MIDISPORT 8x8/S
-+ Oxygen 8 Keyboard
++ Oxygen 8 Keyboard (with extra firmware installed)
 
 Other devices which are compatible may also work, although presently, these are the only
 ones which have been tested. See the disclaimer below before testing this software on any
@@ -26,10 +26,10 @@ music inc.) that needed a MIDI device driver running on what was then a pre-rele
 version of MacOS X. M-Audio took the code and updated it many times without giving me back
 their updated source code. M-Audio now seem to have abandoned the hardware and no longer
 support their version of the driver since 2009, as their newer devices do not use that
-driver. With the move by Apple to v10.14 and onwards to no longer support 32 bit drivers, I
-have modified and updated my original code that was donated, to now compile as 64 bit
-versions on these latest MacOS versions, so MIDISPORT owners can continue to support and
-operate their hardware.
+driver. With the move by Apple to MacOS v10.14 and onwards to no longer support 32 bit
+drivers, I have modified and updated my original code that was donated, to now compile as
+64 bit versions on these latest MacOS versions, so MIDISPORT owners can continue to
+support and operate their hardware.
 
 Necessary Disclaimer:
 ---------------------
@@ -53,11 +53,11 @@ The project consists of two parts:
 1. The MacOS X CoreMIDI device driver itself, consisting of a modified version of Apple's
    publicly available (and now very old) MIDI device driver example code.
 
-2. A firmware downloader running as a [launchd](https://www.launchd.info/) daemon,
-   which downloads to the EZ-USB
+2. A firmware downloader running as a [launchd](https://www.launchd.info/) daemon, which
+   downloads the firmware to transmit to, and receive from, MIDI and USB ports on the
+   [EZ-USB](https://media.digikey.com/pdf/Data%20Sheets/Cypress%20PDFs/EZ-USB%20Dev%20Kit%20Manual.pdf)
    [8051](https://www.electronicshub.org/8051-microcontroller-architecture/)
-   compatible microcontroller within the MIDISPORT devices, the firmware to transmit
-   and receive to and from MIDI and USB ports on the devices.
+   compatible microcontroller within the MIDISPORT devices.
 
 MacOS X CoreMIDI Device Driver
 ------------------------------
