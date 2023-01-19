@@ -113,7 +113,8 @@ and place into your `~/Downloads` folder. The installer will look for the DMG fi
 requires Python v3, which was not installed as standard on that version of the operating
 system. You therefore need to have Python 3 installed in a location which is accessible to
 the installer, i.e. `/usr/local/bin`. For MacOS 11 and greater, Python v3 is installed by
-default.
+default. The easiest method to check if Python v3 is already installed is to launch
+Terminal.app and run `which python3` which will report its location if it's on your machine.
 
 4. Download the package [MIDISPORT.pkg](https://sourceforge.net/projects/midisport-macos/files/).
 
