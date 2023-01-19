@@ -3,9 +3,9 @@ M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave/Catali
 
 ![MIDISPORT 2x2](https://raw.githubusercontent.com/leighsmith/midisport-macos/main/MyMIDISPORT.jpeg)
 
-This project provides an open source MacOS v10.14, v10.15, v11.6 (Mojave, Catalina, Big Sur) compatible
-CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range of USB MIDI interfaces.
-This driver supports the following devices:
+This project provides an open source MacOS v10.14, v10.15, v11.6, v12.6 (Mojave, Catalina,
+Big Sur, Monterey) compatible CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range
+of USB MIDI interfaces. This driver supports the following devices:
 
 + MIDISPORT 1x1
 + MIDISPORT 2x2
@@ -26,7 +26,7 @@ music inc.) that needed a MIDI device driver running on what was then a pre-rele
 version of MacOS X. M-Audio took the code and updated it many times without giving me back
 their updated source code. M-Audio now seem to have abandoned the hardware and no longer
 support their version of the driver since 2009, as their newer devices do not use that
-driver. With the move by Apple to v10.14, v10.15 and v11 to no longer support 32 bit drivers, I
+driver. With the move by Apple to v10.14 and onwards to no longer support 32 bit drivers, I
 have modified and updated my original code that was donated, to now compile as 64 bit
 versions on these latest MacOS versions, so MIDISPORT owners can continue to support and
 operate their hardware.
@@ -70,7 +70,7 @@ together with publicly available [Linux](https://github.com/esden/fxload)
 and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105)
 example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
-Currently the code has been tested on MacOS 10.14, 10.15, and v11.6.2.
+Currently the code has been tested on MacOS 10.14, 10.15, and v11.7.2, v12.6.2.
 
 MIDISPORT Firmware
 ------------------
@@ -109,9 +109,16 @@ M-Audio v3.5.3 DMG file now archived at
 [Softpedia.com](https://mac.softpedia.com/get/Drivers/M-Audio-MIDISport-Series.shtml#download),
 and place into your `~/Downloads` folder. The installer will look for the DMG file there.
 
-3. Download the package [MIDISPORT.pkg](https://sourceforge.net/projects/midisport-macos/files/).
+3. If you are attempting to install on MacOS 10, the M-Audio DMG file extractor now
+requires Python v3, which was not installed as standard on that version of the operating
+system. You therefore need to have Python 3 installed in a location which is accessible to
+the installer, i.e. `/usr/local/bin`. For MacOS 11 and greater, Python v3 is installed by
+default. The easiest method to check if Python v3 is already installed is to launch
+Terminal.app and run `which python3` which will report its location if it's on your machine.
 
-4. Double-Click the .pkg package, and follow the standard installation operation to
+4. Download the package [MIDISPORT.pkg](https://sourceforge.net/projects/midisport-macos/files/).
+
+5. Double-Click the .pkg package, and follow the standard installation operation to
 install the plugin. When prompted for authorization to install the plugin, enter an
 administrator's password. Note that installer will attempt to download the firmware files,
 so you need to be connected to the Internet. The installer should place:
@@ -121,15 +128,15 @@ so you need to be connected to the Internet. The installer should place:
 * A [launchd](https://www.launchd.info/) configuration file into `/Library/LaunchDaemons/`
 * The firmware files into `/usr/local/etc/midisport_firmware/`
 
-5. You will need to reboot the operating system in order to launch the
+6. You will need to reboot the operating system in order to launch the
 MIDISPORTFirmwareDownloader utility which will wait for MIDISPORT devices to be plugged
 into the USB bus.
 
-6. Connect the MIDISPORT device to the USB chain. If the device and the firmware files can
+7. Connect the MIDISPORT device to the USB chain. If the device and the firmware files can
 be found, the firmware for the MIDISPORT will be downloaded which will be indicated by its
 LED labelled "USB" pulsing.
 
-7. Open `/Applications/Utilities/Audio MIDI Setup.app` and select the MIDI Studio window
+8. Open `/Applications/Utilities/Audio MIDI Setup.app` and select the MIDI Studio window
 of the app. You should see the MIDISPORT MIDI interface device appear, and you can then define MIDI
 devices and connect them to the MIDISPORT interface device in the standard operation of
 the utility application. Note that if you have run the M-Audio driver in the past, the
@@ -143,7 +150,14 @@ Building from Source
 The package .pkg file above will fulfill musicians requirements. If however, you want to develop
 the code, the entire package is compiled and built by running:
 
+```
     xcodebuild -project MIDISPORT.xcodeproj -target Package -configuration Deployment install
+```
 
 from the Terminal.app command line. This will compile both the firmware downloader and the
-MIDI driver plugin, and produce the installable package.
+MIDI driver plugin, and produce the installable package. The package name will include the
+version number. To increment that version number, the following files need to be changed:
+
+* The `CURRENT_PROJECT_VERSION` value for the `Package` target in the `MIDISPORT.xcodeproj/project.pbxproj` XCode project file.
+* The value of `CFBundleShortVersionString` in `MIDISPORT/Info-MIDISPORT.plist`.
+* Localised (English only, currently) entries in `MIDISPORT/en.lproj/InfoPlist.strings`.
