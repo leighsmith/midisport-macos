@@ -1,9 +1,9 @@
-M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave/Catalina/Big Sur)
-===========================================================================================
+M-Audio MIDISPORT USB 64-bit MIDI device driver for MacOS v10.14+ (Mojave to Ventura)
+=====================================================================================
 
 ![MIDISPORT 2x2](https://raw.githubusercontent.com/leighsmith/midisport-macos/main/MyMIDISPORT.jpeg)
 
-This project provides an open source MacOS v10.14 - v12.6 (Mojave to Monterey) compatible
+This project provides an open source MacOS v10.14 - v13.4 (Mojave to Monterey) compatible
 CoreMIDI 64 bit device driver for M-Audio's MIDISPORT range of USB MIDI interfaces. This
 driver supports the following devices:
 
@@ -12,10 +12,11 @@ driver supports the following devices:
 + MIDISPORT 4x4
 + MIDISPORT 8x8/S
 + Oxygen 8 Keyboard (with extra firmware installed)
++ Radium 49/61
 
 Other devices which are compatible may also work, although presently, these are the only
-ones which have been tested. See the disclaimer below before testing this software on any
-device not listed above.
+ones which have been tested or reported to work. See the disclaimer below before testing
+this software on any device not listed above.
 
 History:
 --------
