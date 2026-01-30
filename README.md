@@ -145,6 +145,38 @@ previous MIDI interfaces will still appear and any MIDI devices connected to the
 remain. You will need to remove those connections and reconnect the MIDI devices to the
 new available MIDISPORT interface.
 
+Uninstalling the Driver
+-----------------------
+
+If you need to uninstall the driver for some reason, because it is a driver installed as a
+package, there are a couple of steps to remove the driver from your system. These files
+can be displayed by double clicking the `MIDISPORT.pkg` file to launch the
+`Installer.app`, and instead of clicking continue to install it, use the `File->Show
+Files` menu to list the files which are installed.
+
+![Image](https://github.com/user-attachments/assets/c32b6d31-5094-48b5-93e9-3d1a863e9c29)
+
+- Minimally, simply deleting the `MIDISPORT.plugin` directory package located in the
+  `/Library/Audio/MIDI Drivers` folder and rebooting should avoid the `Audio MIDI
+  Setup.app` from hanging.
+
+- There are also a couple of files responsible for firmware downloading that can also be removed:
+  - `/Library/LaunchDaemons/com.leighsmith.midisportfirmwaredownloader.plist`
+  - `/usr/local/etc/midisport_firmware`
+  - `/usr/local/libexec/MIDISPORTFirmwareDownloader`
+
+All of this can best be done using the `Terminal.app` and running the following terminal
+commands:
+
+```
+sudo rm -r /Library/Audio/MIDI Drivers/MIDISPORT.plugin
+sudo rm -r /usr/local/etc/midisport_firmware
+sudo rm /usr/local/libexec/MIDISPORTFirmwareDownloader /Library/LaunchDaemons/com.leighsmith.midisportfirmwaredownloader.plist
+```
+
+You will be prompted for your user login password in order to raise your priority to
+super-user (`sudo`) for the first command.
+
 Building from Source
 --------------------
 
