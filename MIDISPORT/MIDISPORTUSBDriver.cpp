@@ -184,11 +184,11 @@ MIDIDeviceRef MIDISPORT::CreateDevice(io_service_t ioDevice,
         char portname[64];
 
         if (port == connectedMIDISPORT.SMPTEport)      // be descriptive in naming the SMPTE channel.
-            sprintf(portname, "SMPTE Port");
+            snprintf(portname, 64, "SMPTE Port");
         else if (connectedMIDISPORT.numericPortNaming) // If the device is labelled with numbered MIDI ports.
-            sprintf(portname, "Port %d", port + 1);
+            snprintf(portname, 64, "Port %d", port + 1);
         else
-            sprintf(portname, "Port %c", port + 'A');  // Most MIDISPORTs have alphabetic MIDI port naming.
+            snprintf(portname, 64, "Port %c", port + 'A');  // Most MIDISPORTs have alphabetic MIDI port naming.
         CFStringRef str = CFStringCreateWithCString(NULL, portname, 0);
         MIDIDeviceAddEntity(dev, str, false, port < connectedMIDISPORT.numberOfInputPorts, port < connectedMIDISPORT.numberOfOutputPorts, &ent);
         CFRelease(str);
@@ -227,8 +227,8 @@ void MIDISPORT::StopInterface(InterfaceState *intf)
 // The format of mspackets in received memory order is:
 // d0, d1, d2, cmd, d0, d1, d2, cmd, ...
 // d0 is typically (but not always!) the status MIDI byte, d1, d2 the subsequent message bytes in order.
-// cmd is: 000x00yy
-// Where the upper nibble (x) indicates the source MIDI in port, 0=MIDI-IN A, 1=MIDI-IN B.
+// cmd is: 0xxx00yy
+// Where the upper nibble (xxx) indicates the source MIDI in port, 0=MIDI-IN A, 1=MIDI-IN B, 2=MIDI-IN C, etc.
 // The lower nibble (yy) indicates the byte count of valid data in the preceding three bytes.
 // A byte count of 0 indicates a null packet and marks the end of the multiplex input buffer
 // for transmitting less than a full kReadBufSize of data.
@@ -241,8 +241,8 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
     static Byte runningStatus[kNumMaxPorts] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
     // how many bytes remain to be processed per MIDI message
     static int remainingBytesInMsg[kNumMaxPorts] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    static Byte completeMessage[MIDIPACKETLEN];
-    static int numCompleted = 0;
+    static Byte completeMessage[kNumMaxPorts][MIDIPACKETLEN];
+    static int numCompleted[kNumMaxPorts] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     int preservedMsgCount = 0;	// to preserve the message length when encountering a real-time msg
                                 // embedded in another channel message.
     Byte *src = readBuf, *srcend = src + readBufSize;
@@ -261,10 +261,11 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
 
         // if input came from a different input port, flush the packet list.
         if (prevInputPort != -1 && inputPort != prevInputPort) {
-            // DebugPrintf("flushing source %d", inputPort);
-            MIDIReceived(intf->mSources[inputPort], pktlist);
+            // DebugPrintf("flushing source %d", prevInputPort);
+            MIDIReceived(intf->mSources[prevInputPort], pktlist);
+            // TODO Flush partial messages when switching ports: Before resetting the packet list at line 266, add any partial message from prevInputPort to the packet list.
             pkt = MIDIPacketListInit(pktlist);
-            inSysex[inputPort] = false;
+            inSysex[prevInputPort] = false;
         }
         prevInputPort = inputPort;
 
@@ -292,44 +293,44 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                     inSysex[inputPort] = true;
                 }
                 if (status == 0xF7) {
-                    if(numCompleted > 0)
-                        pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
+                    if(numCompleted[inputPort] > 0)
+                        pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted[inputPort], completeMessage[inputPort]);
                     inSysex[inputPort] = false;
                 }
 
-                numCompleted = 1;
+                numCompleted[inputPort] = 1;
                 // store ready for packetting.
-                completeMessage[0] = status;
+                completeMessage[inputPort][0] = status;
                 // DebugPrintf("new status %02X, remainingBytesInMsg = %d", status, remainingBytesInMsg[inputPort]);
             }
             else if (remainingBytesInMsg[inputPort] > 0) {   // still within a message
                 remainingBytesInMsg[inputPort]--;
                 // store ready for packetting.
-                completeMessage[numCompleted++] = src[byteIndex];
+                completeMessage[inputPort][numCompleted[inputPort]++] = src[byteIndex];
                 // DebugPrintf("in message remainingBytesInMsg = %d", remainingBytesInMsg[inputPort]);
             }
             else if (inSysex[inputPort]) {          // fill the packet with sysex bytes
                 // DebugPrintf("in sysex numCompleted = %d", numCompleted);
-                completeMessage[numCompleted++] = src[byteIndex];
+                completeMessage[inputPort][numCompleted[inputPort]++] = src[byteIndex];
             }
             else {  // assume a running status message, assign status from the retained runnning status.
                 Byte status = runningStatus[inputPort];
                 // DebugPrintf("assuming runningStatus %02X", status);
-                completeMessage[0] = status;
-                completeMessage[1] = src[byteIndex];
-                numCompleted = 2;
+                completeMessage[inputPort][0] = status;
+                completeMessage[inputPort][1] = src[byteIndex];
+                numCompleted[inputPort] = 2;
                 remainingBytesInMsg[inputPort] = MIDIDataBytes(status) - 1;
                 // assert(remainingBytesInMsg[inputPort] > 0); // since System messages are prevented from being running status.
             }
 
-            if (remainingBytesInMsg[inputPort] == 0 || numCompleted >= (MIDIPACKETLEN - 1)) { // completed
+            if (remainingBytesInMsg[inputPort] == 0 || numCompleted[inputPort] >= (MIDIPACKETLEN - 1)) { // completed
 #if DEBUG
                 DebugPrintf("Shipping a packet: ");
                 for(int i = 0; i < numCompleted; i++)
                     DebugPrintf("%02X ", completeMessage[i]);
 #endif
-                pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted, completeMessage);
-                numCompleted = 0;
+                pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted[inputPort], completeMessage[inputPort]);
+                numCompleted[inputPort] = 0;
                 DebugPrintf("shipped packet");
             }
             if (preservedMsgCount != 0) {
