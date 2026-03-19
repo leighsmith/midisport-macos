@@ -184,7 +184,7 @@ The package .pkg file above will fulfill musicians requirements. If however, you
 the code, the entire package is compiled and built by running:
 
 ```
-    xcodebuild -project MIDISPORT.xcodeproj -target Package -configuration Deployment install
+xcodebuild -project MIDISPORT.xcodeproj -target Package -configuration Deployment install
 ```
 
 from the Terminal.app command line. This will compile both the firmware downloader and the
@@ -194,3 +194,15 @@ version number. To increment that version number, the following files need to be
 * The `CURRENT_PROJECT_VERSION` value for the `Package` target in the `MIDISPORT.xcodeproj/project.pbxproj` XCode project file.
 * The value of `CFBundleShortVersionString` in `MIDISPORT/Info-MIDISPORT.plist`.
 * Localised (English only, currently) entries in `MIDISPORT/en.lproj/InfoPlist.strings`.
+
+## Debugging
+
+To build the driver itself with debugging enabled, the following command will build only the driver:
+
+```
+xcodebuild -project MIDISPORT.xcodeproj -target MIDISPORT -configuration Development install
+```
+
+Running this driver will generate a debugging text file ("sidefile") at
+`/tmp/MIDISPORT_debug_XXX.log`, where `XXX` is an incrementing integer logging internal
+behaviour of the driver. A reboot is necessary to reload the driver.

@@ -24,7 +24,7 @@
  
  In consideration of your agreement to abide by the following terms, and
  subject to these terms, Apple grants you a personal, non-exclusive
- license, under AppleÕs copyrights in this original Apple software (the
+ license, under Apple's copyrights in this original Apple software (the
  "Apple Software"), to use, reproduce, modify and redistribute the Apple
  Software, with or without modifications, in source and/or binary forms;
  provided that if you redistribute the Apple Software in its entirety and
@@ -243,8 +243,8 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
     static int remainingBytesInMsg[kNumMaxPorts] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     static Byte completeMessage[kNumMaxPorts][MIDIPACKETLEN];
     static int numCompleted[kNumMaxPorts] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int preservedMsgCount = 0;	// to preserve the message length when encountering a real-time msg
-                                // embedded in another channel message.
+    // Real-time messages embedded in channel messages are now handled
+    // by an early continue path that leaves the assembly state intact (see below).
     Byte *src = readBuf, *srcend = src + readBufSize;
     static Byte pbuf[512];
     MIDIPacketList *pktlist = (MIDIPacketList *)pbuf;
@@ -278,14 +278,14 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
                     runningStatus[inputPort] = status;  // remember it, including the MIDI channel...
 
                 dataInMessage = MIDIDataBytes(status);
-                // if the message is a single real-time message, save the previous remainingBytesInMsg
-                // (since a real-time message can occur within another message) until we have shipped 
-                // the real-time packet.
-                if (remainingBytesInMsg[inputPort] > 0 && dataInMessage == 0) {
-                    preservedMsgCount = remainingBytesInMsg[inputPort];
-                }
-                else {
-                    preservedMsgCount = 0;
+                // A real-time message (0-data-byte system message: clock, active sensing, etc.)
+                // can legally arrive in the middle of another message being assembled.  Ship it
+                // immediately using a local buffer so that completeMessage, numCompleted, and
+                // remainingBytesInMsg for the in-progress channel message are left untouched.
+                if (dataInMessage == 0 && status != 0xF0 && status != 0xF7) {
+                    Byte realtimeMessage[1] = { status };
+                    pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, 1, realtimeMessage);
+                    continue;   // skip all assembly-state updates for this byte
                 }
                 remainingBytesInMsg[inputPort] = dataInMessage;
 
@@ -326,15 +326,12 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
             if (remainingBytesInMsg[inputPort] == 0 || numCompleted[inputPort] >= (MIDIPACKETLEN - 1)) { // completed
 #if DEBUG
                 DebugPrintf("Shipping a packet: ");
-                for(int i = 0; i < numCompleted; i++)
-                    DebugPrintf("%02X ", completeMessage[i]);
+                for(int i = 0; i < numCompleted[inputPort]; i++)
+                    DebugPrintf("%02X ", (unsigned int) completeMessage[inputPort][i]);
 #endif
                 pkt = MIDIPacketListAdd(pktlist, sizeof(pbuf), pkt, when, numCompleted[inputPort], completeMessage[inputPort]);
                 numCompleted[inputPort] = 0;
                 DebugPrintf("shipped packet");
-            }
-            if (preservedMsgCount != 0) {
-                remainingBytesInMsg[inputPort] = preservedMsgCount;
             }
         }
     }
@@ -354,7 +351,7 @@ void MIDISPORT::HandleInput(InterfaceState *intf, MIDITimeStamp when, Byte *read
 // "To ease the load on the MidiSport 8x8 processor, this limitation has been added: the host should send
 // no more than two packets per each MIDI OUT or SMPTE port in a given OUT transfer.  This limitation 
 // still allows MIDI data to be transferred at almost double bandwidth across the USB bus while reducing
-// the MidiSportÕs internal buffer requirements."
+// the MidiSport's internal buffer requirements."
 // Now that's going to be tricky to implement... :-(
 void MIDISPORT::PrepareOutput(InterfaceState *intf, WriteQueue &writeQueue,
                               Byte *destBuf1, ByteCount *bufCount1,
