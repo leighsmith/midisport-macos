@@ -1,16 +1,30 @@
 #!/bin/sh
-# Download and install all Intel Hex firmware files from the Linux distribution to /usr/local/etc/midisport_firmware
+# Installer runs this script as root. Stop if required firmware cannot be installed.
+set -eu
+
+# Use a private directory so failed downloads cannot reuse stale firmware in /tmp.
+firmware_tmp=$(mktemp -d /private/tmp/midisport-firmware.XXXXXX)
+trap 'rm -rf "$firmware_tmp"' EXIT
+trap 'exit 1' HUP INT TERM
+
 echo "Downloading MIDISPORT Firmware archive"
-curl --location --output /tmp/midisport_firmware.tar.gz https://downloads.sourceforge.net/project/usb-midi-fw/midisport-firmware/1.2/midisport-firmware-1.2.tar.gz
-tar -C /tmp/ -x -z -f /tmp/midisport_firmware.tar.gz
+curl --fail --location --show-error --output "$firmware_tmp/firmware.tar.gz" \
+    https://downloads.sourceforge.net/project/usb-midi-fw/midisport-firmware/1.2/midisport-firmware-1.2.tar.gz
+tar -C "$firmware_tmp" -x -z -f "$firmware_tmp/firmware.tar.gz"
+
+# Check the loader and firmware for the original supported devices before copying.
+firmware_source="$firmware_tmp/midisport-firmware-1.2"
+for firmware in MidiSportLoader.ihx MidiSport1x1.ihx MidiSport2x2.ihx MidiSport4x4.ihx; do
+    if [ ! -s "$firmware_source/$firmware" ]; then
+        echo "Missing or empty required firmware: $firmware" >&2
+        exit 1
+    fi
+done
+
 echo "Installing MIDISPORT firmware files"
-sudo mkdir -p /usr/local/etc/midisport_firmware/
-sudo cp /tmp/midisport-firmware-1.2/*.ihx /usr/local/etc/midisport_firmware/
+mkdir -p /usr/local/etc/midisport_firmware/
+cp "$firmware_source"/*.ihx /usr/local/etc/midisport_firmware/
 echo "Installed MIDISPORT firmware files"
 
-# This script could be launched from anywhere, so we need to find the firmware extraction script,
-# which will be in the same directory as this one.
-$(dirname $0)/extractMAudioFirmware.sh
-
-exit 0
-
+# This script may be launched from a directory whose path contains spaces.
+"$(dirname "$0")/extractMAudioFirmware.sh"
