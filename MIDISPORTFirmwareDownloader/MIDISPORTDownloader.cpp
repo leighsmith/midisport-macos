@@ -34,7 +34,7 @@ bool downloadFirmwareToDevice(EZUSBLoader *ezusb, struct DeviceFirmware device)
             return false;
         }
         std::cout << "Downloading firmware." << std::endl;
-        if (ezusb->StartDevice(firmwareToDownload)) {
+        if (ezusb->StartDevice(firmwareToDownload, device.directDownload)) {
 #if 0
             // Wait up to 20 seconds for the firmware to boot & re-enumerate the USB bus properly.
             for (unsigned int testCount = 0; testCount < 10 && !foundMIDSPORT; testCount++) {
