@@ -22,6 +22,7 @@ struct DeviceFirmware {
     int numberOfOutputPorts;                // The number of output MIDI ports.
     int readBufSize;                        // The number of bytes in the device read buffer.
     int writeBufSize;                       // The number of bytes in the device write buffer.
+    bool directDownload;                    // Download all firmware in one pass via the ROM's own command, without a helper loader (later chip revisions, e.g. Anniversary models).
     std::string firmwareFileName;           // Path to the Intel hex file of the firmware. NULL indicates no firmware needs to be downloaded.
 };
 
