@@ -597,32 +597,37 @@ public:
 			curDevices = MIDIGetDriverDeviceList(mDriver->Self());
 			nDevs = MIDIDeviceListGetNumberOfDevices(curDevices);
             DebugPrintf("nDevs = %lu, locationID = 0x%x, vendorProduct = 0x%x", nDevs, (unsigned int) locationID, vendorProduct);
-            // pass 1: match by locationID
-            // pass 2: match by order found
+            // pass 1: match by locationID (same physical USB port / hub path).
+            // pass 2: fall back to an offline device of the same model not yet claimed
+            //         (e.g. a unit moved to a different USB port).
+            // Devices already online have been claimed by another unit during this scan
+            // and must never be reused, otherwise two identical units collide.
             for (int pass = 1; pass <= 2 && !deviceInSetup; ++pass) {
-                for (int i = 0; i < nDevs; ++i) {
-                    SInt32 prevDevLocation, prevVendorProduct;
-                    midiDevice = MIDIDeviceListGetDevice(curDevices, i);
-                    err = MIDIObjectGetIntegerProperty(midiDevice, kUSBVendorProductProperty, &prevVendorProduct);
+                for (ItemCount i = 0; i < nDevs && !deviceInSetup; ++i) {
+                    MIDIDeviceRef candidate = MIDIDeviceListGetDevice(curDevices, i);
+                    SInt32 prevVendorProduct = 0, prevDevLocation = 0, isOffline = 1;
 
-                    if (!err && (UInt32)prevVendorProduct == vendorProduct) { // We have found an instance of our device.
-                        if (pass == 1) {
-                            err = MIDIObjectGetIntegerProperty(midiDevice, kUSBLocationProperty, &prevDevLocation);
-                            if (!err && (UInt32)prevDevLocation == locationID)
-                                deviceInSetup = true;
-                            break;
-                        }
-                        else {
-                            SInt32 isOffline;
+                    err = MIDIObjectGetIntegerProperty(candidate, kUSBVendorProductProperty, &prevVendorProduct);
+                    if (err || (UInt32)prevVendorProduct != vendorProduct)
+                        continue;   // a different model
 
-                            err = MIDIObjectGetIntegerProperty(midiDevice, kMIDIPropertyOffline, &isOffline);
-                            if (!err && isOffline)
-                                deviceInSetup = true;
-                            break;
+                    MIDIObjectGetIntegerProperty(candidate, kMIDIPropertyOffline, &isOffline);
+                    if (!isOffline)
+                        continue;   // already bound to another unit
+
+                    if (pass == 1) {
+                        err = MIDIObjectGetIntegerProperty(candidate, kUSBLocationProperty, &prevDevLocation);
+                        if (!err && (UInt32)prevDevLocation == locationID) {
+                            midiDevice = candidate;
+                            deviceInSetup = true;
                         }
                     }
-                    if (deviceInSetup)
-                        break;
+                    else {
+                        midiDevice = candidate;
+                        deviceInSetup = true;
+                        // remember the new port so the next scan matches in pass 1
+                        MIDIObjectSetIntegerProperty(midiDevice, kUSBLocationProperty, locationID);
+                    }
                 }
             }
 			MIDIDeviceListDispose(curDevices);
