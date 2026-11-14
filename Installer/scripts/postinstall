@@ -22,8 +22,8 @@ for firmware in MidiSportLoader.ihx MidiSport1x1.ihx MidiSport2x2.ihx MidiSport4
 done
 
 echo "Installing MIDISPORT firmware files"
-mkdir -p /usr/local/etc/midisport_firmware/
-cp "$firmware_source"/*.ihx /usr/local/etc/midisport_firmware/
+sudo mkdir -p /usr/local/etc/midisport_firmware/
+sudo cp "$firmware_source"/*.ihx /usr/local/etc/midisport_firmware/
 echo "Installed MIDISPORT firmware files"
 
 # This script may be launched from a directory whose path contains spaces.

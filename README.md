@@ -71,7 +71,7 @@ together with publicly available [Linux](https://github.com/esden/fxload)
 and [MacOS](https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF105)
 example code for downloading firmware for the EZ-USB microcontroller inside the MIDISPORT devices.
 
-Currently the code has been tested on MacOS Mojave 10.14 - Tahoe 26.3.1.
+Currently the code has been tested on MacOS Mojave 10.14 - Tahoe 26.6.2.
 
 MIDISPORT Firmware
 ------------------
