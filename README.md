@@ -73,6 +73,19 @@ example code for downloading firmware for the EZ-USB microcontroller inside the 
 
 Currently the code has been tested on MacOS Mojave 10.14 - Tahoe 26.3.1.
 
+### MIDISPORT 4x4 on macOS Tahoe 26.6.2
+
+With the released v1.3.3 driver on Apple Silicon, a MIDISPORT 4x4 was verified
+online in CoreMIDI with four inputs and four outputs (ports A-D). Logic Pro also
+listed all four inputs as enabled. This verifies device discovery and port
+availability; MIDI note transmission, timing, and SysEx were not tested.
+
+If the interface is offline, first check whether it appears under USB in System
+Information. An offline MIDI Studio entry may remain after USB disconnection.
+Repeated USB enumeration failures indicate a problem identifying a device on the
+USB bus; they do not by themselves establish a MIDI driver incompatibility.
+Try reconnecting the interface, a different cable, or a different hub/adapter.
+
 MIDISPORT Firmware
 ------------------
 
