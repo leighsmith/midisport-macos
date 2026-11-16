@@ -146,8 +146,13 @@ IOReturn EZUSBLoader::DownloadFirmwareToRAM(IOUSBDeviceInterface **device,
             loadRequest.wLength = hexRecord->Length;
             loadRequest.pData = (void *) hexRecord->Data;
             status = (*device)->DeviceRequest(device, &loadRequest);
-            if (status != kIOReturnSuccess)
+            if (status != kIOReturnSuccess) {
+                std::cerr << "DeviceRequest writing " << std::dec << int(hexRecord->Length)
+                          << " bytes to " << (internalRAM ? "internal" : "external")
+                          << " RAM address 0x" << std::hex << hexRecord->Address
+                          << " failed, status 0x" << status << std::endl;
                 return status;
+            }
         }
     }
     return status;
