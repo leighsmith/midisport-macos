@@ -94,6 +94,14 @@ this project's installer will also install the firmware files from that old .dmg
 Installation instructions
 -------------------------
 
+**Before installing anything**: plug the device in and check the **MIDI Studio** window of
+`/Applications/Utilities/Audio MIDI Setup.app` (menu Window → Show MIDI Studio, or Cmd-2).
+Later hardware revisions of some models — for example the Anniversary editions — are USB
+class-compliant and work on modern macOS with no driver and no firmware download at all.
+If your device's ports already appear there, you are done and need none of the following
+(see issue #71 for details). Note that MIDI interfaces never appear in the Audio Devices
+window of that application, only in MIDI Studio.
+
 1. Make sure you first remove the old M-Audio MIDI device driver from your system before
 installing this driver. Ideally use their `M-Audio USB MIDI Uninstaller.app` which is part
 of their DMG file for their installer. However, that won't run on Catalina/Big Sur as it's a 32
@@ -121,7 +129,30 @@ Terminal.app and run `which python3` which will report its location if it's on y
 
 5. Double-Click the .pkg package, and follow the standard installation operation to
 install the plugin. When prompted for authorization to install the plugin, enter an
-administrator's password. Note that installer will attempt to download the firmware files,
+administrator's password.
+
+   **On current macOS versions (Sequoia and later) the package will initially be
+   blocked**, because it is not signed with an Apple Developer ID nor notarized, and
+   macOS has removed the old right-click → Open bypass. Two ways to proceed:
+
+   * **Via System Settings**: after the "cannot be opened" dialog, open System Settings →
+     Privacy & Security, scroll down to the Security section, click **Open Anyway** next
+     to the message about the blocked package, and authenticate. Then the installer runs
+     normally.
+
+   * **Via Terminal**: files downloaded on the command line carry no quarantine flag, so
+     Gatekeeper does not intervene at all. Download and install in one go:
+
+     ```
+     curl -L -o /tmp/MIDISPORT.pkg https://downloads.sourceforge.net/project/midisport-macos/v1.3.3/MIDISPORTDriver-v1.3.3.pkg
+     sudo installer -pkg /tmp/MIDISPORT.pkg -target /
+     ```
+
+     (If you need the extra firmware extracted from the M-Audio v3.5.3 DMG — Oxygen 8,
+     Radium and similar — prefer the graphical installer, which looks for the DMG in the
+     Downloads folder of the user running it.)
+
+   Note that the installer will attempt to download the firmware files,
 so you need to be connected to the Internet. The installer should place:
 
 * The plugin into `/Library/Audio/MIDI Drivers/MIDISPORT.plugin`
