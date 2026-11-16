@@ -9,6 +9,7 @@
 #include "EZLoader.h"
 #include <iostream>
 #include <map>
+#include <unistd.h>
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0
@@ -153,6 +154,37 @@ IOReturn EZUSBLoader::DownloadFirmwareToRAM(IOUSBDeviceInterface **device,
     return status;
 }
 //
+// Downloads every firmware record using only the ANCHOR_LOAD_INTERNAL command
+// serviced by the EZ-USB ROM, in a single pass. Intended for later chip
+// revisions with enough on-chip RAM for the whole image, where no helper
+// loader implementing ANCHOR_LOAD_EXTERNAL is required.
+//
+IOReturn EZUSBLoader::DownloadFirmwareDirect(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> firmware)
+{
+    IOReturn status = kIOReturnSuccess;
+    UInt8 bmreqType = USBmakebmRequestType(kUSBOut, kUSBVendor, kUSBDevice);
+
+    for (std::vector<INTEL_HEX_RECORD>::iterator hexRecord = firmware.begin(); hexRecord != firmware.end() && hexRecord->Type == 0; ++hexRecord) {
+        IOUSBDevRequest loadRequest;
+
+#if DEBUG
+        std::cout << "Downloading " << std::dec << int(hexRecord->Length) <<
+                     " bytes directly to 0x" << std::hex << hexRecord->Address << std::endl;
+#endif
+        loadRequest.bmRequestType = bmreqType;
+        loadRequest.bRequest = ANCHOR_LOAD_INTERNAL;
+        loadRequest.wValue = hexRecord->Address;
+        loadRequest.wIndex = 0;
+        loadRequest.wLength = hexRecord->Length;
+        loadRequest.pData = (void *) hexRecord->Data;
+        status = (*device)->DeviceRequest(device, &loadRequest);
+        if (status != kIOReturnSuccess)
+            return status;
+    }
+    return status;
+}
+
+//
 //	This function downloads Intel Hex Records to the EZ-USB device.
 //	If any of the hex records are destined for external RAM, then
 //	the caller must have previously downloaded firmware to the device
@@ -190,11 +222,26 @@ bool EZUSBLoader::DownloadFirmware(IOUSBDeviceInterface **device, std::vector<IN
 // Initializes a given instance of the EZUSB Device on the USB
 // and downloads the application firmware.
 //
-bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
+bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware, bool directDownload)
 {
 #if DEBUG
     std::cout << "enter EZUSBLoader::StartDevice" << std::endl;
 #endif
+
+    if (directDownload) {
+        // Single pass through the ROM's own download command; no helper loader stage.
+        if (Reset8051(ezUSBDevice, 1) != kIOReturnSuccess)
+            return false;
+        usleep(50000);
+        if (DownloadFirmwareDirect(ezUSBDevice, applicationFirmware) != kIOReturnSuccess) {
+            std::cout << "Failed to directly download application firmware." << std::endl;
+            return false;
+        }
+        usleep(50000);
+        if (Reset8051(ezUSBDevice, 0) != kIOReturnSuccess)
+            return false;
+        return true;
+    }
 
     //-----	First download loader firmware.  The loader firmware 
     //		implements a vendor-specific command that will allow us 

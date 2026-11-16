@@ -98,6 +98,15 @@ bool HardwareConfiguration::deviceListFromDictionary(CFDictionaryRef deviceConfi
             deviceFirmware.numericPortNaming = CFBooleanGetValue((CFBooleanRef) numericPortNaming);
         }
     }
+    // Whether the firmware is downloaded in one pass via the ROM's built-in command,
+    // skipping the helper loader stage entirely (later chip revisions with larger on-chip RAM).
+    deviceFirmware.directDownload = false;
+    CFTypeRef directDownload;
+    if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("DirectDownload"), &directDownload)) {
+        if (CFGetTypeID(directDownload) == CFBooleanGetTypeID()) {
+            deviceFirmware.directDownload = CFBooleanGetValue((CFBooleanRef) directDownload);
+        }
+    }
     // The number of MIDI ports. Legacy parameter, nowadays we specify input and output ports individually.
     CFTypeRef numberOfPorts;
     if (CFDictionaryGetValueIfPresent((CFDictionaryRef) deviceConfig, CFSTR("NumberOfPorts"), &numberOfPorts)) {

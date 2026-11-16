@@ -40,6 +40,7 @@ class EZUSBLoader : public USBDeviceManager {
 protected:
     IOReturn Reset8051(IOUSBDeviceInterface **device, unsigned char resetBit);
     IOReturn DownloadFirmwareToRAM(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> firmware, bool internalRAM);
+    IOReturn DownloadFirmwareDirect(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> firmware);
     bool DownloadFirmware(IOUSBDeviceInterface **device, std::vector<INTEL_HEX_RECORD> hexRecord);
 
     // instance variables
@@ -73,7 +74,7 @@ public:
                         UInt8 interfaceNumber,
                         UInt8 altSetting);
     bool FindVendorsProduct(UInt16 vendorID, UInt16 coldBootProductID, bool leaveOpenWhenFound);
-    bool StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware);
+    bool StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware, bool directDownload = false);
     //
     // Sets the application firmware to be downloaded next.
     //
