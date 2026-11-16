@@ -9,6 +9,7 @@
 #include "EZLoader.h"
 #include <iostream>
 #include <map>
+#include <unistd.h>
 
 // 0 is the standard USB interface which we need to download to/on.
 #define kTheInterfaceToUse	0
@@ -182,6 +183,7 @@ bool EZUSBLoader::DownloadFirmware(IOUSBDeviceInterface **device, std::vector<IN
     // Now download all of the records that are in internal RAM.
     // Before starting the download, stop the 8051.
     Reset8051(device, 1);
+    usleep(50000); // the 8051 must be fully held in reset before internal RAM writes
     status = EZUSBLoader::DownloadFirmwareToRAM(device, firmware, true);
     return status == kIOReturnSuccess;
 }
@@ -212,6 +214,11 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
     }
     if (Reset8051(ezUSBDevice, 0) != kIOReturnSuccess)
         return false;
+
+    // The loader firmware only begins servicing ANCHOR_LOAD_EXTERNAL requests
+    // once the 8051 has booted it; downloading immediately after releasing
+    // reset races that boot.
+    usleep(250000);
     
     //-----	Now download the device firmware.  //
 #if DEBUG
@@ -223,6 +230,7 @@ bool EZUSBLoader::StartDevice(std::vector<INTEL_HEX_RECORD> applicationFirmware)
     }
     if (Reset8051(ezUSBDevice, 1) != kIOReturnSuccess)
         return false;
+    usleep(50000);
     if (Reset8051(ezUSBDevice, 0) != kIOReturnSuccess)
         return false;
 #if DEBUG
